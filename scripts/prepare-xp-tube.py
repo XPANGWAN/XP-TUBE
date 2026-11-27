@@ -50,9 +50,14 @@ FILES = {
     ],
     "scripts/make-ps4-art.py": [
         ("Playtube", "XP-TUBE", 7),
+        ("RED = (0xFF, 0x00, 0x33)", "RED = (0xB8, 0xC0, 0xCC)"),
+        ("WHITE = (0xFF, 0xFF, 0xFF)", "WHITE = (0x8E, 0x4E, 0xC6)"),
+        ('icon = Image.new("RGB", (512, 512), WHITE)', 'icon = Image.new("RGB", (512, 512), BACKGROUND)'),
+        ("draw_name(icon, (512 - name_width(font(size), size)) / 2, 452, size, INK)", "draw_name(icon, (512 - name_width(font(size), size)) / 2, 452, size, LIGHT_TEXT)"),
     ],
 
     "src/app/settings.hpp": [
+        ('std::string accent = "white";', 'std::string accent = "violet";'),
         ('std::string logo = "playtube";', 'std::string logo = "xp-tube";'),
         ('// the header\'s logo: "playtube", or "youtube" (fetched from YouTube)', '// the header\'s logo: "xp-tube", or "youtube" (fetched from YouTube)'),
     ],
@@ -64,6 +69,8 @@ FILES = {
     "src/ui/theme.hpp": [
         ("// Design tokens of the Playtube identity (Playfin's look in YouTube red; one look, no theme setting): widgets read these, never\n// hard-coded values.", "// XP-TUBE design tokens: a dark neutral base with a user-selectable accent; widgets read these, never hard-coded values."),
         ('std::string id = "projecteur";  // the look (Playtube has one); derived pictures are kept per look', 'std::string id = "xp-tube";  // derived pictures are cached separately for XP-TUBE'),
+        ('Color accent{0xFF, 0xFF, 0xFF, 0xFF};  // the accent setting (white by default)', 'Color accent{0x8E, 0x4E, 0xC6, 0xFF};  // XP-TUBE violet default; user accent choices remain available'),
+        ('Color onAccent{0x0A, 0x0A, 0x0C, 0xFF};', 'Color onAccent{0xFF, 0xFF, 0xFF, 0xFF};'),
     ],
     "src/app/shell/chrome.hpp": [
         ('// "Playtube." with the dot in the accent colour; the picture given to setLogoPicture instead while there is one\n// (the YouTube logo, when the user chose it in the settings). Every logo shown changes at once.', "// XP-TUBE wordmark with its accent-coloured mark; the optional YouTube logo is shown only when selected in settings."),
