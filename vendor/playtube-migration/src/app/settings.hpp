@@ -30,7 +30,7 @@ struct Settings {
     bool dearrow = false;                 // DeArrow's titles and thumbnails on cards (it gets each video's id)
     bool shorts = true;                   // Shorts on the home, channels, feeds and suggestions (search keeps them)
     bool watchHistory = true;             // signed in: videos watched go into the account's YouTube history
-    std::string logo = "xp-tube";        // the header's logo: "playtube", or "youtube" (fetched from YouTube)
+    std::string logo = "xp-tube";        // XP-TUBE wordmark; legacy YouTube image selection is disabled
 };
 
 // The player's scale of a subtitle size (1 for an unknown one).
