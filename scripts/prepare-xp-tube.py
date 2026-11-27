@@ -387,7 +387,7 @@ session_body = session_path.read_text(encoding="utf-8")
 start = session_body.find("void AppSession::applyLogo() {")
 if start < 0:
     raise SystemExit("src/app/shell/session.cpp: legacy applyLogo function not found")
-end = session_body.find("\\n}  // namespace playtube::app", start)
+end = session_body.find("\n}  // namespace playtube::app", start)
 if end < 0:
     raise SystemExit("src/app/shell/session.cpp: applyLogo function boundary not found")
 session_path.write_text(session_body[:start] + session_body[end+1:], encoding="utf-8")
