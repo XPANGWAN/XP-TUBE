@@ -12,6 +12,7 @@ has applied the XP-TUBE patch and before the PS4 package is built.
 - The runtime log is named `xp-tube.log` under `/data/XP-TUBE`; the earliest boot trace derives its directory from `appFolder()` and writes `/data/XP-TUBE/boot.txt` with XP-TUBE-labelled messages.
 - The header wordmark is a distinct accent-coloured `XP` mark plus a separate `TUBE` label with deliberate spacing; CI checks the mark, label, and spacing.
 - The player progress track and head follow the selected XP-TUBE accent instead of retaining a hard-coded YouTube-red colour.
+- CI also guards the tested core experience: home/search/subscriptions/library navigation, search suggestions/filters/pagination and pasted links, channel identity/tabs/subscription actions, library history/watch-later/playlists, automatic video pagination, controller playback controls, and accent-driven card focus styling.
 - Every shipped translation JSON file is parsed during CI and checked for leftover visible `Playtube` branding; upstream legal notices and attribution outside translations are not rewritten by this check.
 
 ## Important boundary
