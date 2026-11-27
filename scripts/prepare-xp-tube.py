@@ -19,15 +19,6 @@ FILES = {
         ('set(title_id "PLTB00000")', 'set(title_id "XPTB00000")'),
         ('set(title "Playtube")', 'set(title "XP-TUBE")'),
     ],
-    "src/app/update.hpp": [
-        ('https://api.github.com/repos/LowganDev/PlaytubePS4/releases/latest',
-         'https://api.github.com/repos/XPANGWAN/XP-TUBE/releases/latest'),
-    ],
-    "src/app/update.cpp": [
-        ('"Playtube-" + safe + ".pkg"', '"XP-TUBE-" + safe + ".pkg"'),
-        ('std::string("Playtube/")', 'std::string("XP-TUBE/")', 2),
-        ('const std::string prefix = "Playtube-";', 'const std::string prefix = "XP-TUBE-";'),
-    ],
     "scripts/build-ps4.sh": [
         ('"$ROOT"/build/ps4/pkg/IV0001-PLTB*.pkg', '"$ROOT"/build/ps4/pkg/IV0001-XPTB*.pkg'),
         ('IV0001-PLTB00000_00-PLTB000000100000.pkg', 'IV0001-XPTB00000_00-XPTB000000100000.pkg'),
@@ -389,9 +380,6 @@ TEST_PATCHES = {
     ],
     "tests/unit/theme_test.cpp": [
         ('playtube::app::Settings{}.accent == "white"', 'playtube::app::Settings{}.accent == "violet"'),
-    ],
-    "tests/unit/update_test.cpp": [
-        ('Playtube-', 'XP-TUBE-', 15),
     ],
     "tests/unit/version_test.cpp": [
         ('"PLTB00000"', '"XPTB00000"'),
