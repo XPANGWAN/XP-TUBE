@@ -246,32 +246,15 @@ TEST_CASE("the screensaver: the time, large, and the date on black; it moves eve
     CHECK_FALSE(app::Screensaver::shown());
 }
 
-TEST_CASE("logo: chosen in the settings, the YouTube logo is fetched and shown in the header; back to Playtube's") {
+TEST_CASE("XP-TUBE keeps its own wordmark and never fetches a replacement logo") {
     SettingsShell s;
+    CHECK(shows(*s.shell.application, "XP"));
+    CHECK(shows(*s.shell.application, "TUBE"));
+    CHECK_FALSE(shows(*s.shell.application, "Logo"));
+    CHECK(s.shell.session.settings().logo == "xp-tube");
     s.shell.session.youtubeLogoUrl = s.shell.youtube.baseUrl() + "/logo.svg";
-    CHECK(shows(*s.shell.application, "Playtube"));
-    CHECK_FALSE(app::logoPictureShown());
-    pressAnywhere(s.shell, "Logo");
-    s.shell.frames(3);
-    CHECK(s.shell.session.settings().logo == "youtube");
-    CHECK(app::loadSettings(s.shell.dir.path + "/settings.json").logo == "youtube");
-    CHECK(s.shell.youtube.requestsTo("/logo.svg").size() == 1);
-    CHECK(app::logoPictureShown());
-    pressAnywhere(s.shell, "Logo");
+    s.shell.session.applyLogo();
     s.shell.frames(3);
     CHECK_FALSE(app::logoPictureShown());
-    CHECK(s.shell.session.settings().logo == "playtube");
-}
-
-TEST_CASE("logo: nothing fetched while Playtube's is chosen; a file it cannot draw keeps Playtube's") {
-    Shell shell;
-    shell.session.youtubeLogoUrl = shell.youtube.baseUrl() + "/logo.svg";
-    shell.session.applyLogo();
-    CHECK(shell.youtube.requestsTo("/logo.svg").empty());
-    shell.session.settings().logo = "youtube";
-    shell.session.youtubeLogoUrl = shell.youtube.baseUrl() + "/github/latest";  // not an SVG
-    shell.session.applyLogo();
-    CHECK_FALSE(app::logoPictureShown());
-    shell.session.settings().logo = "playtube";
-    shell.session.applyLogo();
+    CHECK(s.shell.youtube.requestsTo("/logo.svg").empty());
 }
