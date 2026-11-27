@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - research/playtube-baseline
+      - feature/xp-tube-independence
     paths:
       - .github/workflows/xp-tube-build.yml
       - scripts/prepare-xp-tube.py
+      - scripts/audit-xp-tube.py
       - docs/**
       - README.md
   workflow_dispatch:
@@ -44,6 +46,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/prepare-xp-tube.py
+          python3 scripts/audit-xp-tube.py
           python3 upstream/scripts/make-ps4-art.py
           cd upstream
           git diff --check
