@@ -1,9 +1,10 @@
 # XP-TUBE native core
 
 This directory contains XP-owned C++ foundations. The migrated application's
-file operations, path validation, directory creation, and diagnostic secret
-redaction, and log sink management now delegate to XP-native components through compatibility adapters.
-The remaining application services are still being migrated in stages.
+file operations, path validation, directory creation, diagnostic secret
+redaction, log sink management, text normalization, and URL parsing/encoding
+now delegate to XP-native components through compatibility adapters. The
+remaining application services are still being migrated in stages.
 
 ## Current components
 
@@ -20,11 +21,12 @@ The remaining application services are still being migrated in stages.
   strings before they reach log sinks. Its matching rules were adapted from
   the GPL-3.0-licensed migration reference; see `docs/SOURCE-PROVENANCE.md`.
 - `Logger`: thread-safe log-level filtering, timestamped output, stderr and
-  file sinks, bounded rotation, and redaction before writing. The legacy
-  printf-style API remains as a formatting/boot-trace compatibility adapter.
+  file sinks, bounded rotation, and redaction before writing.
 - `ascii_lower` and `trim_ascii`: locale-independent ASCII normalization and
-  boundary trimming. The legacy string helpers delegate to these functions;
-  bytes outside ASCII A-Z and the four documented whitespace bytes are kept.
+  boundary trimming.
+- `xp::core::url`: strict HTTP(S) server URL parsing, origin/string formatting,
+  RFC 3986 percent encoding, and query construction. Encoding treats only
+  ASCII unreserved bytes as literal, independent of the process locale.
 
 ## Filesystem security boundary
 
