@@ -312,6 +312,17 @@ FILES.update({
     ],
 })
 
+
+
+# Carry the XP-TUBE identity into the idle screen without adding animation or extra load.
+FILES["src/app/shell/screensaver.cpp"].append((
+    '''    column_->gap = ui::theme().spacingS;
+    time_ = column_->add<ui::Label>("", ui::FontStyle{ui::theme().fontDisplay * 1.6f, ui::FontWeight::SemiBold});''',
+    '''    column_->gap = ui::theme().spacingS;
+    auto* brand = column_->add<ui::Label>("XP-TUBE", ui::FontStyle{ui::theme().fontSmall, ui::FontWeight::Bold});
+    brand->color = ui::Color{0x9A, 0x9A, 0xA4, 255};
+    time_ = column_->add<ui::Label>("", ui::FontStyle{ui::theme().fontDisplay * 1.6f, ui::FontWeight::SemiBold});'''))
+
 def replace_file(rel, replacements):
     path = ROOT / rel
     body = path.read_text(encoding="utf-8")
