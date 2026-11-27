@@ -201,7 +201,7 @@ FILES.update({
         intro->gap = ui::theme().spacingS;
         auto* brand = intro->add<ui::Label>("XP-TUBE", ui::FontStyle{ui::theme().fontSmall, ui::FontWeight::Bold});
         brand->color = ui::theme().accent;
-        auto* heading = intro->add<ui::Label>(ui::tr("shell.tab.settings"), ui::FontStyle{ui::theme().fontTitle, ui::FontWeight::Bold});
+        auto* heading = intro->add<ui::Label>(ui::tr("settings.display"), ui::FontStyle{ui::theme().fontTitle, ui::FontWeight::Bold});
         heading->color = ui::theme().text;
         banner_ = column->add<UpdateBanner>'''),
     ],
