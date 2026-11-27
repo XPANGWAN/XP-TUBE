@@ -247,6 +247,38 @@ FILES.update({
     ],
 })
 
+
+
+# Give the other feed-based tabs their own concise, localized section heading.
+FILES["src/app/shell/row_screens.cpp"].extend([
+    ('// A tab of titled rows of videos, each fetched on its own and shown when it arrives; the reason and "Réessayer"\n// when none came.',
+     '''class SectionShowcase : public ui::Box {
+public:
+    explicit SectionShowcase(const std::string& heading) : ui::Box(ui::Axis::Column) {
+        width = ui::SizeSpec::fill();
+        padding = {ui::theme().spacingL, ui::theme().spacingXl, ui::theme().spacingL, ui::theme().spacingXl};
+        background = ui::theme().surface;
+        cornerRadius = ui::theme().radius * 1.35f;
+        gap = ui::theme().spacingS;
+        auto* brand = add<ui::Label>("XP-TUBE", ui::FontStyle{ui::theme().fontSmall, ui::FontWeight::Bold});
+        brand->color = ui::theme().accent;
+        auto* title = add<ui::Label>(heading, ui::FontStyle{ui::theme().fontTitle, ui::FontWeight::Bold});
+        title->color = ui::theme().text;
+    }
+};
+
+// A tab of titled rows of videos, each fetched on its own and shown when it arrives; the reason and "Réessayer"
+// when none came.'''),
+    ('        if (tab == Tab::Home) {\n            column_->add<HomeShowcase>(session_);\n        }',
+     '''        if (tab == Tab::Home) {
+            column_->add<HomeShowcase>(session_);
+        } else if (tab == Tab::Subscriptions) {
+            column_->add<SectionShowcase>(ui::tr("shell.tab.subscriptions"));
+        } else if (tab == Tab::Library) {
+            column_->add<SectionShowcase>(ui::tr("shell.tab.library"));
+        }'''),
+])
+
 def replace_file(rel, replacements):
     path = ROOT / rel
     body = path.read_text(encoding="utf-8")
