@@ -36,8 +36,8 @@ FILES = {
         ('add<ui::Label>("Playtube", style);', 'gap = ui::theme().spacingS / 2;\n        add<AccentLabel>("XP", style);\n        add<ui::Label>("TUBE", style);'),
     ],
     "src/app/shell/row_screens.cpp": [
-        ('#include <memory>', '#include <memory>\\n#include <nanovg.h>'),
-        ('// A tab of titled rows of videos, each fetched on its own and shown when it arrives; the reason and "Réessayer"\\n// when none came.\\nclass RowsScreen : public ShellScreen {',
+        ('#include <memory>', '#include <memory>\n#include <nanovg.h>'),
+        ('// A tab of titled rows of videos, each fetched on its own and shown when it arrives; the reason and "Réessayer"\n// when none came.\nclass RowsScreen : public ShellScreen {',
          '''// XP-TUBE's home showcase: a cinematic introduction above the live YouTube feed.
 class HomeShowcase : public ui::Box {
 public:
@@ -78,16 +78,16 @@ public:
 // A tab of titled rows of videos, each fetched on its own and shown when it arrives; the reason and "Réessayer"
 // when none came.
 class RowsScreen : public ShellScreen {'''),
-        ('        setStart(bar->currentTab());\\n        rows_ = column_->add<ui::Box>(ui::Axis::Column);',
-         '        setStart(bar->currentTab());\\n        if (tab == Tab::Home) {\\n            column_->add<HomeShowcase>(session_);\\n        }\\n        rows_ = column_->add<ui::Box>(ui::Axis::Column);'),
+        ('        setStart(bar->currentTab());\n        rows_ = column_->add<ui::Box>(ui::Axis::Column);',
+         '        setStart(bar->currentTab());\n        if (tab == Tab::Home) {\n            column_->add<HomeShowcase>(session_);\n        }\n        rows_ = column_->add<ui::Box>(ui::Axis::Column);'),
     ],
     "src/app/shell/nav_bar.cpp": [
-        ('NavBar::NavBar(AppSession& session, Tab current) : ui::Box(ui::Axis::Row) {\\n    width = ui::SizeSpec::fill();',
-         'NavBar::NavBar(AppSession& session, Tab current) : ui::Box(ui::Axis::Row) {\\n    width = ui::SizeSpec::fill();\\n    padding = {ui::theme().spacingS, ui::theme().spacingL, ui::theme().spacingS, ui::theme().spacingL};\\n    background = ui::theme().surface;\\n    cornerRadius = ui::theme().radius * 1.35f;'),
+        ('NavBar::NavBar(AppSession& session, Tab current) : ui::Box(ui::Axis::Row) {\n    width = ui::SizeSpec::fill();',
+         'NavBar::NavBar(AppSession& session, Tab current) : ui::Box(ui::Axis::Row) {\n    width = ui::SizeSpec::fill();\n    padding = {ui::theme().spacingS, ui::theme().spacingL, ui::theme().spacingS, ui::theme().spacingL};\n    background = ui::theme().surface;\n    cornerRadius = ui::theme().radius * 1.35f;'),
     ],
     "src/app/shell/cards.cpp": [
-        ('constexpr float kImageWidth = 400;\\nconstexpr float kImageHeight = 225;\\nconstexpr float kTitleHeight = 64;  // two lines\\nconstexpr float kGlowFeather = 50;',
-         'constexpr float kImageWidth = 360;\\nconstexpr float kImageHeight = 203;\\nconstexpr float kTitleHeight = 58;  // two lines\\nconstexpr float kGlowFeather = 36;'),
+        ('constexpr float kImageWidth = 400;\nconstexpr float kImageHeight = 225;\nconstexpr float kTitleHeight = 64;  // two lines\nconstexpr float kGlowFeather = 50;',
+         'constexpr float kImageWidth = 360;\nconstexpr float kImageHeight = 203;\nconstexpr float kTitleHeight = 58;  // two lines\nconstexpr float kGlowFeather = 36;'),
     ],
     "src/app/shell/player_screen.cpp": [
         ('if (!streams.ok()) {\n            PF_LOG_WARN("player: %s: %s", videoId_.c_str(), streams.error().message.c_str());',
