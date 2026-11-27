@@ -3,3 +3,4 @@ project(XPTubeNative LANGUAGES CXX)
 
 include(CTest)
 add_subdirectory(core)
+add_subdirectory(net)
