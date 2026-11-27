@@ -1,0 +1,78 @@
+name: XP-TUBE isolated PS4 build
+
+on:
+  push:
+    branches:
+      - research/playtube-baseline
+    paths:
+      - .github/workflows/xp-tube-build.yml
+      - scripts/prepare-xp-tube.py
+      - docs/**
+      - README.md
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: xp-tube-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-xp-tube:
+    name: Build isolated XP-TUBE PS4 package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 100
+    steps:
+      - name: Check out XP-TUBE build scripts
+        uses: actions/checkout@v4
+
+      - name: Fetch pinned upstream source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone https://github.com/LowganDev/PlaytubePS4.git upstream
+          git -C upstream checkout 7372c068704f568bf04e1f8b41a04a2149b2e048
+          test "$(git -C upstream rev-parse HEAD)" = "7372c068704f568bf04e1f8b41a04a2149b2e048"
+          git -C upstream status --short
+
+      - name: Apply XP-TUBE identity and account-isolation patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/prepare-xp-tube.py
+          cd upstream
+          git diff --check
+          grep -q 'XPTB00000' src/core/version.cpp
+          ! grep -q 'session.importPrevious("/data/Playtube/config.json")' src/app/app.cpp
+          ! grep -q 'PLTB00000\|PLTB00001\|/data/Playtube' cmake/ps4_pkg.cmake src/core/version.cpp src/app/app.cpp
+          {
+            echo "XP-TUBE source baseline"
+            echo "Upstream commit: $(git rev-parse HEAD)"
+            echo "XP-TUBE package ID: XPTB00000"
+            echo "Data directory: /data/XP-TUBE"
+            echo "Legacy Playtube migration: disabled"
+          } | tee ../xp-tube-build-manifest.txt
+
+      - name: Build XP-TUBE PS4 package
+        working-directory: upstream
+        env:
+          PLAYTUBE_DEV: "0"
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x scripts/build-ps4.sh
+          ./scripts/build-ps4.sh
+          test -n "$(find dist -maxdepth 1 -type f -name 'IV0001-XPTB00000_00-XPTB000000100000.pkg' -print -quit)"
+          sha256sum dist/*.pkg | tee ../xp-tube-package-sha256.txt
+
+      - name: Upload XP-TUBE package and build evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: xp-tube-ps4-test
+          path: |
+            upstream/dist/IV0001-XPTB00000_00-XPTB000000100000.pkg
+            xp-tube-build-manifest.txt
+            xp-tube-package-sha256.txt
+          if-no-files-found: error
+          retention-days: 30
