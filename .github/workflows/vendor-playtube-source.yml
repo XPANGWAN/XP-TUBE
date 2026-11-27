@@ -60,6 +60,19 @@ jobs:
           test -s "$PREFIX/CMakeLists.txt"
           test -s "$PREFIX/cmake/ps4_pkg.cmake"
 
+          # Produce a deterministic inventory and content hashes for every
+          # imported file. This is evidence for the later rewrite audit.
+          mkdir -p docs
+          (
+            cd "$PREFIX"
+            find . -type f -not -path './.git/*' -print0 |
+              sort -z |
+              xargs -0 sha256sum
+          ) > docs/SOURCE-FILE-CHECKSUMS.txt
+          test -s docs/SOURCE-FILE-CHECKSUMS.txt
+          FILE_COUNT="$(wc -l < docs/SOURCE-FILE-CHECKSUMS.txt | tr -d ' ')"
+          test "$FILE_COUNT" -gt 0
+
           cat > docs/SOURCE-PROVENANCE.md <<EOF
           # Source provenance and migration boundary
 
@@ -71,6 +84,8 @@ jobs:
           - License at imported revision: GNU General Public License v3.0
           - Import method: Git subtree with upstream commit ancestry preserved.
           - Import date: $(date -u +%Y-%m-%d)
+          - Imported regular files: $FILE_COUNT
+          - SHA-256 inventory: `docs/SOURCE-FILE-CHECKSUMS.txt`
 
           The directory $PREFIX/ is a temporary migration reference. It is
           not an XP-TUBE-authored implementation and must not be presented as
@@ -88,6 +103,6 @@ jobs:
              that removal is appropriate.
           EOF
 
-          git add docs/SOURCE-PROVENANCE.md
-          git commit -m "build: vendor pinned migration source with provenance"
+          git add docs/SOURCE-PROVENANCE.md docs/SOURCE-FILE-CHECKSUMS.txt
+          git commit -m "build: vendor pinned migration source with provenance and checksums"
           git push origin HEAD:main
