@@ -62,6 +62,15 @@ TEST_CASE("missing settings give the defaults") {
     CHECK(settings.accent == "white");
     CHECK(settings.language.empty());
     CHECK(settings.recentSearches.empty());
+    CHECK(settings.logo == "xp-tube");
+}
+
+TEST_CASE("legacy logo preferences cannot replace the XP-TUBE wordmark") {
+    TempDir dir;
+    const std::string path = dir.path + "/settings.json";
+    REQUIRE(core::writeFileAtomic(path, R"({"logo":"youtube"})"));
+    const app::Settings loaded = app::loadSettings(path);
+    CHECK(loaded.logo == "xp-tube");
 }
 
 TEST_CASE("damaged settings are kept aside and the defaults used") {
