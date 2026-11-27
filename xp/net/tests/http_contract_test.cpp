@@ -59,6 +59,12 @@ int main() {
     shared.cancel();
     assert(first.cancelled());
 
+    bool externalCancelled = false;
+    xp::net::CancelToken bridged([&externalCancelled] { return externalCancelled; });
+    assert(!bridged.cancelled());
+    externalCancelled = true;
+    assert(bridged.cancelled());
+
     xp::net::HttpRequest request;
     assert(request.method == "GET");
     assert(request.timeout_ms == 30000);

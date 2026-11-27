@@ -16,11 +16,17 @@ namespace xp::net {
 class CancelToken {
 public:
     CancelToken() : state_(std::make_shared<std::atomic<bool>>(false)) {}
+    explicit CancelToken(std::function<bool()> externalCancelled)
+        : state_(std::make_shared<std::atomic<bool>>(false)),
+          externalCancelled_(std::move(externalCancelled)) {}
     void cancel() const noexcept { state_->store(true); }
-    bool cancelled() const noexcept { return state_->load(); }
+    bool cancelled() const noexcept {
+        return state_->load() || (externalCancelled_ && externalCancelled_());
+    }
 
 private:
     std::shared_ptr<std::atomic<bool>> state_;
+    std::function<bool()> externalCancelled_;
 };
 
 struct PeerCertificate {

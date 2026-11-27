@@ -138,7 +138,8 @@ core::Result<std::string> AppSession::fetchImage(const std::string& url, const c
     xp::net::HttpRequest request;
     request.url = url;
     request.max_body_bytes = kMaxImageBytes;
-    auto response = xpHttp_.send(request, token);
+    xp::net::CancelToken xpCancel([token] { return token.cancelled(); });
+    auto response = xpHttp_.send(request, xpCancel);
     if (!response.has_value()) {
         core::ErrorKind kind = core::ErrorKind::Network;
         switch (response.error().code) {
