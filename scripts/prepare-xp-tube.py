@@ -150,8 +150,7 @@ TEST_PATCHES = {
         ('playtube::app::Settings{}.accent == "white"', 'playtube::app::Settings{}.accent == "violet"'),
     ],
     "tests/unit/update_test.cpp": [
-        ('Playtube-<version>.pkg', 'XP-TUBE-<version>.pkg'),
-        ('"Playtube-', '"XP-TUBE-', 7),
+        ('Playtube-', 'XP-TUBE-', 15),
     ],
     "tests/unit/version_test.cpp": [
         ('"PLTB00000"', '"XPTB00000"'),
