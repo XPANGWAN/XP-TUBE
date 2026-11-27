@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
-"""Apply the small, auditable XP-TUBE identity patch to a pinned Playtube checkout.
-
-The upstream checkout is cloned at an exact commit by CI. Every replacement is
-counted and fails closed if upstream source no longer matches the reviewed baseline.
-"""
+"""Apply a small, auditable XP-TUBE identity patch to a pinned Playtube checkout."""
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[1] / "upstream"
 FILES = {
     "src/core/version.cpp": [
         ('return "Playtube Dev";', 'return "XP-TUBE";'),
@@ -38,30 +34,28 @@ FILES = {
 }
 for rel, replacements in FILES.items():
     path = ROOT / rel
-    text = path.read_text(encoding="utf-8")
+    body = path.read_text(encoding="utf-8")
     for old, new in replacements:
-        count = text.count(old)
+        count = body.count(old)
         if count != 1:
             raise SystemExit(f"{rel}: expected exactly one occurrence of {old!r}, found {count}")
-        text = text.replace(old, new)
-    path.write_text(text, encoding="utf-8")
+        body = body.replace(old, new)
+    path.write_text(body, encoding="utf-8")
 
 app = ROOT / "src/app/app.cpp"
-text = app.read_text(encoding="utf-8")
+body = app.read_text(encoding="utf-8")
 old = '''#ifdef PLAYTUBE_PS4
         if (onlyProfile(consoleUser)) {
             session.importPrevious("/data/Playtube/config.json");  // the previous Playtube's settings, only read
         }
 #endif
 '''
-if text.count(old) != 1:
+if body.count(old) != 1:
     raise SystemExit("src/app/app.cpp: expected the single legacy Playtube migration block")
-app.write_text(text.replace(old, "        // XP-TUBE: never read, import, or copy Playtube's settings or account tokens.\n"), encoding="utf-8")
+app.write_text(body.replace(old, "        // XP-TUBE: never read, import, or copy Playtube's settings or account tokens.\n"), encoding="utf-8")
 
-# Assert that the generated runtime source and package recipe have no old
-# release/development identifiers or legacy data migration path.
 checks = [
-    ("src/core/version.cpp", ["PLTB00000", "PLTB00001", "PlaytubeDev", "return \"Playtube\";"]),
+    ("src/core/version.cpp", ["PLTB00000", "PLTB00001", "PlaytubeDev", 'return "Playtube";']),
     ("cmake/ps4_pkg.cmake", ["PLTB00000", "PLTB00001"]),
     ("src/app/app.cpp", ["/data/Playtube/config.json", "session.importPrevious("]),
     ("src/app/update.hpp", ["LowganDev/PlaytubePS4/releases"]),
@@ -74,4 +68,4 @@ for rel, forbidden in checks:
         if value in body:
             raise SystemExit(f"{rel}: forbidden legacy identity remains: {value}")
 
-print("XP-TUBE identity patch applied; legacy app identity and first-run account migration checks passed.")
+print("XP-TUBE identity patch applied; legacy IDs, update endpoint, package prefix and account migration checks passed.")
