@@ -174,6 +174,17 @@ for rel, replacements in TEST_PATCHES.items():
         body = body.replace(before, after)
     path.write_text(body, encoding="utf-8")
 
+# With migration intentionally disabled, the in-memory search term is not persisted
+# by this test fixture; on a fresh session there must be no imported legacy history.
+rel = "tests/unit/youtube_session_test.cpp"
+path = ROOT / rel
+body = path.read_text(encoding="utf-8")
+old = 'CHECK(again.settings().recentSearches == std::vector<std::string>{"mine"});'
+new = 'CHECK(again.settings().recentSearches.empty());'
+if body.count(old) != 1:
+    raise SystemExit(f"{rel}: expected one fresh-session no-import assertion, found {body.count(old)}")
+path.write_text(body.replace(old, new), encoding="utf-8")
+
 
 # The old migration block is removed entirely: no Playtube settings or tokens are read.
 app = ROOT / "src/app/app.cpp"
