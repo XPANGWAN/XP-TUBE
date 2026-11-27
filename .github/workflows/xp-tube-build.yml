@@ -3,8 +3,7 @@ name: XP-TUBE isolated PS4 build
 on:
   push:
     branches:
-      - research/playtube-baseline
-      - feature/xp-tube-independence
+      - main
     paths:
       - .github/workflows/xp-tube-build.yml
       - scripts/prepare-xp-tube.py
@@ -29,7 +28,7 @@ jobs:
       - name: Check out XP-TUBE build scripts
         uses: actions/checkout@v4
 
-      - name: Fetch pinned upstream source
+      - name: Fetch pinned upstream source (temporary migration stage)
         shell: bash
         run: |
           set -euo pipefail
@@ -42,8 +41,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # The hosted runner's optional Microsoft feed can intermittently return 403;
-          # it is not needed for this build, so disable only that feed before apt update.
           sudo find /etc/apt/sources.list.d -maxdepth 1 -type f -iname '*microsoft*' -delete
           sudo apt-get update
           sudo apt-get install -y python3-pil
@@ -68,6 +65,7 @@ jobs:
             echo "XP-TUBE package ID: XPTB00000"
             echo "Data directory: /data/XP-TUBE"
             echo "Legacy Playtube migration: disabled"
+            echo "Build dependency: pinned upstream source is still temporary and must be removed for full independence"
           } | tee ../xp-tube-build-manifest.txt
 
       - name: Build XP-TUBE PS4 package
