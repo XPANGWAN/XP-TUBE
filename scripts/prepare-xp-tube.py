@@ -137,6 +137,7 @@ class RowsScreen : public ShellScreen {'''),
     ],
     "src/app/settings.hpp": [
         ('std::string accent = "white";', 'std::string accent = "violet";'),
+        ('// the header\'s logo: "playtube", or "youtube" (fetched from YouTube)', '// XP-TUBE wordmark; legacy YouTube image selection is disabled'),
     ],
     "src/app/shell/settings_screen.cpp": [
         ('// The banner at the top of the settings while a newer Playtube is published:', '// The banner at the top of the settings while a newer XP-TUBE release is published:'),
