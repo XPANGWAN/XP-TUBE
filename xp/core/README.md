@@ -1,8 +1,9 @@
 # XP-TUBE native core
 
-This directory contains XP-owned C++ foundations. It is currently built and
-tested as a standalone CMake subproject; it is **not yet linked into the PS4
-application runtime**.
+This directory contains XP-owned C++ foundations. The storage implementation
+is now linked into the migrated application's PS4 and host builds through a
+small compatibility adapter. Other native-core APIs remain independently
+testable and are not yet used throughout the application.
 
 ## Current components
 
