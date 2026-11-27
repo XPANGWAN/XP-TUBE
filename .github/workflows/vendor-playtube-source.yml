@@ -32,6 +32,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # Configure identity before git subtree creates its merge commit.
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           UPSTREAM_URL="https://github.com/LowganDev/PlaytubePS4.git"
           UPSTREAM_SHA="7372c068704f568bf04e1f8b41a04a2149b2e048"
           PREFIX="vendor/playtube-migration"
@@ -101,8 +105,6 @@ jobs:
              removal is appropriate.
           EOF
 
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/SOURCE-PROVENANCE.md docs/SOURCE-FILE-CHECKSUMS.txt
           git commit -m "build: vendor pinned migration source with provenance and checksums"
           git push origin HEAD:main
