@@ -314,7 +314,7 @@ FILES["src/app/shell/player_settings.cpp"] = [
      "card->cornerRadius = ui::theme().radius * 1.5f;"),
     ("    title->width = ui::SizeSpec::fill();",
      "    title->width = ui::SizeSpec::fill();\n    title->color = ui::theme().accent;"),
-])
+]
 
 # Refine playback side-panels with the same rounded, theme-aware surface treatment.
 FILES.update({
