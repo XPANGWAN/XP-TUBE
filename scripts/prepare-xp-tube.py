@@ -201,7 +201,7 @@ FILES.update({
         platform::TextInputRequest request;'''),
     ],
     "src/app/shell/settings_screen.cpp": [
-        ('return logo == "youtube" ? "YouTube" : "Playtube";', 'return logo == "youtube" ? "YouTube" : "XP-TUBE";'),
+        ('static std::string logoName(const std::string& logo) { return logo == "youtube" ? "YouTube" : "Playtube"; }', 'return logo == "youtube" ? "YouTube" : "XP-TUBE";'),
         ('settings.logo == "youtube" ? "playtube" : "youtube"', 'settings.logo == "youtube" ? "xp-tube" : "youtube"'),
         ('// The banner at the top of the settings while a newer Playtube is published:', '// The banner at the top of the settings while a newer XP-TUBE release is published:'),
         ('        column->add<NavBar>(session_, Tab::Settings);\n        banner_ = column->add<UpdateBanner>',
@@ -366,7 +366,7 @@ FILES["src/app/shell/cards.cpp"].extend([
 
 # Keep settings' logo toggle and visible label on the XP-TUBE identity after all screen-level overrides.
 FILES["src/app/shell/settings_screen.cpp"].extend([
-    ('return logo == "youtube" ? "YouTube" : "Playtube";',
+    ('static std::string logoName(const std::string& logo) { return logo == "youtube" ? "YouTube" : "Playtube"; }',
      'return logo == "youtube" ? "YouTube" : "XP-TUBE";'),
     ('settings.logo == "youtube" ? "playtube" : "youtube"',
      'settings.logo == "youtube" ? "xp-tube" : "youtube"'),
