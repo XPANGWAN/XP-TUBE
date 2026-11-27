@@ -101,4 +101,12 @@ require("src/app/shell/player_screen.cpp", r"bind\(platform::Action::Left", "pla
 require("src/app/shell/player_screen.cpp", r"ui::nvgColor\(ui::theme\(\)\.accent\)", "player progress uses the XP-TUBE theme accent")
 require("src/app/shell/cards.cpp", r"ui::theme\(\)\.accent", "video-card focus styling follows the selected theme accent")
 
+
+require("src/app/settings.hpp", r'std::string logo = "xp-tube"', "XP-TUBE is the default saved header-logo identity")
+require("src/app/shell/settings_screen.cpp", r'settings\.logo == "youtube" \? "xp-tube" : "youtube"', "logo selector stores XP-TUBE or YouTube explicitly")
+require("src/ui/theme.hpp", r'std::string id = "xp-tube"', "derived visual assets use the XP-TUBE theme cache identity")
+forbid("src/app/settings.hpp", r'std::string logo = "playtube"', "legacy Playtube logo preference as the default")
+forbid("src/app/shell/settings_screen.cpp", r'\? "playtube" : "youtube"', "legacy Playtube logo preference in the selector")
+forbid("src/ui/theme.hpp", r'projecteur|Playtube identity', "legacy theme identity")
+
 print("XP-TUBE independence audit passed.")
