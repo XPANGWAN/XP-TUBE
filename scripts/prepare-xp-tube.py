@@ -75,7 +75,7 @@ old = '''#ifdef PLAYTUBE_PS4
 '''
 if body.count(old) != 1:
     raise SystemExit("src/app/app.cpp: expected the single legacy Playtube migration block")
-app.write_text(body.replace(old, "        // XP-TUBE: never read, import, or copy Playtube's settings or account tokens.\\n"), encoding="utf-8")
+app.write_text(body.replace(old, "        // XP-TUBE: never read, import, or copy Playtube's settings or account tokens.\n"), encoding="utf-8")
 
 # Update the app's shipped translations without changing attribution/license records.
 for path in (ROOT / "resources/i18n").glob("*.json"):
