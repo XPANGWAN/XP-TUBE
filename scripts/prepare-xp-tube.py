@@ -48,21 +48,12 @@ public:
         cornerRadius = ui::theme().radius * 1.5f;
         auto* brand = add<ui::Label>("XP-TUBE", ui::FontStyle{ui::theme().fontSmall, ui::FontWeight::Bold});
         brand->color = ui::theme().accent;
-        auto* title = add<ui::Label>(ui::tr("home.for_you"), ui::FontStyle{48, ui::FontWeight::Bold});
+        auto* title = add<ui::Label>(ui::tr("shell.tab.home"), ui::FontStyle{48, ui::FontWeight::Bold});
         title->color = ui::theme().text;
         auto* subtitle = add<ui::Label>(ui::tr("shell.search.title"), ui::FontStyle{ui::theme().fontBody, ui::FontWeight::Regular});
         subtitle->color = ui::theme().textSecondary;
         auto* hint = add<ui::Label>(ui::tr("shell.tab.search"), ui::FontStyle{ui::theme().fontSmall, ui::FontWeight::Bold});
         hint->color = ui::theme().accent;
-        auto* actions = add<ui::Box>(ui::Axis::Row);
-        actions->gap = ui::theme().spacingM;
-        actions->margin.top = ui::theme().spacingM;
-        actions->add<NavTab>(ui::tr("shell.tab.search"), false, [&session] {
-            openTab(session, Tab::Search);
-        });
-        actions->add<NavTab>(ui::tr("shell.tab.subscriptions"), false, [&session] {
-            openTab(session, Tab::Subscriptions);
-        });
     }
 
     void draw(NVGcontext* vg) const override {
@@ -410,6 +401,8 @@ TEST_PATCHES = {
          "XP-TUBE never imports a previous Playtube account or search history"),
         ("CHECK(session.account().signedIn());", "CHECK_FALSE(session.account().signedIn());"),
         ('std::vector<std::string>{"mine", "lofi", "jazz"}', 'std::vector<std::string>{"mine"}', 2),
+        ('        CHECK(session.settings().recentSearches == std::vector<std::string>{"mine"});\n    }\n    CHECK(test::readFile(old) == oldText);',
+         '        CHECK(session.settings().recentSearches == std::vector<std::string>{"mine"});\n        REQUIRE(session.saveSettings());\n    }\n    CHECK(test::readFile(old) == oldText);'),
     ],
 }
 for rel, replacements in TEST_PATCHES.items():
