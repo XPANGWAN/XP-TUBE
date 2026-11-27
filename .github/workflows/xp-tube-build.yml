@@ -18,7 +18,7 @@ permissions:
 
 concurrency:
   group: xp-tube-build-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build-xp-tube:
@@ -72,6 +72,77 @@ jobs:
           ./scripts/build-ps4.sh
           test -n "$(find dist -maxdepth 1 -type f -name 'IV0001-XPTB00000_00-XPTB000000100000.pkg' -print -quit)"
           sha256sum dist/*.pkg | tee ../xp-tube-package-sha256.txt
+
+      - name: Verify package checksum and GPL source contents
+        shell: bash
+        run: |
+          set -euo pipefail
+          PKG="upstream/dist/IV0001-XPTB00000_00-XPTB000000100000.pkg"
+          test -s "$PKG"
+          test "$(stat -c '%s' "$PKG")" -gt 1048576
+          (cd upstream && sha256sum --check ../xp-tube-package-sha256.txt)
+          test -s xp-tube-build-manifest.txt
+          grep -q 'XP-TUBE package ID: XPTB00000' xp-tube-build-manifest.txt
+          grep -q 'Data directory: /data/XP-TUBE' xp-tube-build-manifest.txt
+          tar -tzf xp-tube-corresponding-source.tar.gz > source-archive-files.txt
+          grep -Eq '^\./LICENSE        shell: bash
+        run: |
+          set -euo pipefail
+          tar -czf xp-tube-corresponding-source.tar.gz --exclude=.git --exclude=./build --exclude=./dist -C upstream .
+          test -s xp-tube-corresponding-source.tar.gz
+
+      - name: Upload XP-TUBE package and build evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: xp-tube-ps4-test
+          path: |
+            upstream/dist/IV0001-XPTB00000_00-XPTB000000100000.pkg
+            xp-tube-build-manifest.txt
+            xp-tube-package-sha256.txt
+            xp-tube-corresponding-source.tar.gz
+          if-no-files-found: error
+          retention-days: 30
+ source-archive-files.txt
+          grep -Eq '^\./THIRD_PARTY_LICENSES        shell: bash
+        run: |
+          set -euo pipefail
+          tar -czf xp-tube-corresponding-source.tar.gz --exclude=.git --exclude=./build --exclude=./dist -C upstream .
+          test -s xp-tube-corresponding-source.tar.gz
+
+      - name: Upload XP-TUBE package and build evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: xp-tube-ps4-test
+          path: |
+            upstream/dist/IV0001-XPTB00000_00-XPTB000000100000.pkg
+            xp-tube-build-manifest.txt
+            xp-tube-package-sha256.txt
+            xp-tube-corresponding-source.tar.gz
+          if-no-files-found: error
+          retention-days: 30
+ source-archive-files.txt
+          grep -Eq '^\./resources/licenses/manifest\.txt        shell: bash
+        run: |
+          set -euo pipefail
+          tar -czf xp-tube-corresponding-source.tar.gz --exclude=.git --exclude=./build --exclude=./dist -C upstream .
+          test -s xp-tube-corresponding-source.tar.gz
+
+      - name: Upload XP-TUBE package and build evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: xp-tube-ps4-test
+          path: |
+            upstream/dist/IV0001-XPTB00000_00-XPTB000000100000.pkg
+            xp-tube-build-manifest.txt
+            xp-tube-package-sha256.txt
+            xp-tube-corresponding-source.tar.gz
+          if-no-files-found: error
+          retention-days: 30
+ source-archive-files.txt
+          echo "PKG size: $(stat -c '%s' "$PKG") bytes"
+          cat xp-tube-package-sha256.txt
+          echo "GPL license, third-party notices, and license manifest are present."
+          rm source-archive-files.txt
 
       - name: Create corresponding GPL source archive
         shell: bash
