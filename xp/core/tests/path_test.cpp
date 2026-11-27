@@ -19,6 +19,6 @@ int main() {
     assert(!resolve_inside("/data/XP-TUBE", "./settings"));
     assert(!resolve_inside("/data/XP-TUBE", "cache//file"));
     assert(!resolve_inside("/data/XP-TUBE", "cache/"));
-    assert(!resolve_inside("/data/XP-TUBE", "cache\\\\file"));
+    assert(!resolve_inside("/data/XP-TUBE", "cache\\file"));
     assert(!resolve_inside("/data/XP-TUBE", std::string_view("a\\0b", 3)));
 }
