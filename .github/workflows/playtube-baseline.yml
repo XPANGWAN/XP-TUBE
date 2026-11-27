@@ -1,0 +1,60 @@
+name: Playtube baseline PS4 build
+
+on:
+  push:
+    branches:
+      - research/playtube-baseline
+    paths:
+      - .github/workflows/playtube-baseline.yml
+      - README.md
+      - docs/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: playtube-baseline-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-development-pkg:
+    name: Build pinned Playtube development baseline
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Check out XP-TUBE build instructions
+        uses: actions/checkout@v4
+
+      - name: Fetch pinned upstream source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone https://github.com/LowganDev/PlaytubePS4.git upstream
+          git -C upstream checkout 7372c068704f568bf04e1f8b41a04a2149b2e048
+          {
+            echo "Upstream: LowganDev/PlaytubePS4"
+            echo "Commit: $(git -C upstream rev-parse HEAD)"
+            echo "Version: $(sed -n 's/^project(Playtube VERSION \([^ ]*\).*/\1/p' upstream/CMakeLists.txt)"
+            echo "Purpose: upstream development package only; not an XP-TUBE release"
+          } | tee upstream-source.txt
+
+      - name: Build PS4 development package
+        working-directory: upstream
+        env:
+          PLAYTUBE_DEV: "1"
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x scripts/build-ps4.sh
+          ./scripts/build-ps4.sh
+
+      - name: Upload baseline package and source manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: xp-tube-playtube-baseline
+          path: |
+            upstream/dist/*.pkg
+            upstream-source.txt
+          if-no-files-found: error
+          retention-days: 14
