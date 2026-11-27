@@ -39,9 +39,11 @@ Third-party libraries may be used under their respective licenses. GPL-3.0 oblig
 - [x] Source-level identity and regression audit exists.
 - [x] Existing baseline package and corresponding-source archive were built and checksum-verified on the backup branch.
 - [x] `main` advanced safely to the latest pre-migration baseline commit `e279d0405124b7cdab367547254e217a7023ec70`.
-- [x] Package-build and host-unit-test workflows now trigger on `main`.
+- [x] Package-build and host-unit-test workflows now target `main`.
+- [x] Added a provenance-preserving source-import workflow, pinned to upstream revision `7372c068704f568bf04e1f8b41a04a2149b2e048`.
+- [x] Added a source architecture review and explicit rewrite boundaries.
+- [ ] Verify that the source-import workflow ran successfully and that the imported source and license files are present in this repository.
 - [ ] Remove all build-time fetching of the Playtube repository.
-- [ ] Bring the reviewed, license-compliant source into XP-TUBE's own repository and establish source provenance.
 - [ ] Replace the patch-on-upstream build with a native XP-TUBE build.
 - [ ] Inventory and rewrite all Playtube-derived application components required for complete independence.
 - [ ] Rebuild the UI and settings as original XP-TUBE experiences.
@@ -50,7 +52,7 @@ Third-party libraries may be used under their respective licenses. GPL-3.0 oblig
 
 ## Temporary migration boundary
 
-The current workflows still clone the pinned Playtube repository and apply `scripts/prepare-xp-tube.py`. This is a temporary migration mechanism only. It is not the final architecture and must not be described as full independence.
+The current release workflows still clone the pinned Playtube repository and apply `scripts/prepare-xp-tube.py`. This is a temporary migration mechanism only. The new import workflow is intended to bring the exact source revision and its ancestry into a clearly marked migration directory, but that import has not yet been verified. XP-TUBE is not yet independent.
 
 The previous verified package is historical evidence only. It does not prove that the current `main` build is independent or that the package was tested on the current PS4 installation.
 
@@ -65,6 +67,8 @@ The previous verified package is historical evidence only. It does not prove tha
 
 ## Build and audit
 
-The workflows under `.github/workflows/` currently provide a temporary pinned-source build and host unit-test path. The next independence milestone is to vendor/import the reviewed source with required license history and notices, then change both workflows to build only from XP-TUBE repository contents.
+The workflows under `.github/workflows/` currently provide a temporary pinned-source build and host unit-test path. The next independence milestone is to complete and verify the source import, then change both workflows to build only from repository-owned source.
 
-See `docs/INDEPENDENCE-AUDIT.md` and `docs/ROADMAP.md`.
+- [Full independence roadmap](docs/ROADMAP.md)
+- [Source architecture review](docs/ARCHITECTURE-REVIEW.md)
+- [Independence audit](docs/INDEPENDENCE-AUDIT.md)
