@@ -22,6 +22,9 @@ The remaining application services are still being migrated in stages.
 - `Logger`: thread-safe log-level filtering, timestamped output, stderr and
   file sinks, bounded rotation, and redaction before writing. The legacy
   printf-style API remains as a formatting/boot-trace compatibility adapter.
+- `ascii_lower` and `trim_ascii`: locale-independent ASCII normalization and
+  boundary trimming. The legacy string helpers delegate to these functions;
+  bytes outside ASCII A-Z and the four documented whitespace bytes are kept.
 
 ## Filesystem security boundary
 
