@@ -14,6 +14,7 @@
 #include "core/result.hpp"
 #include "core/task.hpp"
 #include "net/http.hpp"
+#include "net/xp_http_adapter.hpp"
 #include "youtube/account.hpp"
 #include "youtube/auth.hpp"
 #include "youtube/client.hpp"
@@ -38,6 +39,7 @@ public:
     AppSession& operator=(const AppSession&) = delete;
 
     const net::HttpClient& http() const { return http_; }
+    const xp::net::IHttpTransport& transport() const { return xpHttp_; }
     const std::string& caFile() const { return caFile_; }  // the certificates trusted (also for the player)
     Settings& settings() { return settings_; }
     const Settings& settings() const { return settings_; }
@@ -124,6 +126,7 @@ public:
 private:
     std::string caFile_;
     net::HttpClient http_;
+    net::XpHttpAdapter xpHttp_;
     std::string settingsPath_;
     Settings settings_;
     youtube::Account account_;

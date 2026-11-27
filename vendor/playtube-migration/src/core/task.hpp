@@ -17,11 +17,18 @@ namespace playtube::core {
 class CancelToken {
 public:
     CancelToken() : flag_(std::make_shared<std::atomic<bool>>(false)) {}
+    // Lets a compatibility boundary observe another cancellation state without a polling thread.
+    explicit CancelToken(std::function<bool()> externalCancelled)
+        : flag_(std::make_shared<std::atomic<bool>>(false)),
+          externalCancelled_(std::move(externalCancelled)) {}
     void cancel() const { flag_->store(true); }
-    bool cancelled() const { return flag_->load(); }
+    bool cancelled() const {
+        return flag_->load() || (externalCancelled_ && externalCancelled_());
+    }
 
 private:
     std::shared_ptr<std::atomic<bool>> flag_;
+    std::function<bool()> externalCancelled_;
 };
 
 // Closures for the main thread, posted from any thread, run by the app once per frame.

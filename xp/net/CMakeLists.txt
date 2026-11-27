@@ -1,6 +1,7 @@
 add_library(xp_net INTERFACE)
 target_include_directories(xp_net INTERFACE include)
 target_compile_features(xp_net INTERFACE cxx_std_17)
+target_link_libraries(xp_net INTERFACE xp_core)
 
 if(BUILD_TESTING)
     add_executable(xp_net_http_contract_tests tests/http_contract_test.cpp)

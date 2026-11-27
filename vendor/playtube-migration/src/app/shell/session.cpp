@@ -55,6 +55,7 @@ YoutubeLocale youtubeLocale(const std::string& uiLanguage) {
 AppSession::AppSession(net::HttpConfig http, std::string settingsPath, std::string accountPath)
     : caFile_(http.caFile),
       http_(std::move(http)),
+      xpHttp_(http_),
       settingsPath_(std::move(settingsPath)),
       account_(std::move(accountPath)) {
     if (!settingsPath_.empty()) {
@@ -134,12 +135,28 @@ core::Result<std::string> AppSession::fetchImage(const std::string& url, const c
     if (url.rfind("https://", 0) != 0) {
         return core::makeError(core::ErrorKind::BadResponse, "pictures are fetched over https only");
     }
-    net::HttpRequest request;
+    xp::net::HttpRequest request;
     request.url = url;
-    request.maxBodyBytes = kMaxImageBytes;
-    auto response = http_.send(request, {}, token);
-    if (!response.ok()) {
-        return response.error();
+    request.max_body_bytes = kMaxImageBytes;
+    auto response = xpHttp_.send(request, token);
+    if (!response.has_value()) {
+        core::ErrorKind kind = core::ErrorKind::Network;
+        switch (response.error().code) {
+        case xp::core::ErrorCode::timeout: kind = core::ErrorKind::Timeout; break;
+        case xp::core::ErrorCode::tls: kind = core::ErrorKind::Tls; break;
+        case xp::core::ErrorCode::certificate_untrusted: kind = core::ErrorKind::CertificateUntrusted; break;
+        case xp::core::ErrorCode::cancelled: kind = core::ErrorKind::Cancelled; break;
+        case xp::core::ErrorCode::storage: kind = core::ErrorKind::Storage; break;
+        case xp::core::ErrorCode::bad_response: kind = core::ErrorKind::BadResponse; break;
+        case xp::core::ErrorCode::invalid_argument: kind = core::ErrorKind::InvalidAddress; break;
+        case xp::core::ErrorCode::io:
+        case xp::core::ErrorCode::network:
+        case xp::core::ErrorCode::unsupported:
+        case xp::core::ErrorCode::not_found:
+        case xp::core::ErrorCode::unavailable:
+        case xp::core::ErrorCode::internal: kind = core::ErrorKind::Network; break;
+        }
+        return core::makeError(kind, response.error().message);
     }
     if (response.value().status != 200) {
         return core::makeError(core::ErrorKind::BadResponse, "HTTP " + std::to_string(response.value().status));

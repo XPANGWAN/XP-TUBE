@@ -105,7 +105,10 @@ add_library(playtube_net STATIC
     src/net/http.cpp
 )
 if(XP_TUBE_USE_NATIVE_STORAGE)
-    target_sources(playtube_net PRIVATE "${XP_TUBE_NATIVE_ROOT}/net/src/http_contract.cpp")
+    target_sources(playtube_net PRIVATE
+        "${XP_TUBE_NATIVE_ROOT}/net/src/http_contract.cpp"
+        src/net/xp_http_adapter.cpp
+    )
     target_link_libraries(playtube_net PUBLIC xp_net)
 endif()
 if(PLATFORM_PS4)
