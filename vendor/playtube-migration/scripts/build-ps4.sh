@@ -4,11 +4,12 @@
 # release app; PLAYTUBE_DEV=1 builds the development app (dist/IV0001-PLTB00001_00-PLTB000010100000.pkg).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+REPO_ROOT="$(cd "$ROOT/../.." && pwd)"
 IMAGE="xfangfang/pacbrew:250221"
 BASE_URL="${PS4_DEPS_URL:-https://github.com/LowganDev/PlaytubePS4/releases/download/deps}"
 
 # The image entrypoint runs `cd /src; bash -c "$@"`: the whole build must be one command string.
-docker run --rm -v "$ROOT":/src -e OPENORBIS=/opt/pacbrew/ps4/openorbis "$IMAGE" "
+docker run --rm -v "$ROOT":/src -v "$REPO_ROOT/xp":/xp-native:ro -e OPENORBIS=/opt/pacbrew/ps4/openorbis "$IMAGE" "
 set -e
 for pkg in \$(grep -v '^#' scripts/ps4/deps.txt); do
   file=ps4-openorbis-\${pkg}-any.pkg.tar.gz

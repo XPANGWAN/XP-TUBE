@@ -55,7 +55,7 @@ jobs:
         working-directory: vendor/playtube-migration
         run: |
           set -euo pipefail
-          cmake --preset linux-debug
+          cmake --preset linux-debug -DXP_TUBE_USE_NATIVE_STORAGE=ON -DXP_TUBE_NATIVE_ROOT="$GITHUB_WORKSPACE/xp"
           cmake --build --preset linux-debug --target playtube_tests -j2
 
       - name: Run unit tests

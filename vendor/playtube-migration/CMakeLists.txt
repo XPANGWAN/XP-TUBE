@@ -43,6 +43,15 @@ endif()
 
 include(cmake/warnings.cmake)
 
+option(XP_TUBE_USE_NATIVE_STORAGE "Use the XP-owned native storage implementation" OFF)
+set(XP_TUBE_NATIVE_ROOT "" CACHE PATH "Path to the XP-TUBE native source tree")
+if(XP_TUBE_USE_NATIVE_STORAGE)
+    if(NOT XP_TUBE_NATIVE_ROOT OR NOT EXISTS "${XP_TUBE_NATIVE_ROOT}/CMakeLists.txt")
+        message(FATAL_ERROR "XP_TUBE_USE_NATIVE_STORAGE requires XP_TUBE_NATIVE_ROOT")
+    endif()
+    add_subdirectory("${XP_TUBE_NATIVE_ROOT}" "${CMAKE_BINARY_DIR}/xp-native")
+endif()
+
 if(PLAYTUBE_SANITIZE)
     add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all)
     add_link_options(-fsanitize=address,undefined)
@@ -59,12 +68,17 @@ include(cmake/dependencies.cmake)
 add_subdirectory(third_party)
 
 # core utilities: no SDL, no network
+set(PLAYTUBE_FILE_IO_SOURCE src/core/file_io.cpp)
+if(XP_TUBE_USE_NATIVE_STORAGE)
+    set(PLAYTUBE_FILE_IO_SOURCE "${XP_TUBE_NATIVE_ROOT}/core/compat/file_io_adapter.cpp")
+endif()
+
 add_library(playtube_base STATIC
     src/core/boot_trace.cpp
     src/core/version.cpp
     src/core/redact.cpp
     src/core/data_dir.cpp
-    src/core/file_io.cpp
+    ${PLAYTUBE_FILE_IO_SOURCE}
     src/core/json.cpp
     src/core/log.cpp
     src/core/result.cpp
@@ -79,6 +93,9 @@ if(PLATFORM_PS4)
     target_compile_definitions(playtube_base PUBLIC PLAYTUBE_PS4=1)
 endif()
 target_link_libraries(playtube_base PUBLIC Threads::Threads yyjson)
+if(XP_TUBE_USE_NATIVE_STORAGE)
+    target_link_libraries(playtube_base PUBLIC xp_core)
+endif()
 playtube_set_warnings(playtube_base)
 
 # network: URLs, HTTP over curl, certificate hashing; depends on core only (+ curl, crypto)
