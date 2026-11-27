@@ -144,13 +144,6 @@ public:
         accent_ = column->add<ui::ValueRow>(ui::tr("settings.accent"), accentName(session_.settings().accent),
                                             [this] { chooseAccent(); });
         language_ = column->add<ui::ValueRow>(ui::tr("settings.language"), "", [this] { chooseLanguage(); });
-        logo_ = column->add<ui::ValueRow>(ui::tr("settings.logo"), logoName(session_.settings().logo), [this] {
-            Settings& settings = session_.settings();
-            settings.logo = settings.logo == "youtube" ? "playtube" : "youtube";
-            session_.saveSettings();
-            logo_->setValue(logoName(settings.logo));
-            session_.applyLogo();
-        });
         refreshLanguage();
         remembered = accent_;  // the first setting, not the bar above it
 
@@ -354,8 +347,6 @@ private:
         }
     }
 
-    static std::string logoName(const std::string& logo) { return logo == "youtube" ? "YouTube" : "Playtube"; }
-
     static std::string subtitleSizeName(const std::string& size) { return ui::tr("settings.subtitle_size." + size); }
 
     void chooseSubtitleSize() {
@@ -496,7 +487,6 @@ private:
     ui::ValueRow* watchHistory_ = nullptr;
     ui::ValueRow* dearrow_ = nullptr;
     ui::ValueRow* shorts_ = nullptr;
-    ui::ValueRow* logo_ = nullptr;
     ui::ValueRow* subtitleBackground_ = nullptr;
     bool downloading_ = false;
     bool ready_ = false;  // the package is in /data/pkg
