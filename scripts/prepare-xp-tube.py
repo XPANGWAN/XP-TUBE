@@ -326,6 +326,9 @@ FILES["src/app/shell/player_settings.cpp"] = [
      "card->cornerRadius = ui::theme().radius * 1.5f;"),
     ("    title->width = ui::SizeSpec::fill();",
      "    title->width = ui::SizeSpec::fill();\n    title->color = ui::theme().accent;"),
+    ("constexpr float kRadius = 24;\\n", ""),
+    ("const ui::Color kFocused{0xFF, 0xFF, 0xFF, 0xFF};  // white, as the focused icon\\n", ""),
+    ("const ui::Color kOnFocused{0x0A, 0x0A, 0x0C, 0xFF};\\n", ""),
 ]
 
 # Refine playback side-panels with the same rounded, theme-aware surface treatment.
