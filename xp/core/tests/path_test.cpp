@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <string>
+#include <string_view>
 
 int main() {
     using xp::core::resolve_inside;
@@ -20,5 +21,5 @@ int main() {
     assert(!resolve_inside("/data/XP-TUBE", "cache//file"));
     assert(!resolve_inside("/data/XP-TUBE", "cache/"));
     assert(!resolve_inside("/data/XP-TUBE", "cache\\file"));
-    assert(!resolve_inside("/data/XP-TUBE", std::string_view("a\\0b", 3)));
+    assert(!resolve_inside("/data/XP-TUBE", std::string_view("a\0b", 3)));
 }
