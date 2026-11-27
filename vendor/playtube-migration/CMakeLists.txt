@@ -45,12 +45,6 @@ include(cmake/warnings.cmake)
 
 option(XP_TUBE_USE_NATIVE_STORAGE "Use the XP-owned native storage implementation" OFF)
 set(XP_TUBE_NATIVE_ROOT "" CACHE PATH "Path to the XP-TUBE native source tree")
-if(XP_TUBE_USE_NATIVE_STORAGE)
-    if(NOT XP_TUBE_NATIVE_ROOT OR NOT EXISTS "${XP_TUBE_NATIVE_ROOT}/CMakeLists.txt")
-        message(FATAL_ERROR "XP_TUBE_USE_NATIVE_STORAGE requires XP_TUBE_NATIVE_ROOT")
-    endif()
-    add_subdirectory("${XP_TUBE_NATIVE_ROOT}" "${CMAKE_BINARY_DIR}/xp-native")
-endif()
 
 if(PLAYTUBE_SANITIZE)
     add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all)
@@ -64,6 +58,15 @@ endif()
 find_package(PkgConfig REQUIRED)
 find_package(Threads REQUIRED)
 include(cmake/dependencies.cmake)
+
+# Build XP native modules after platform dependency targets exist (curl and crypto),
+# so XP owns the implementation while using the platform's supported libraries.
+if(XP_TUBE_USE_NATIVE_STORAGE)
+    if(NOT XP_TUBE_NATIVE_ROOT OR NOT EXISTS "${XP_TUBE_NATIVE_ROOT}/CMakeLists.txt")
+        message(FATAL_ERROR "XP_TUBE_USE_NATIVE_STORAGE requires XP_TUBE_NATIVE_ROOT")
+    endif()
+    add_subdirectory("${XP_TUBE_NATIVE_ROOT}" "${CMAKE_BINARY_DIR}/xp-native")
+endif()
 
 add_subdirectory(third_party)
 
@@ -105,11 +108,7 @@ add_library(playtube_net STATIC
     src/net/http.cpp
 )
 if(XP_TUBE_USE_NATIVE_STORAGE)
-    target_sources(playtube_net PRIVATE
-        "${XP_TUBE_NATIVE_ROOT}/net/src/http_contract.cpp"
-        "${XP_TUBE_NATIVE_ROOT}/net/src/curl_transport.cpp"
-        src/net/xp_http_adapter.cpp
-    )
+    target_sources(playtube_net PRIVATE src/net/xp_http_adapter.cpp)
     target_link_libraries(playtube_net PUBLIC xp_net)
 endif()
 if(PLATFORM_PS4)
