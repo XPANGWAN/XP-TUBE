@@ -94,9 +94,7 @@ Settings loadSettings(const std::string& path) {
     settings.watchHistory = core::json::boolean(root, "watchHistory", true);
     settings.shorts = core::json::boolean(root, "shorts", true);
     settings.dearrow = core::json::boolean(root, "dearrow", false);
-    if (core::json::string(root, "logo") == "youtube") {
-        settings.logo = "youtube";
-    }
+    // The application wordmark is fixed to XP-TUBE; legacy logo preferences are ignored.
     return settings;
 }
 
