@@ -8,7 +8,7 @@ FILES = {
         ('return "Playtube Dev";', 'return "XP-TUBE";'),
         ('return "PlaytubeDev";', 'return "XP-TUBE";'),
         ('return "PLTB00001";', 'return "XPTB00000";'),
-        ('return "Playtube";', 'return "XP-TUBE";'),
+        ('return "Playtube";', 'return "XP-TUBE";', 2),
         ('return "PLTB00000";', 'return "XPTB00000";'),
     ],
     "cmake/ps4_pkg.cmake": [
