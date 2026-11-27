@@ -356,8 +356,7 @@ def remove_once(path, old, description):
     target.write_text(body.replace(old, "", 1), encoding="utf-8")
 
 remove_once("src/app/shell/session.hpp",
-'''    // The header's logo of the settings: the YouTube logo fetched (YouTube's own file, never shipped with Playtube)
-    // and drawn, or Playtube's; the text logo stays while it comes or when it cannot.
+'''    // The header logo: XP-TUBE by default, or YouTube's own fetched logo when explicitly selected in settings.
     std::string youtubeLogoUrl =
         "https://www.gstatic.com/youtube/img/branding/youtubelogo/svg/youtubelogo_dark.svg";
     void applyLogo();
@@ -365,8 +364,7 @@ remove_once("src/app/shell/session.hpp",
 ''', "legacy remote logo API")
 remove_once("src/app/shell/session.hpp", "    unsigned logoGeneration_ = 0;\n", "legacy logo generation state")
 remove_once("src/app/shell/chrome.hpp",
-'''// "Playtube." with the dot in the accent colour; the picture given to setLogoPicture instead while there is one
-// (the YouTube logo, when the user chose it in the settings). Every logo shown changes at once.
+'''// XP-TUBE wordmark with its accent-coloured mark; the optional YouTube logo is shown only when selected in settings.
 std::unique_ptr<ui::View> makeLogo();
 void setLogoPicture(std::shared_ptr<const ui::SvgPicture> picture);
 bool logoPictureShown();
