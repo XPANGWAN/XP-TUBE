@@ -25,7 +25,7 @@ TEST_CASE("the YouTube language and region follow the UI language") {
 
 TEST_CASE("the session reaches YouTube and keeps the account in its file") {
     FakeYouTube yt;
-    xp::net::HttpConfig config;
+    xp::xp::net::HttpConfig config;
     config.ca_file = test::fixturePath("tls/ca.crt");
     char folder[] = "/tmp/playtube-session-XXXXXX";
     REQUIRE(mkdtemp(folder) != nullptr);
@@ -81,7 +81,7 @@ TEST_CASE("the previous Playtube: its sign-in and recent searches imported once,
     const std::string oldText =
         R"({"setting":{"yt_refresh_token":"old-refresh-token","yt_search_history":["lofi","jazz"]},"users":[]})";
     REQUIRE(core::writeFileAtomic(old, oldText));
-    net::HttpConfig config;
+    xp::net::HttpConfig config;
     {
         app::AppSession session(config, dir + "/settings.json", dir + "/account.json");
         session.settings().recentSearches = {"mine"};
@@ -102,8 +102,8 @@ TEST_CASE("the previous Playtube: its sign-in and recent searches imported once,
 
 TEST_CASE("a sign-in without its name (imported) gets the account name") {
     FakeYouTube yt;
-    net::HttpConfig config;
-    config.caFile = test::fixturePath("tls/ca.crt");
+    xp::net::HttpConfig config;
+    config.ca_file = test::fixturePath("tls/ca.crt");
     app::AppSession session(config);
     youtube::Endpoints endpoints;
     endpoints.youtube = endpoints.suggest = endpoints.sponsor = endpoints.oauthRevoke = endpoints.dislikes = yt.baseUrl();
@@ -126,7 +126,7 @@ TEST_CASE("the previous Playtube's sign-in never replaces the one already here")
     REQUIRE(mkdtemp(folder) != nullptr);
     const std::string dir = folder;
     REQUIRE(core::writeFileAtomic(dir + "/config.json", R"({"setting":{"yt_refresh_token":"old-refresh-token"}})"));
-    net::HttpConfig config;
+    xp::net::HttpConfig config;
     app::AppSession session(config, {}, dir + "/account.json");
     youtube::Token token;
     token.accessToken = "a";
