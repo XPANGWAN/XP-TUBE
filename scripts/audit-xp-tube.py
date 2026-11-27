@@ -70,11 +70,22 @@ if not translation_files:
 for translation in translation_files:
     content = translation.read_text(encoding="utf-8")
     try:
-        json.loads(content)
+        data = json.loads(content)
     except (UnicodeDecodeError, json.JSONDecodeError) as error:
         sys.exit(f"[FAIL] invalid translation file {translation.relative_to(ROOT)}: {error}")
-    if "Playtube" in content:
-        sys.exit(f"[FAIL] legacy Playtube branding remains in {translation.relative_to(ROOT)}")
+
+    def visible_strings(value, key=""):
+        if isinstance(value, dict):
+            for name, item in value.items():
+                yield from visible_strings(item, name)
+        elif isinstance(value, list):
+            for item in value:
+                yield from visible_strings(item, key)
+        elif isinstance(value, str) and not any(part in key.lower() for part in ("license", "notice", "copyright")):
+            yield value
+
+    if any("Playtube" in value for value in visible_strings(data)):
+        sys.exit(f"[FAIL] legacy visible Playtube branding remains in {translation.relative_to(ROOT)}")
 print(f"[PASS] {len(translation_files)} translation files are valid and use XP-TUBE branding")
 require("src/app/shell/player_screen.cpp", r"streamRecoveryInFlight_ = true;", "failed playback streams trigger one guarded automatic refresh")
 require("src/app/shell/player_screen.cpp", r"lastPosition_ = std::max\(lastPosition_, engine_->state\(\).position\);", "stream recovery preserves the last playback position")
@@ -133,8 +144,9 @@ require("scripts/make-ps4-art.py", r'RED = \(0xB8, 0xC0, 0xCC\)', "PS4 artwork u
 require("scripts/make-ps4-art.py", r'WHITE = \(0x8E, 0x4E, 0xC6\)', "PS4 artwork uses the XP-TUBE violet play accent")
 require("scripts/make-ps4-art.py", r'icon = Image.new\("RGB", \(512, 512\), BACKGROUND\)', "PS4 icon uses the dark XP-TUBE background")
 require("src/app/settings.hpp", r'std::string logo = "xp-tube"', "XP-TUBE is the default saved header-logo identity")
-require("src/app/shell/settings_screen.cpp", r'settings\.logo == "youtube" \? "xp-tube" : "youtube"', "logo selector stores XP-TUBE or YouTube explicitly")
-require("src/app/shell/settings_screen.cpp", r'logo == "youtube" \? "YouTube" : "XP-TUBE"', "settings screen displays the correct XP-TUBE and YouTube logo names")
+require("src/app/shell/settings_screen.cpp", r"addSection\\(ui::Box& column", "settings are organized into reusable grouped panels")
+require("src/app/shell/settings_screen.cpp", r"displaySection|playbackSection|homeSection|accountSection|aboutSection", "settings retain distinct display, playback, home, account, and about groups")
+forbid("src/app/shell/settings_screen.cpp", r"settings\\.logo|logoName\\(", "removed legacy logo preference control")
 require("src/app/shell/chrome.cpp", r'add<ui::Label>.*"TUBE", style', "header displays the XP-TUBE wordmark")
 forbid("src/app/shell/chrome.cpp", r'add<ui::Label>\("Playtube"', "legacy Playtube header wordmark")
 require("src/ui/theme.hpp", r'std::string id = "xp-tube"', "derived visual assets use the XP-TUBE theme cache identity")
