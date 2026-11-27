@@ -355,8 +355,6 @@ TEST_PATCHES = {
     ],
     "tests/unit/shell_screens_test.cpp": [
         ('shows(*s.shell.application, "White")', 'shows(*s.shell.application, "Violet")'),
-        ('Playtube', 'XP-TUBE', 9),
-        ('"playtube"', '"xp-tube"', 2),
     ],
     "tests/unit/theme_test.cpp": [
         ('playtube::app::Settings{}.accent == "white"', 'playtube::app::Settings{}.accent == "violet"'),
