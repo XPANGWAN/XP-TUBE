@@ -7,6 +7,7 @@
 
 #include "core/boot_trace.hpp"
 #include "xp/core/logger.hpp"
+#include "xp/core/redaction.hpp"
 
 namespace playtube::log {
 namespace {
@@ -78,7 +79,7 @@ void write(Level logLevel, const char* fmt, ...) {
     static int mirrored = 0;
     if (mirrored < 200) {
         ++mirrored;
-        const std::string mirror = message.substr(0, kMaxMessage);
+        const std::string mirror = xp::core::redact_secrets(message.substr(0, kMaxMessage));
         core::bootMark(mirror.c_str());
     }
 #endif
