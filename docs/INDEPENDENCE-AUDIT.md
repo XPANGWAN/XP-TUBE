@@ -9,7 +9,7 @@ has applied the XP-TUBE patch and before the PS4 package is built.
 - Settings and account files are resolved through the XP-TUBE data root; account files remain scoped per PS4 user.
 - The startup path does not call Playtube's legacy settings/account importer and does not read `/data/Playtube`.
 - The updater checks XPANGWAN/XP-TUBE releases and uses XP-TUBE package naming.
-- The earliest boot trace derives its directory from `appFolder()`, so it writes under `/data/XP-TUBE/boot.txt`.
+- The runtime log is named `xp-tube.log` under `/data/XP-TUBE`; the earliest boot trace derives its directory from `appFolder()` and writes `/data/XP-TUBE/boot.txt` with XP-TUBE-labelled messages.
 
 ## Important boundary
 
