@@ -9,6 +9,7 @@ on:
       - scripts/prepare-xp-tube.py
       - scripts/audit-xp-tube.py
       - docs/**
+      - vendor/playtube-migration/**
       - README.md
   workflow_dispatch:
 
@@ -28,14 +29,16 @@ jobs:
       - name: Check out XP-TUBE build scripts
         uses: actions/checkout@v4
 
-      - name: Fetch pinned upstream source (temporary migration stage)
+      - name: Use repository-vendored migration source
         shell: bash
         run: |
           set -euo pipefail
-          git clone https://github.com/LowganDev/PlaytubePS4.git upstream
-          git -C upstream checkout 7372c068704f568bf04e1f8b41a04a2149b2e048
-          test "$(git -C upstream rev-parse HEAD)" = "7372c068704f568bf04e1f8b41a04a2149b2e048"
-          git -C upstream status --short
+          test -s vendor/playtube-migration/CMakeLists.txt
+          test -s vendor/playtube-migration/LICENSE
+          test -s vendor/playtube-migration/THIRD_PARTY_LICENSES
+          test -s docs/SOURCE-PROVENANCE.md
+          test -s docs/SOURCE-FILE-CHECKSUMS.txt
+          test "$(grep -c 'Imported revision: 7372c068704f568bf04e1f8b41a04a2149b2e048' docs/SOURCE-PROVENANCE.md)" -eq 1
 
       - name: Install artwork generator dependency
         shell: bash
@@ -49,10 +52,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          export XP_TUBE_SOURCE_ROOT="$GITHUB_WORKSPACE/vendor/playtube-migration"
           python3 scripts/prepare-xp-tube.py
           python3 scripts/audit-xp-tube.py
-          python3 upstream/scripts/make-ps4-art.py
-          cd upstream
+          python3 "$XP_TUBE_SOURCE_ROOT/scripts/make-ps4-art.py"
+          cd "$XP_TUBE_SOURCE_ROOT"
           git diff --check
           grep -q 'XPTB00000' src/core/version.cpp
           ! grep -q 'session.importPrevious("/data/Playtube/config.json")' src/app/app.cpp
@@ -69,7 +73,7 @@ jobs:
           } | tee ../xp-tube-build-manifest.txt
 
       - name: Build XP-TUBE PS4 package
-        working-directory: upstream
+        working-directory: vendor/playtube-migration
         env:
           PLAYTUBE_DEV: "0"
         shell: bash
@@ -85,17 +89,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          tar -czf xp-tube-corresponding-source.tar.gz --exclude=.git --exclude=./build --exclude=./dist -C upstream .
+          tar -czf xp-tube-corresponding-source.tar.gz --exclude=.git --exclude=./build --exclude=./dist -C vendor/playtube-migration .
           test -s xp-tube-corresponding-source.tar.gz
 
       - name: Verify package checksum and GPL source contents
         shell: bash
         run: |
           set -euo pipefail
-          PKG="upstream/dist/IV0001-XPTB00000_00-XPTB000000100000.pkg"
+          PKG="vendor/playtube-migration/dist/IV0001-XPTB00000_00-XPTB000000100000.pkg"
           test -s "$PKG"
           test "$(stat -c '%s' "$PKG")" -gt 1048576
-          (cd upstream && sha256sum --check ../xp-tube-package-sha256.txt)
+          (cd vendor/playtube-migration && sha256sum --check ../../xp-tube-package-sha256.txt)
           test -s xp-tube-build-manifest.txt
           grep -q "XP-TUBE repository commit: $GITHUB_SHA" xp-tube-build-manifest.txt
           grep -q "Build branch: $GITHUB_REF_NAME" xp-tube-build-manifest.txt
@@ -115,7 +119,7 @@ jobs:
         with:
           name: xp-tube-ps4-test
           path: |
-            upstream/dist/IV0001-XPTB00000_00-XPTB000000100000.pkg
+            vendor/playtube-migration/dist/IV0001-XPTB00000_00-XPTB000000100000.pkg
             xp-tube-build-manifest.txt
             xp-tube-package-sha256.txt
             xp-tube-corresponding-source.tar.gz
