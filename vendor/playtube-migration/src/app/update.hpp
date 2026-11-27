@@ -11,7 +11,7 @@
 
 namespace playtube::app {
 
-// Where Playtube's releases are published (GitHub's API for the latest one).
+// Where XP-TUBE's releases are published (GitHub's API for the latest one).
 constexpr const char* kLatestReleaseUrl = "https://api.github.com/repos/XPANGWAN/XP-TUBE/releases/latest";
 
 // The newest published version and its PS4 package.
@@ -27,10 +27,10 @@ struct Release {
 core::Result<Release> parseLatestRelease(std::string_view json);
 // "2.0.0" newer than "1.0.1" (dotted numbers, a v prefix accepted; anything else is never newer)
 bool newerVersion(const std::string& candidate, const std::string& current);
-// "Playtube-2.0.0.pkg": the version's digits, letters, dots and dashes only (empty without any)
+// "XP-TUBE-2.0.0.pkg": the version's digits, letters, dots and dashes only (empty without any)
 std::string packageFileName(const std::string& version);
 
-// Removes the update packages "Playtube-<version>.pkg" in `folder` whose version is `current` or older (installed:
+// Removes the update packages "XP-TUBE-<version>.pkg" in `folder` whose version is `current` or older (installed:
 // they only fill GoldHEN's list), and nothing else. Returns how many went.
 int removeOldPackages(const std::string& folder, const std::string& current);
 
