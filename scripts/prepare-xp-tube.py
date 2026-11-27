@@ -323,6 +323,18 @@ FILES["src/app/shell/screensaver.cpp"].append((
     brand->color = ui::Color{0x9A, 0x9A, 0xA4, 255};
     time_ = column_->add<ui::Label>("", ui::FontStyle{ui::theme().fontDisplay * 1.6f, ui::FontWeight::SemiBold});'''))
 
+
+
+# Refine video-card proportions and corner treatment while retaining the existing theme accent and focus glow.
+FILES["src/app/shell/cards.cpp"].extend([
+    ('    picture->cornerRadius = ui::theme().radius;',
+     '    picture->cornerRadius = ui::theme().radius * 1.25f;'),
+    ('    title_->margin.top = 12;',
+     '    title_->margin.top = ui::theme().spacingM;'),
+    ('    channel_->margin.top = 4;',
+     '    channel_->margin.top = ui::theme().spacingXs;'),
+])
+
 def replace_file(rel, replacements):
     path = ROOT / rel
     body = path.read_text(encoding="utf-8")
