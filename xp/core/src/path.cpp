@@ -7,8 +7,8 @@ std::optional<std::string> resolve_inside(std::string_view root,
     if (root.empty() || relative.empty() || relative.front() == '/') {
         return std::nullopt;
     }
-    if (relative.find('\\\\') != std::string_view::npos ||
-        relative.find('\\0') != std::string_view::npos) {
+    if (relative.find('\\') != std::string_view::npos ||
+        relative.find('\0') != std::string_view::npos) {
         return std::nullopt;
     }
 
