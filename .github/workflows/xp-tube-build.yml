@@ -11,6 +11,7 @@ on:
       - docs/**
       - vendor/playtube-migration/**
       - README.md
+      - xp/**
   workflow_dispatch:
 
 permissions:
