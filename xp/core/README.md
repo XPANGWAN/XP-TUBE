@@ -18,7 +18,7 @@ application services are still being migrated in stages.
   output to a single filename beneath the latter. The platform selects the
   package root (for example, \`/data/pkg\` on PS4); this class does not create
   directories or perform filesystem I/O.
-- \`read_file\`: bounded reads of regular files, with explicit missing-file and
+- \`xp::core::StorageContext\`: owns the configured application data and package roots as one runtime layout. Startup configures both roots together; callers can reset or reconfigure the context, and path resolution is unavailable until configured. The PS4 compatibility adapter preserves \`/data/XP-TUBE\` for app data and \`/data/pkg\` for package output.\n- \`read_file\`: bounded reads of regular files, with explicit missing-file and
   I/O errors. Symbolic links are not followed where \`O_NOFOLLOW\` is supported.
 - \`write_file_atomic\`: writes to a unique same-directory temporary file,
   flushes it, then renames it over the destination. Temporary files use mode
