@@ -102,6 +102,11 @@ Return YouTube Dislike — the dislike counts come from its API (https://returny
 OpenSSL libcrypto (the system's, for certificate fingerprints) — Apache License 2.0. https://openssl.org
 libmpv, FFmpeg and their dependencies on Linux are the system's.
 
+== XP-TUBE native application core ==
+
+XP-TUBE native core (xp/core) — GNU General Public License v3.0 or later (GPL-3.0.txt).
+  Original XP-TUBE implementation; see docs/SOURCE-PROVENANCE.md and xp/core/README.md.
+
 == Development and tests only (not shipped) ==
 
 doctest — MIT licence. Copyright (c) 2016-2023 Viktor Kirilov. https://github.com/doctest/doctest
