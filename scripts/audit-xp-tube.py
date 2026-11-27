@@ -79,7 +79,7 @@ require("src/app/shell/player_screen.cpp", r"streamRecoveryInFlight_ = true;", "
 require("src/app/shell/player_screen.cpp", r"lastPosition_ = std::max\(lastPosition_, engine_->state\(\).position\);", "stream recovery preserves the last playback position")
 require("src/app/shell/player_screen.cpp", r"streamRecoveryInFlight_ = false;", "stream recovery guard is released on success or failure")
 require("src/youtube/account.hpp", r"std::uint64_t generation_", "account session generation guards in-flight refreshes")
-require("src/youtube/account.cpp", r"generation_ != generation \\|\\| refreshToken_ != refreshToken", "stale refresh replies cannot overwrite a changed account")
+require("src/youtube/account.cpp", r"generation_ != generation \|\| refreshToken_ != refreshToken", "stale refresh replies cannot overwrite a changed account")
 require("src/youtube/account.cpp", r"++generation_;", "sign-in, load, and sign-out invalidate older refresh generations")
 require("tests/unit/youtube_account_test.cpp", r"stale refresh cannot overwrite a newer sign-in", "regression test covers same-token reauthentication during refresh")
 require("src/app/shell/chrome.cpp", r'add<AccentLabel>.*"XP", style', "XP-TUBE wordmark has a distinct accent XP mark")
