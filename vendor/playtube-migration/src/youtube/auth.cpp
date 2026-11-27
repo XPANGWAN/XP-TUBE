@@ -5,6 +5,8 @@
 
 #include "core/json.hpp"
 #include "net/url.hpp"
+#include "net/http.hpp"
+#include "net/xp_http_compat.hpp"
 #include "youtube/parse.hpp"
 
 namespace playtube::youtube {
