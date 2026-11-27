@@ -1,28 +1,28 @@
 # XP-TUBE native network
 
-The XP network layer owns the HTTP request/response contract, cancellation,
-TLS policy, bounded buffering, redirect policy, streaming, progress and
-certificate inspection. `xp::net::CurlHttpTransport` is now the application
-transport implementation. It uses libcurl as a platform dependency, with
-system CA and hostname verification enabled by default, optional public-key
-pinning, configurable redirects, HTTPS downgrade protection, low-speed
-timeouts, cancellation and streaming sinks.
+The XP network layer owns the application's HTTP contract and implementation:
+request/response types, cancellation, TLS policy, bounded buffering, redirect
+policy, streaming downloads, progress callbacks and certificate inspection.
+`xp::net::CurlHttpTransport` is injected into the app session and used by
+YouTube, OAuth, image, logo and updater flows.
 
-The PS4 backend keeps IPv4 resolution and disables the Linux-style TCP
-keepalive options that previously caused problems on the console. DNS cache
-sharing is retained; TLS sessions and live connections are not shared.
+libcurl and OpenSSL/mbedTLS remain platform dependencies; they are not reused
+application-level Playtube HTTP modules. The PS4 backend keeps IPv4 resolution
+and disables TCP keepalive options that previously caused console problems.
+DNS cache sharing is retained; TLS sessions and live connections are not
+shared.
 
-The application now injects this XP transport into YouTube, OAuth, image,
-logo and update flows. The previous `XpHttpAdapter` and `HttpClient` remain
-as compatibility code for older tests/callers while the migration is completed;
-they are no longer the AppSession transport.
+The former application-level `net::HttpClient`, `XpHttpAdapter` and
+`xp_http_compat` bridge have been removed from the active source/build.
+YouTube request code now uses XP-native request/response types. URL encoding
+and a small SHA-256 streaming utility remain in the migration source while
+their XP-native replacements are prepared.
 
 Peer-certificate inspection is informational only and never authenticates a
-connection. SPKI digest extraction currently reuses the platform crypto
-implementation during the migration; replacing that final shared helper is a
-separate cleanup step.
+connection. SPKI hashing is implemented in XP Network using the platform
+crypto library.
 
-The host tests exercise the transport contract and a real local HTTPS
-streaming download with a trusted test CA. PS4 build success verifies
-compilation and packaging only; real console network behavior still requires
-hardware testing.
+Host tests exercise the XP transport contract, buffering limits, cancellation,
+certificate inspection and a real local HTTPS streaming download with a
+trusted test CA. PS4 build success verifies compilation and packaging only;
+real console network behavior still requires hardware testing.
