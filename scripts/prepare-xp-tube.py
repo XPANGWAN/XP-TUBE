@@ -144,7 +144,6 @@ TEST_PATCHES = {
         ('shows(*s.shell.application, "White")', 'shows(*s.shell.application, "Violet")'),
         ('Playtube', 'XP-TUBE', 9),
         ('"playtube"', '"xp-tube"', 2),
-        ('/pkg/Playtube-', '/pkg/XP-TUBE-', 2),
     ],
     "tests/unit/theme_test.cpp": [
         ('playtube::app::Settings{}.accent == "white"', 'playtube::app::Settings{}.accent == "violet"'),
