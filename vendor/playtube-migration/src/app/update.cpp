@@ -133,68 +133,6 @@ std::string packageFileName(const std::string& version) {
     return safe.empty() ? std::string() : "XP-TUBE-" + safe + ".pkg";
 }
 
-core::Result<Release> fetchLatestRelease(const net::HttpClient& http, const std::string& url,
-                                         const core::CancelToken& token) {
-    net::HttpRequest request;
-    request.url = url;
-    request.maxBodyBytes = 1024 * 1024;
-    // GitHub's API wants a User-Agent; a generic one (no personal detail)
-    request.headers = {{"User-Agent", std::string("XP-TUBE/") + core::version()}, {"Accept", "application/vnd.github+json"}};
-    const auto response = http.send(request, {}, token);
-    if (!response.ok()) {
-        return response.error();
-    }
-    if (response.value().status != 200) {
-        return core::makeError(response.value().status == 404 ? core::ErrorKind::NotFound : core::ErrorKind::Server,
-                               "HTTP " + std::to_string(response.value().status));
-    }
-    return parseLatestRelease(response.value().body);
-}
-
-core::Result<core::Unit> downloadPackage(const net::HttpClient& http, const Release& release, const std::string& path,
-                                         std::function<void(long long, long long)> progress,
-                                         const core::CancelToken& token) {
-    core::FileSink sink(path);
-    if (!sink.ok()) {
-        return core::makeError(core::ErrorKind::Storage, "the package cannot be written");
-    }
-    net::Sha256Stream digest;
-    net::HttpRequest request;
-    request.url = release.packageUrl;
-    request.timeoutMs = 0;  // a large file on a slow network: only the low-speed limit stops it
-    request.headers = {{"User-Agent", std::string("XP-TUBE/") + core::version()}};
-    const auto response = http.download(
-        request,
-        [&](const char* data, std::size_t size) {
-            if (sink.written() + static_cast<long long>(size) > release.size) {
-                return false;  // more than published: not the file we want
-            }
-            digest.update(data, size);
-            return sink.write(data, size);
-        },
-        [&](long long received, long long total) {
-            if (progress) {
-                progress(received, total > 0 ? total : release.size);
-            }
-        },
-        {}, token);
-    if (!response.ok()) {
-        return response.error();
-    }
-    if (response.value().status != 200) {
-        return core::makeError(core::ErrorKind::Server, "HTTP " + std::to_string(response.value().status));
-    }
-    if (sink.written() != release.size || net::hexLower(digest.finish()) != release.sha256) {
-        PF_LOG_WARN("update: the package does not match its published size and digest");
-        return core::makeError(core::ErrorKind::BadResponse, "the package does not match the published one");
-    }
-    if (!sink.commit()) {
-        return core::makeError(core::ErrorKind::Storage, "the package cannot be written");
-    }
-    return core::Unit{};
-}
-
-
 namespace {
 
 core::Error fromXpError(const xp::core::Error& error) {
