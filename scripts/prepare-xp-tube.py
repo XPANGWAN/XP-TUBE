@@ -279,6 +279,21 @@ public:
         }'''),
 ])
 
+
+
+# Settings groups become distinct, calm panels instead of unstructured text separators.
+FILES["src/app/shell/settings_screen.cpp"].append((
+    '''    auto* heading = column.add<ui::Label>(text, ui::FontStyle{ui::theme().fontHeading, ui::FontWeight::SemiBold});
+    heading->margin = {ui::theme().spacingL, 0, 0, 0};
+    return heading;''',
+    '''    auto* heading = column.add<ui::Label>(text, ui::FontStyle{ui::theme().fontHeading, ui::FontWeight::SemiBold});
+    heading->width = ui::SizeSpec::fill();
+    heading->padding = {ui::theme().spacingM, ui::theme().spacingL, ui::theme().spacingM, ui::theme().spacingL};
+    heading->background = ui::theme().surface;
+    heading->cornerRadius = ui::theme().radius;
+    heading->margin = {ui::theme().spacingL, 0, 0, 0};
+    return heading;'''))
+
 def replace_file(rel, replacements):
     path = ROOT / rel
     body = path.read_text(encoding="utf-8")
