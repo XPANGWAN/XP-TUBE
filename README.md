@@ -1,51 +1,70 @@
 # XP-TUBE
 
-**XP-TUBE** is an independent YouTube client for PS4 running GoldHEN.
+**XP-TUBE** is an independently developed YouTube client for PS4 running GoldHEN.
 
-The technical baseline is [PlaytubePS4](https://github.com/LowganDev/PlaytubePS4), pinned to upstream commit `7372c068704f568bf04e1f8b41a04a2149b2e048` (Playtube 1.2.0). The upstream project remains the work of its original author. GPL-3.0 terms, copyright notices, attribution, and corresponding-source obligations are preserved.
+## Project objective
 
-## Non-negotiable project rules
+The final product must not depend on Playtube source code, its repository, its build scripts, or its runtime implementation. The current codebase is still a Playtube-derived migration baseline; complete independence has **not** yet been achieved.
 
-- XP-TUBE has its own package identity, title ID, data directory, logs, and update repository.
+Third-party libraries may be used under their respective licenses. GPL-3.0 obligations, original copyright notices, and third-party notices must be preserved wherever legally required. Removing Playtube branding from the product UI does not authorize removing required attribution or license material.
+
+## Repository and branch policy
+
+- Active development branch: `main`.
+- Backup branch: `feature/xp-tube-independence` (kept at the pre-main migration baseline).
+- Research branch: `research/playtube-baseline` (preserved as historical reference).
+- Do not delete backup/research branches.
+- Do not force-push or rewrite branch history.
+- Changes are made on `main`; use small, reviewable commits for infrastructure changes and coherent batches for product work.
+- Keep a known-good PKG and all build evidence until a replacement is tested on the real PS4.
+
+## Non-negotiable product requirements
+
+- XP-TUBE owns its application identity, package metadata, data directory, logs, updater, UI, settings, navigation, and application architecture.
 - Never overwrite, uninstall, import data from, or modify the user's Playtube installation.
-- Keep the known-good XP-TUBE test package until a replacement has been installed and tested on the PS4.
-- Do not merge into `main` without explicit user approval.
+- Preserve working search, channels, videos, library, account capabilities, and internal playback while replacing implementation.
+- No Playtube repository fetch or Playtube source dependency in the final build.
+- No Playtube branding in the user-facing product.
+- Keep legally required source attribution, GPL notices, and third-party licenses.
 - Do not claim complete YouTube ad removal. SponsorBlock is not a universal ad blocker.
 - Treat YouTube's undocumented InnerTube interface and anti-bot/IP restrictions as reliability risks.
-- Do not claim a package works until its build evidence is verified and it is tested on real hardware.
+- Do not claim a package works until build evidence is verified and it is tested on real hardware.
 
 ## Current engineering state
 
-- [x] Pin the upstream baseline to a reproducible commit.
-- [x] Build and test the initial Playtube-derived XP-TUBE baseline on PS4.
-- [x] Create the isolated `feature/xp-tube-independence` branch.
-- [x] Assign XP-TUBE title ID `XPTB00000` and package metadata.
-- [x] Isolate application data under `/data/XP-TUBE`.
-- [x] Keep account files scoped per PS4 user.
-- [x] Point the updater to `XPANGWAN/XP-TUBE`.
-- [x] Disable the legacy Playtube settings/account migration path.
-- [x] Rename runtime and early-boot logs to XP-TUBE-specific paths.
-- [x] Add CI regression checks for identity, storage isolation, updater, logs, and visible translation branding.
-- [x] Produce a verified PKG and matching GPL corresponding-source archive on the independence branch.
-- [ ] Install and test the latest independence-branch PKG on PS4 while retaining the known-good package and Playtube.
-- [ ] Complete the remaining source/UI identity review.
-- [ ] Begin the independent XP-TUBE visual redesign after isolation and stability checks.
+- [x] XP-TUBE package identity: `XPTB00000`.
+- [x] XP-TUBE data directory: `/data/XP-TUBE`.
+- [x] XP-TUBE-specific updater, runtime log, and boot trace.
+- [x] Playtube settings/account migration disabled.
+- [x] Source-level identity and regression audit exists.
+- [x] Existing baseline package and corresponding-source archive were built and checksum-verified on the backup branch.
+- [x] `main` advanced safely to the latest pre-migration baseline commit `e279d0405124b7cdab367547254e217a7023ec70`.
+- [x] Package-build and host-unit-test workflows now trigger on `main`.
+- [ ] Remove all build-time fetching of the Playtube repository.
+- [ ] Bring the reviewed, license-compliant source into XP-TUBE's own repository and establish source provenance.
+- [ ] Replace the patch-on-upstream build with a native XP-TUBE build.
+- [ ] Inventory and rewrite all Playtube-derived application components required for complete independence.
+- [ ] Rebuild the UI and settings as original XP-TUBE experiences.
+- [ ] Verify no Playtube source/runtime/build dependency remains.
+- [ ] Build and test the independent PKG on a real PS4.
 
-## Latest verified package
+## Temporary migration boundary
 
-The latest package was produced by GitHub Actions run [45991023580](https://github.com/XPANGWAN/XP-TUBE/actions/runs/45991023580) from commit `5ef5983805af270a166f89d0c1385e95ed4e5db5` on `feature/xp-tube-independence`.
+The current workflows still clone the pinned Playtube repository and apply `scripts/prepare-xp-tube.py`. This is a temporary migration mechanism only. It is not the final architecture and must not be described as full independence.
 
-- Package: `IV0001-XPTB00000_00-XPTB000000100000.pkg`
-- SHA-256: `124336d0b5c42a10569f10c614ca671671d95c03b9bf55e40f2f2184ca4c3564`
-- Data directory: `/data/XP-TUBE`
-- Package size: `53,215,232` bytes
-- Runtime log: `/data/XP-TUBE/xp-tube.log`
-- Early boot trace: `/data/XP-TUBE/boot.txt`
+The previous verified package is historical evidence only. It does not prove that the current `main` build is independent or that the package was tested on the current PS4 installation.
 
-This package passed build and checksum verification. Its installation and upgrade behavior still require a real PS4 test.
+## Design direction
+
+- Cinematic dark interface, black and metallic silver with violet as the supporting accent.
+- Original XP-TUBE visual language, not a Playtube reskin.
+- 16:9 TV-first layouts and readable typography.
+- Controller-first navigation for DualShock 4.
+- Vector icons, no emoji, smooth low-overhead transitions.
+- Preserve all working core functions while replacing their implementation.
 
 ## Build and audit
 
-The workflow `.github/workflows/xp-tube-build.yml` fetches the pinned upstream source, applies the documented XP-TUBE patch, runs `scripts/audit-xp-tube.py`, builds the PS4 PKG, and uploads the package together with its manifest, checksum, and corresponding source archive.
+The workflows under `.github/workflows/` currently provide a temporary pinned-source build and host unit-test path. The next independence milestone is to vendor/import the reviewed source with required license history and notices, then change both workflows to build only from XP-TUBE repository contents.
 
-See [the independence audit](docs/INDEPENDENCE-AUDIT.md) for the checks and their limits.
+See `docs/INDEPENDENCE-AUDIT.md` and `docs/ROADMAP.md`.
