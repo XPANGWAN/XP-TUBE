@@ -75,4 +75,6 @@ for translation in translation_files:
     if "Playtube" in content:
         sys.exit(f"[FAIL] legacy Playtube branding remains in {translation.relative_to(ROOT)}")
 print(f"[PASS] {len(translation_files)} translation files are valid and use XP-TUBE branding")
+require("src/app/shell/chrome.cpp", r'add<AccentLabel>.*"XP", style', "XP-TUBE wordmark has a distinct accent XP mark")
+require("src/app/shell/chrome.cpp", r'add<ui::Label>.*"TUBE", style', "XP-TUBE wordmark has a separate TUBE label")
 print("XP-TUBE independence audit passed.")

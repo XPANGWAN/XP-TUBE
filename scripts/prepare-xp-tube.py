@@ -33,7 +33,7 @@ FILES = {
         ('IV0001-PLTB00001_00-PLTB000010100000.pkg', 'IV0001-XPTB00000_00-XPTB000000100000.pkg'),
     ],
     "src/app/shell/chrome.cpp": [
-        ('add<ui::Label>("Playtube", style);', 'add<ui::Label>("XP-TUBE", style);'),
+        ('add<ui::Label>("Playtube", style);', 'add<AccentLabel>("XP", style);\n        add<ui::Label>("TUBE", style);'),
     ],
     "src/app/shell/settings_screen.cpp": [
         ('logo == "youtube" ? "YouTube" : "Playtube"', 'logo == "youtube" ? "YouTube" : "XP-TUBE"'),
