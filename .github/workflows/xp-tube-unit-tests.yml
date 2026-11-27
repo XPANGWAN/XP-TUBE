@@ -58,7 +58,7 @@ jobs:
           cmake --build --preset linux-debug --target playtube_tests -j2
 
       - name: Run unit tests
-        working-directory: upstream
+        working-directory: vendor/playtube-migration
         run: |
           set -euo pipefail
           ctest --preset linux-debug -R unit
