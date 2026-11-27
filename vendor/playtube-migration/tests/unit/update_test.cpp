@@ -14,7 +14,7 @@ TEST_CASE("the latest release: its version, its package, its size and digest") {
     REQUIRE(release.ok());
     CHECK(release.value().version == "1.0.1");
     CHECK(release.value().packageUrl ==
-          "https://github.com/LowganDev/PlaytubePS4/releases/download/1.0.1/IV0001-PLTB00000_00-PLTB000000100000.pkg");
+          "https://github.com/XPANGWAN/XP-TUBE/releases/download/1.0.1/IV0001-XPTB00000_00-XPTB000000100000.pkg");
     CHECK(release.value().size == 50921472);
     CHECK(release.value().sha256 == "0f4d7d60ed66f9927f9c5b3a5da498a942c2edb0e5c56c1d4fa5a53307560f26");
     CHECK_FALSE(app::parseLatestRelease("{}").ok());
@@ -52,7 +52,7 @@ TEST_CASE("the package's file name: XP-TUBE-<version>.pkg, nothing that could le
 #include "support/fake_server.hpp"
 
 TEST_CASE("the package downloaded is kept only when its size and digest match the release") {
-    test::FakeServer server;
+    test::FakeServer server(test::TlsMode::CaSigned);
     const std::string package(200000, 'p');
     server.http().Get("/a.pkg", [&package](const httplib::Request&, httplib::Response& res) {
         res.set_content(package, "application/octet-stream");
@@ -75,6 +75,7 @@ TEST_CASE("the package downloaded is kept only when its size and digest match th
     long long last = 0;
     const auto ok = app::downloadPackage(transport, release, dir + "/XP-TUBE-9.0.0.pkg",
                                          [&](long long received, long long) { last = received; });
+    INFO(ok.ok() ? "download succeeded" : ok.error().message);
     REQUIRE(ok.ok());
     CHECK(last == 200000);
     CHECK(std::filesystem::file_size(dir + "/XP-TUBE-9.0.0.pkg") == 200000);
