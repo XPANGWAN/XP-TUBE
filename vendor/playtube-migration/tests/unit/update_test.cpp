@@ -48,7 +48,7 @@ TEST_CASE("the package's file name: XP-TUBE-<version>.pkg, nothing that could le
 
 #include "core/file_io.hpp"
 #include "net/crypto.hpp"
-#include "net/xp_http_adapter.hpp"
+#include "xp/net/curl_transport.hpp"
 #include "support/fake_server.hpp"
 
 TEST_CASE("the package downloaded is kept only when its size and digest match the release") {
@@ -58,10 +58,9 @@ TEST_CASE("the package downloaded is kept only when its size and digest match th
         res.set_content(package, "application/octet-stream");
     });
     server.start();
-    net::HttpConfig config;
-    config.caFile = test::fixturePath("tls/ca.crt");
-    const net::HttpClient http(config);
-    const net::XpHttpAdapter transport(http);
+    xp::net::HttpConfig config;
+    config.ca_file = test::fixturePath("tls/ca.crt");
+    const xp::net::CurlHttpTransport transport(config);
     char tmpl[] = "/tmp/xp-tube-update-XXXXXX";
     REQUIRE(mkdtemp(tmpl) != nullptr);
     const std::string dir = tmpl;
