@@ -57,10 +57,10 @@ public:
         auto* actions = add<ui::Box>(ui::Axis::Row);
         actions->gap = ui::theme().spacingM;
         actions->margin.top = ui::theme().spacingM;
-        actions->add<ui::Button>(ui::tr("shell.tab.search"), [&session] {
+        actions->add<NavTab>(ui::tr("shell.tab.search"), false, [&session] {
             openTab(session, Tab::Search);
         });
-        actions->add<ui::Button>(ui::tr("shell.tab.subscriptions"), [&session] {
+        actions->add<NavTab>(ui::tr("shell.tab.subscriptions"), false, [&session] {
             openTab(session, Tab::Subscriptions);
         });
     }
