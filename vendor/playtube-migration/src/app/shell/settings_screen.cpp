@@ -121,10 +121,16 @@ private:
     ui::Label* state_;
 };
 
-ui::Label* addHeading(ui::Box& column, const std::string& text) {
-    auto* heading = column.add<ui::Label>(text, ui::FontStyle{ui::theme().fontHeading, ui::FontWeight::SemiBold});
-    heading->margin = {ui::theme().spacingL, 0, 0, 0};
-    return heading;
+ui::Box* addSection(ui::Box& column, const std::string& text) {
+    auto* section = column.add<ui::Box>(ui::Axis::Column);
+    section->width = ui::SizeSpec::fill();
+    section->padding = {ui::theme().spacingL, ui::theme().spacingL, ui::theme().spacingL, ui::theme().spacingL};
+    section->gap = ui::theme().spacingS;
+    section->background = ui::theme().surface;
+    section->cornerRadius = ui::theme().radius;
+    auto* heading = section->add<ui::Label>(text, ui::FontStyle{ui::theme().fontHeading, ui::FontWeight::SemiBold});
+    heading->color = ui::theme().textSecondary;
+    return section;
 }
 
 class SettingsScreen : public ShellScreen {
@@ -140,88 +146,88 @@ public:
         banner_ = column->add<UpdateBanner>([this] { pressUpdate(); });
         banner_->margin = {ui::theme().spacingS, 0, 0, 0};
 
-        addHeading(*column, ui::tr("settings.display"));
-        accent_ = column->add<ui::ValueRow>(ui::tr("settings.accent"), accentName(session_.settings().accent),
+        auto* displaySection = addSection(*column, ui::tr("settings.display"));
+        accent_ = displaySection->add<ui::ValueRow>(ui::tr("settings.accent"), accentName(session_.settings().accent),
                                             [this] { chooseAccent(); });
-        language_ = column->add<ui::ValueRow>(ui::tr("settings.language"), "", [this] { chooseLanguage(); });
+        language_ = displaySection->add<ui::ValueRow>(ui::tr("settings.language"), "", [this] { chooseLanguage(); });
         refreshLanguage();
         remembered = accent_;  // the first setting, not the bar above it
 
         AppSession* shared = &session_;
-        addHeading(*column, ui::tr("settings.playback"));
-        quality_ = column->add<ui::ValueRow>(ui::tr("settings.quality"), heightName(session_.settings().maxHeight),
+        auto* playbackSection = addSection(*column, ui::tr("settings.playback"));
+        quality_ = playbackSection->add<ui::ValueRow>(ui::tr("settings.quality"), heightName(session_.settings().maxHeight),
                                              [this] { chooseQuality(); });
-        sponsor_ = column->add<ui::ValueRow>("SponsorBlock", onOff(session_.settings().sponsorBlock), [this] {
+        sponsor_ = playbackSection->add<ui::ValueRow>("SponsorBlock", onOff(session_.settings().sponsorBlock), [this] {
             session_.settings().sponsorBlock = !session_.settings().sponsorBlock;
             session_.saveSettings();
             sponsor_->setValue(onOff(session_.settings().sponsorBlock));
         });
-        autoplay_ = column->add<ui::ValueRow>(ui::tr("settings.autoplay"), onOff(session_.settings().autoplay),
+        autoplay_ = playbackSection->add<ui::ValueRow>(ui::tr("settings.autoplay"), onOff(session_.settings().autoplay),
                                               [this] {
             session_.settings().autoplay = !session_.settings().autoplay;
             session_.saveSettings();
             autoplay_->setValue(onOff(session_.settings().autoplay));
         });
-        subtitleSize_ = column->add<ui::ValueRow>(ui::tr("settings.subtitle_size"),
+        subtitleSize_ = playbackSection->add<ui::ValueRow>(ui::tr("settings.subtitle_size"),
                                                   subtitleSizeName(session_.settings().subtitleSize),
                                                   [this] { chooseSubtitleSize(); });
-        subtitleBackground_ = column->add<ui::ValueRow>(ui::tr("settings.subtitle_background"),
+        subtitleBackground_ = playbackSection->add<ui::ValueRow>(ui::tr("settings.subtitle_background"),
                                                         onOff(session_.settings().subtitleBackground), [this] {
             session_.settings().subtitleBackground = !session_.settings().subtitleBackground;
             session_.saveSettings();
             subtitleBackground_->setValue(onOff(session_.settings().subtitleBackground));
         });
-        dislikes_ = column->add<ui::ValueRow>(ui::tr("settings.dislikes"), onOff(session_.settings().dislikes), [this] {
+        dislikes_ = playbackSection->add<ui::ValueRow>(ui::tr("settings.dislikes"), onOff(session_.settings().dislikes), [this] {
             session_.settings().dislikes = !session_.settings().dislikes;
             session_.saveSettings();
             dislikes_->setValue(onOff(session_.settings().dislikes));
         });
-        dearrow_ = column->add<ui::ValueRow>(ui::tr("settings.dearrow"), onOff(session_.settings().dearrow), [this] {
+        dearrow_ = playbackSection->add<ui::ValueRow>(ui::tr("settings.dearrow"), onOff(session_.settings().dearrow), [this] {
             session_.settings().dearrow = !session_.settings().dearrow;
             session_.saveSettings();
             dearrow_->setValue(onOff(session_.settings().dearrow));
         });
-        watchHistory_ = column->add<ui::ValueRow>(ui::tr("settings.watch_history"),
+        watchHistory_ = playbackSection->add<ui::ValueRow>(ui::tr("settings.watch_history"),
                                                   onOff(session_.settings().watchHistory), [this] {
             session_.settings().watchHistory = !session_.settings().watchHistory;
             session_.saveSettings();
             watchHistory_->setValue(onOff(session_.settings().watchHistory));
         });
-        column->add<ui::ValueRow>(ui::tr("settings.sponsor.categories"), "", [shared] {
+        playbackSection->add<ui::ValueRow>(ui::tr("settings.sponsor.categories"), "", [shared] {
             ui::Application::current()->push(makeSponsorCategories(*shared));
         });
-        invidious_ = column->add<ui::ValueRow>(ui::tr("settings.invidious"), invidiousName(),
+        invidious_ = playbackSection->add<ui::ValueRow>(ui::tr("settings.invidious"), invidiousName(),
                                                [this] { editInvidious(); });
 
-        addHeading(*column, ui::tr("shell.tab.home"));
-        column->add<ui::ValueRow>(ui::tr("settings.topics"), "", [shared] {
+        auto* homeSection = addSection(*column, ui::tr("shell.tab.home"));
+        homeSection->add<ui::ValueRow>(ui::tr("settings.topics"), "", [shared] {
             ui::Application::current()->push(makeTopics(*shared));
         });
-        shorts_ = column->add<ui::ValueRow>(ui::tr("settings.shorts"), onOff(session_.settings().shorts), [this] {
+        shorts_ = homeSection->add<ui::ValueRow>(ui::tr("settings.shorts"), onOff(session_.settings().shorts), [this] {
             session_.settings().shorts = !session_.settings().shorts;
             session_.saveSettings();
             shorts_->setValue(onOff(session_.settings().shorts));
         });
 
-        addHeading(*column, ui::tr("settings.account"));
+        auto* accountSection = addSection(*column, ui::tr("settings.account"));
         if (session_.account().signedIn()) {
-            column->add<ui::ValueRow>(ui::tr("settings.account.youtube"), core::withoutEmoji(session_.account().name()),
+            accountSection->add<ui::ValueRow>(ui::tr("settings.account.youtube"), core::withoutEmoji(session_.account().name()),
                                       nullptr);
-            column->add<ui::ValueRow>(ui::tr("settings.signout"), "", [this] { confirmSignOut(); });
+            accountSection->add<ui::ValueRow>(ui::tr("settings.signout"), "", [this] { confirmSignOut(); });
         } else {
-            column->add<ui::ValueRow>(ui::tr("shell.signin"), "", [shared] {
+            accountSection->add<ui::ValueRow>(ui::tr("shell.signin"), "", [shared] {
                 openSignIn(*shared, [shared] { openTab(*shared, Tab::Settings); });
             });
         }
 
-        addHeading(*column, ui::tr("settings.about"));
-        column->add<ui::ValueRow>(ui::tr("settings.version"), core::version(), nullptr);
-        update_ = column->add<ui::ValueRow>(ui::tr("settings.update"), "", [this] { pressUpdate(); });
+        auto* aboutSection = addSection(*column, ui::tr("settings.about"));
+        aboutSection->add<ui::ValueRow>(ui::tr("settings.version"), core::version(), nullptr);
+        update_ = aboutSection->add<ui::ValueRow>(ui::tr("settings.update"), "", [this] { pressUpdate(); });
         refreshUpdate();
         if (session_.update) {
             remembered = banner_;  // the screen opens on the banner
         }
-        column->add<ui::ValueRow>(ui::tr("settings.licenses"), "", [shared] {
+        aboutSection->add<ui::ValueRow>(ui::tr("settings.licenses"), "", [shared] {
             ui::Application::current()->push(makeLicenses(*shared));
         });
         scroll->setContent(std::move(content));
