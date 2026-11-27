@@ -294,6 +294,24 @@ FILES["src/app/shell/settings_screen.cpp"].append((
     heading->margin = {ui::theme().spacingL, 0, 0, 0};
     return heading;'''))
 
+
+
+# Refine playback side-panels with the same rounded, theme-aware surface treatment.
+FILES.update({
+    "src/app/shell/chat_panel.cpp": [
+        ('    card_->background = ui::theme().surfaceRaised;  // opaque: the video plays on at the left\n    card_->padding = ui::Insets::all(ui::theme().spacingXl);',
+         '    card_->background = ui::theme().surfaceRaised;  // opaque: the video plays on at the left\n    card_->cornerRadius = ui::theme().radius * 1.35f;\n    card_->padding = ui::Insets::all(ui::theme().spacingXl);'),
+        ('    card_->gap = ui::theme().spacingL;\n    card_->focusable = true;',
+         '    card_->gap = ui::theme().spacingL;\n    card_->clip = true;\n    card_->focusable = true;'),
+    ],
+    "src/app/shell/comments_panel.cpp": [
+        ('    card_->background = ui::theme().surfaceRaised;  // opaque: the video plays on at the left\n    card_->padding = ui::Insets::all(ui::theme().spacingXl);',
+         '    card_->background = ui::theme().surfaceRaised;  // opaque: the video plays on at the left\n    card_->cornerRadius = ui::theme().radius * 1.35f;\n    card_->padding = ui::Insets::all(ui::theme().spacingXl);'),
+        ('    card_->gap = ui::theme().spacingL;\n    card_->focusable = true;',
+         '    card_->gap = ui::theme().spacingL;\n    card_->clip = true;\n    card_->focusable = true;'),
+    ],
+})
+
 def replace_file(rel, replacements):
     path = ROOT / rel
     body = path.read_text(encoding="utf-8")
