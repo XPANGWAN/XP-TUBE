@@ -9,6 +9,7 @@ on:
       - scripts/prepare-xp-tube.py
       - scripts/audit-xp-tube.py
       - docs/**
+      - vendor/playtube-migration/**
       - README.md
   workflow_dispatch:
 
@@ -24,12 +25,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Fetch pinned upstream (temporary migration stage)
+      - name: Use repository-vendored migration source
         run: |
           set -euo pipefail
-          git clone https://github.com/LowganDev/PlaytubePS4.git upstream
-          git -C upstream checkout 7372c068704f568bf04e1f8b41a04a2149b2e048
-          test "$(git -C upstream rev-parse HEAD)" = "7372c068704f568bf04e1f8b41a04a2149b2e048"
+          test -s vendor/playtube-migration/CMakeLists.txt
+          test -s vendor/playtube-migration/LICENSE
+          test -s vendor/playtube-migration/THIRD_PARTY_LICENSES
+          test -s docs/SOURCE-PROVENANCE.md
+          test -s docs/SOURCE-FILE-CHECKSUMS.txt
 
       - name: Install dependencies
         run: |
@@ -43,11 +46,12 @@ jobs:
       - name: Apply XP-TUBE patches and audit
         run: |
           set -euo pipefail
+          export XP_TUBE_SOURCE_ROOT="$GITHUB_WORKSPACE/vendor/playtube-migration"
           python3 scripts/prepare-xp-tube.py
           python3 scripts/audit-xp-tube.py
 
       - name: Build unit test binary
-        working-directory: upstream
+        working-directory: vendor/playtube-migration
         run: |
           set -euo pipefail
           cmake --preset linux-debug
