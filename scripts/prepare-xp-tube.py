@@ -158,7 +158,6 @@ class RowsScreen : public ShellScreen {'''),
     ],
     "src/app/shell/settings_screen.cpp": [
         ('logo == "youtube" ? "YouTube" : "Playtube"', 'logo == "youtube" ? "YouTube" : "XP-TUBE"'),
-        ('return logo == "youtube" ? "YouTube" : "Playtube";', 'return logo == "youtube" ? "YouTube" : "XP-TUBE";'),
         ('settings.logo == "youtube" ? "playtube" : "youtube"', 'settings.logo == "youtube" ? "xp-tube" : "youtube"'),
         ('// The banner at the top of the settings while a newer Playtube is published:', '// The banner at the top of the settings while a newer XP-TUBE release is published:'),
     ],
