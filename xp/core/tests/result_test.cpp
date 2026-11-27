@@ -24,6 +24,10 @@ int main() {
     auto moved = Result<std::string>::success(std::string("XP-TUBE"));
     assert(std::move(moved).value() == "XP-TUBE");
 
+    assert(ErrorCode::timeout != ErrorCode::network);
+    assert(ErrorCode::tls != ErrorCode::certificate_untrusted);
+    assert(ErrorCode::bad_response != ErrorCode::storage);
+
     auto no_value = Result<void>::success();
     assert(no_value.has_value());
 
