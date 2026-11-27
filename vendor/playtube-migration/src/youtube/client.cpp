@@ -158,7 +158,7 @@ core::Result<std::string> Client::get(const std::string& url, const std::string&
     request.url = url;
     request.maxBodyBytes = kMaxReplyBytes;
     request.headers = {{"User-Agent", userAgent}};
-    return checked(http_.send(request, {}, cancel), "request");
+    return checked(net::sendViaXp(http_, request, cancel), "request");
 }
 
 std::string Client::visitorData(const core::CancelToken& cancel) const {
@@ -172,7 +172,7 @@ std::string Client::visitorData(const core::CancelToken& cancel) const {
     request.url = endpoints_.youtube + "/sw.js_data";
     request.maxBodyBytes = kMaxReplyBytes;
     request.headers = {{"User-Agent", kWebAgent}, {"Cookie", "SOCS=CAI"}};
-    const auto body = checked(http_.send(request, {}, cancel), "sw.js_data");
+    const auto body = checked(net::sendViaXp(http_, request, cancel), "sw.js_data");
     const std::string visitor = body.ok() ? parseVisitorData(body.value()) : std::string();
     if (visitor.empty()) {
         PF_LOG_WARN("youtube: no visitor id");
@@ -199,7 +199,7 @@ bool Client::reachable(const std::string& url, const std::string& userAgent, con
     request.timeoutMs = 15000;
     request.headers = {{"User-Agent", userAgent},
                        {"Range", "bytes=" + std::to_string(at) + "-" + std::to_string(length > 0 ? at : 1023)}};
-    const auto response = http_.send(request, {}, cancel);
+    const auto response = net::sendViaXp(http_, request, cancel);
     const bool ok = response.ok() && response.value().status >= 200 && response.value().status < 300;
     if (!ok) {
         PF_LOG_DEBUG("youtube: probe at %lld: %s", at,
@@ -523,7 +523,7 @@ core::Result<core::Unit> Client::report(const std::string& url, const std::strin
     request.url = url;
     request.maxBodyBytes = 64 * 1024;
     request.headers = {{"User-Agent", kTvAgent}, {"Authorization", "Bearer " + accessToken}};
-    const auto body = checked(http_.send(request, {}, cancel), "report");
+    const auto body = checked(net::sendViaXp(http_, request, cancel), "report");
     if (!body.ok()) {
         return body.error();
     }
