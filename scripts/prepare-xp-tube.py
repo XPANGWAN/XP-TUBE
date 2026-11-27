@@ -45,7 +45,7 @@ FILES = {
         ('PF_LOG_INFO("Playtube %s, language %s, data %s"', 'PF_LOG_INFO("XP-TUBE %s, language %s, data %s"'),
     ],
     "scripts/make-ps4-art.py": [
-        ("Playtube", "XP-TUBE"),
+        ("Playtube", "XP-TUBE", 7),
     ],
 }
 
