@@ -6,6 +6,7 @@ add_library(xp_core STATIC
     src/file_store.cpp
     src/directory_store.cpp
     src/redaction.cpp
+    src/logger.cpp
 )
 target_include_directories(xp_core PUBLIC include)
 target_compile_features(xp_core PUBLIC cxx_std_17)
@@ -39,4 +40,8 @@ if(BUILD_TESTING)
     add_executable(xp_core_redaction_tests tests/redaction_test.cpp)
     target_link_libraries(xp_core_redaction_tests PRIVATE xp_core)
     add_test(NAME xp_core_redaction_unit COMMAND xp_core_redaction_tests)
+
+    add_executable(xp_core_logger_tests tests/logger_test.cpp)
+    target_link_libraries(xp_core_logger_tests PRIVATE xp_core)
+    add_test(NAME xp_core_logger_unit COMMAND xp_core_logger_tests)
 endif()
