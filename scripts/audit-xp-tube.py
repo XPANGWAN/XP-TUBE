@@ -108,6 +108,13 @@ require("src/app/shell/player_screen.cpp", r"bind\(platform::Action::L1", "playe
 require("src/app/shell/player_screen.cpp", r"bind\(platform::Action::R1", "player retains next-track or seek controller shortcut")
 require("src/app/shell/player_screen.cpp", r"bind\(platform::Action::Options", "player retains the options overlay shortcut")
 require("src/app/shell/player_screen.cpp", r"bind\(platform::Action::Menu", "player retains the menu overlay shortcut")
+require("src/app/shell/player_screen.cpp", r"playbackSpeeds\(\)", "player retains selectable playback speeds")
+require("src/app/shell/player_screen.cpp", r"chooseQuality\(\)", "player retains video quality selection")
+require("src/app/shell/player_screen.cpp", r"chooseSubtitles\(\)", "player retains subtitle selection")
+require("src/app/shell/player_screen.cpp", r"streams_\.live", "player retains live-stream-specific playback handling")
+require("src/app/shell/player_screen.cpp", r"shorts_", "player retains Shorts-specific playback handling")
+require("src/app/shell/settings_screen.cpp", r"settings\(\)\.shorts = !session_\.settings\(\)\.shorts", "settings retain the Shorts visibility preference")
+require("src/app/shell/settings_screen.cpp", r"settings\(\)\.maxHeight", "settings retain the preferred playback quality")
 require("src/app/shell/player_screen.cpp", r"ui::nvgColor\(ui::theme\(\)\.accent\)", "player progress uses the XP-TUBE theme accent")
 require("src/app/shell/cards.cpp", r"ui::theme\(\)\.accent", "video-card focus styling follows the selected theme accent")
 
