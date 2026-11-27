@@ -142,7 +142,7 @@ TEST_PATCHES = {
     ],
     "tests/unit/shell_screens_test.cpp": [
         ('shows(*s.shell.application, "White")', 'shows(*s.shell.application, "Violet")'),
-        ('Playtube', 'XP-TUBE', 6),
+        ('Playtube', 'XP-TUBE', 9),
         ('"playtube"', '"xp-tube"', 2),
         ('/pkg/Playtube-', '/pkg/XP-TUBE-', 2),
     ],
@@ -151,7 +151,7 @@ TEST_PATCHES = {
     ],
     "tests/unit/update_test.cpp": [
         ('Playtube-<version>.pkg', 'XP-TUBE-<version>.pkg'),
-        ('"Playtube-', '"XP-TUBE-', 5),
+        ('"Playtube-', '"XP-TUBE-', 7),
     ],
     "tests/unit/version_test.cpp": [
         ('"PLTB00000"', '"XPTB00000"'),
