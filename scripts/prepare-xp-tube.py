@@ -44,7 +44,7 @@ FILES = {
          'case player::EngineEvent::Error:\n            PF_LOG_WARN("player: %s: %s", videoId_.c_str(), engine_->state().error.c_str());\n            if (!streamRecoveryInFlight_) {\n                // A stream URL can expire or be cut even after its initial reachability probe.\n                // Refresh it once automatically, preserving the last known playback position.\n                streamRecoveryInFlight_ = true;\n                lastPosition_ = std::max(lastPosition_, engine_->state().position);\n                PF_LOG_WARN("player: %s: refreshing a failed stream once", videoId_.c_str());\n                restart();\n                showBar();\n            } else {\n                streamRecoveryInFlight_ = false;\n                showError(core::makeError(core::ErrorKind::Network, engine_->state().error));\n            }\n            break;'),
         ('    bool frameShown_ = false;\n    bool errorShown_ = false;',
          '    bool frameShown_ = false;\n    bool streamRecoveryInFlight_ = false;  // one automatic fresh-URL attempt until a frame plays\n    bool errorShown_ = false;'),
-        ('const ui::Color kPlayedColor{0xFF, 0x00, 0x33, 0xFF};   // YouTube red: the part played and the head', '// The played portion and head follow XP-TUBE\\'s selected accent colour.'),
+        ('const ui::Color kPlayedColor{0xFF, 0x00, 0x33, 0xFF};   // YouTube red: the part played and the head', "// The played portion and head follow XP-TUBE's selected accent colour."),
         ('ui::nvgColor(kPlayedColor)', 'ui::nvgColor(ui::theme().accent)', 2),
     ],
     "src/app/gallery.cpp": [
