@@ -82,7 +82,7 @@ require("src/app/shell/player_screen.cpp", r'ui::nvgColor\(ui::theme\(\)\.accent
 forbid("src/app/shell/player_screen.cpp", r'kPlayedColor|0xFF, 0x00, 0x33', "hard-coded YouTube-red player progress colour")
 
 # Protect the tested Playtube-derived experience while XP-TUBE is rebranded.
-require("src/app/shell/nav_bar.cpp", r"Tab::Home[\\s\\S]*Tab::Search[\\s\\S]*Tab::Subscriptions[\\s\\S]*Tab::Library", "home, search, subscriptions, and library navigation remain available")
+require("src/app/shell/nav_bar.cpp", r"Tab::Home[\s\S]*Tab::Search[\s\S]*Tab::Subscriptions[\s\S]*Tab::Library", "home, search, subscriptions, and library navigation remain available")
 require("src/app/shell/search_screen.cpp", r"ui::TextField", "controller-friendly search text field remains available")
 require("src/app/shell/search_screen.cpp", r"filtersButton_", "search filters remain available")
 require("src/app/shell/search_screen.cpp", r"youtube\(\)\.suggestions", "search suggestions remain connected")
