@@ -102,10 +102,13 @@ Return YouTube Dislike — the dislike counts come from its API (https://returny
 OpenSSL libcrypto (the system's, for certificate fingerprints) — Apache License 2.0. https://openssl.org
 libmpv, FFmpeg and their dependencies on Linux are the system's.
 
-== XP-TUBE native application core ==
+== XP-TUBE native application modules ==
 
 XP-TUBE native core (xp/core) — GNU General Public License v3.0 or later (GPL-3.0.txt).
   Original XP-TUBE implementation; see docs/SOURCE-PROVENANCE.md and xp/core/README.md.
+
+XP-TUBE native network transport (xp/net) — GNU General Public License v3.0 or later (GPL-3.0.txt).
+  Original XP-TUBE implementation; uses libcurl and the platform's crypto library as external dependencies.
 
 == Development and tests only (not shipped) ==
 
