@@ -10,6 +10,7 @@ has applied the XP-TUBE patch and before the PS4 package is built.
 - The startup path does not call Playtube's legacy settings/account importer and does not read `/data/Playtube`.
 - The updater checks XPANGWAN/XP-TUBE releases and uses XP-TUBE package naming.
 - The runtime log is named `xp-tube.log` under `/data/XP-TUBE`; the earliest boot trace derives its directory from `appFolder()` and writes `/data/XP-TUBE/boot.txt` with XP-TUBE-labelled messages.
+- Every shipped translation JSON file is parsed during CI and checked for leftover visible `Playtube` branding; upstream legal notices and attribution outside translations are not rewritten by this check.
 
 ## Important boundary
 
