@@ -68,7 +68,7 @@ AppSession::AppSession(net::HttpConfig http, std::string settingsPath, std::stri
 void AppSession::startYoutube(const std::string& uiLanguage, youtube::Endpoints endpoints) {
     const YoutubeLocale locale = youtubeLocale(uiLanguage);
     youtube_ = std::make_unique<youtube::Client>(xpHttp_, endpoints, locale.hl, locale.gl);
-    auth_ = std::make_unique<youtube::Auth>(http_, std::move(endpoints));
+    auth_ = std::make_unique<youtube::Auth>(xpHttp_, std::move(endpoints));
 }
 
 void AppSession::importPrevious(const std::string& oldConfigPath) {
