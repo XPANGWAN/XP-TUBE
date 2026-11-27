@@ -296,6 +296,14 @@ FILES["src/app/shell/settings_screen.cpp"].append((
 
 
 
+# Make the active navigation destination unmistakable while keeping controller focus dominant.
+FILES["src/app/shell/nav_bar.cpp"].append((
+    """    background = focused_ ? ui::theme().controlFocused : ui::Color{0, 0, 0, 0};
+    label_->color = focused_ ? ui::theme().onAccent : current_ ? ui::theme().text : ui::theme().textSecondary;""",
+    """    background = focused_ ? ui::theme().controlFocused
+                           : current_ ? ui::withAlpha(ui::theme().accent, 0x30) : ui::Color{0, 0, 0, 0};
+    label_->color = focused_ ? ui::theme().onAccent : current_ ? ui::theme().accent : ui::theme().textSecondary;"""))
+
 # Refine playback side-panels with the same rounded, theme-aware surface treatment.
 FILES.update({
     "src/app/shell/chat_panel.cpp": [
