@@ -62,6 +62,7 @@ FILES = {
         ('std::string logo = "playtube";', 'std::string logo = "xp-tube";'),
     ],
     "src/app/shell/settings_screen.cpp": [
+        ('logo == "youtube" ? "YouTube" : "Playtube"', 'logo == "youtube" ? "YouTube" : "XP-TUBE"'),
         ('settings.logo == "youtube" ? "playtube" : "youtube"', 'settings.logo == "youtube" ? "xp-tube" : "youtube"'),
     ],
     "src/ui/theme.hpp": [
@@ -75,6 +76,7 @@ FILES = {
         ("// The header's logo of the settings: the YouTube logo fetched (YouTube's own file, never shipped with Playtube)\n    // and drawn, or Playtube's; the text logo stays while it comes or when it cannot.", "// The header logo: XP-TUBE by default, or YouTube's own fetched logo when explicitly selected in settings."),
     ],
     "src/app/app.cpp": [
+        ('PF_LOG_INFO("Playtube %s, language %s, data %s"', 'PF_LOG_INFO("XP-TUBE %s, language %s, data %s"'),
         ('session.checkForUpdate();  // the settings tab gets a dot when a newer Playtube is published', 'session.checkForUpdate();  // the settings tab gets a dot when a newer XP-TUBE release is published'),
     ],
 }
