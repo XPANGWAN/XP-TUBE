@@ -36,11 +36,15 @@ jobs:
           test "$(git -C upstream rev-parse HEAD)" = "7372c068704f568bf04e1f8b41a04a2149b2e048"
           git -C upstream status --short
 
+      - name: Install artwork generator dependency
+        run: python3 -m pip install --user Pillow
+
       - name: Apply XP-TUBE identity and account-isolation patch
         shell: bash
         run: |
           set -euo pipefail
           python3 scripts/prepare-xp-tube.py
+          python3 upstream/scripts/make-ps4-art.py
           cd upstream
           git diff --check
           grep -q 'XPTB00000' src/core/version.cpp
