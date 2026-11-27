@@ -1,26 +1,28 @@
-# XP-TUBE native network contracts
+# XP-TUBE native network
 
-This module defines XP-owned request, response, TLS-policy, cancellation,
-progress, certificate-inspection, and streaming-sink contracts. It deliberately
-does not select or implement a socket/TLS backend yet.
+The XP network layer owns the HTTP request/response contract, cancellation,
+TLS policy, bounded buffering, redirect policy, streaming, progress and
+certificate inspection. `xp::net::CurlHttpTransport` is now the application
+transport implementation. It uses libcurl as a platform dependency, with
+system CA and hostname verification enabled by default, optional public-key
+pinning, configurable redirects, HTTPS downgrade protection, low-speed
+timeouts, cancellation and streaming sinks.
 
-The migration application's current HTTP implementation remains in
-`vendor/playtube-migration/src/net/http.cpp` and uses libcurl with the
-platform's existing TLS libraries. The application target now compiles the XP
-HTTP contract as an integration guard, while libcurl remains the active
-transport. The next stage will implement an adapter behind
-`IHttpTransport`, then move callers incrementally after PS4 TLS, redirect,
-timeout, cancellation, and streaming tests pass.
+The PS4 backend keeps IPv4 resolution and disables the Linux-style TCP
+keepalive options that previously caused problems on the console. DNS cache
+sharing is retained; TLS sessions and live connections are not shared.
 
-Security defaults are explicit: system CA and hostname verification remain
-the default; public-key pinning is opt-in; peer-certificate inspection is
-informational and must never be treated as authenticated transport. The
-contract also records HTTPS downgrade protection, redirect limits, low-speed
-timeouts, and bounded buffered responses. Streaming downloads report
-progress and can be stopped by cancellation or a refusing sink.
+The application now injects this XP transport into YouTube, OAuth, image,
+logo and update flows. The previous `XpHttpAdapter` and `HttpClient` remain
+as compatibility code for older tests/callers while the migration is completed;
+they are no longer the AppSession transport.
 
-The shared XP error model includes typed timeout, TLS, untrusted-certificate,
-bad-response, storage, and unsupported-operation categories.
+Peer-certificate inspection is informational only and never authenticates a
+connection. SPKI digest extraction currently reuses the platform crypto
+implementation during the migration; replacing that final shared helper is a
+separate cleanup step.
 
-This contract and compile guard do not replace the legacy HTTP implementation
-and do not claim an independent HTTP backend.
+The host tests exercise the transport contract and a real local HTTPS
+streaming download with a trusted test CA. PS4 build success verifies
+compilation and packaging only; real console network behavior still requires
+hardware testing.
