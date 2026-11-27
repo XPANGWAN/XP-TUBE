@@ -32,10 +32,14 @@ require("src/app/update.cpp", r'"XP-TUBE-"', "downloaded update packages use XP-
 require("src/app/update.cpp", r'std::string\("XP-TUBE/"\)', "updater User-Agent uses XP-TUBE identity")
 require("src/app/app.cpp", r'core::dataPath\("settings\.json"\)', "settings resolve under the app data root")
 require("src/app/app.cpp", r'profileFile\(consoleUser, "account\.json"\)', "account data remains profile-scoped")
+require("src/platform/sdl_platform.cpp", r'core::dataPath\("xp-tube\.log"\)', "runtime log uses XP-TUBE filename")
+require("src/core/boot_trace.cpp", r'XP-TUBE boot:', "early boot messages use XP-TUBE identity")
 require("src/core/boot_trace.cpp", r'"/data/%s".*appFolder\(\)', "early boot trace uses the app-specific data folder")
 require("src/core/boot_trace.cpp", r'"%s/boot\.txt"', "early boot trace writes boot.txt")
 forbid("src/app/app.cpp", r'session\.importPrevious\s*\(', "legacy Playtube account/settings import call")
 forbid("src/app/app.cpp", r'/data/Playtube', "legacy Playtube data path in app startup")
+forbid("src/platform/sdl_platform.cpp", r'playtube\.log', "legacy Playtube log filename")
+forbid("src/core/boot_trace.cpp", r'playtube boot:', "legacy Playtube boot-log label")
 forbid("src/core/version.cpp", r'PLTB0000[01]|return "Playtube', "legacy Playtube package identity")
 
 # The importer may remain in upstream for compatibility, but XP-TUBE must not call it.
