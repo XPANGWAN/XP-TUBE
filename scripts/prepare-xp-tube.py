@@ -332,7 +332,7 @@ FILES["src/app/shell/cards.cpp"].extend([
     ('    title_->margin.top = 12;',
      '    title_->margin.top = ui::theme().spacingM;'),
     ('    channel_->margin.top = 4;',
-     '    channel_->margin.top = ui::theme().spacingXs;'),
+     '    channel_->margin.top = ui::theme().spacingS;'),
 ])
 
 def replace_file(rel, replacements):
