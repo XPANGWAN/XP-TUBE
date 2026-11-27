@@ -85,7 +85,7 @@ jobs:
           - Import method: Git subtree with upstream commit ancestry preserved.
           - Import date: $(date -u +%Y-%m-%d)
           - Imported regular files: $FILE_COUNT
-          - SHA-256 inventory: `docs/SOURCE-FILE-CHECKSUMS.txt`
+          - SHA-256 inventory: docs/SOURCE-FILE-CHECKSUMS.txt
 
           The directory $PREFIX/ is a temporary migration reference. It is
           not an XP-TUBE-authored implementation and must not be presented as
@@ -103,6 +103,8 @@ jobs:
              that removal is appropriate.
           EOF
 
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/SOURCE-PROVENANCE.md docs/SOURCE-FILE-CHECKSUMS.txt
           git commit -m "build: vendor pinned migration source with provenance and checksums"
           git push origin HEAD:main
