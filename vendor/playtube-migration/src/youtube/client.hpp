@@ -3,7 +3,6 @@
 #include <chrono>
 #include <functional>
 #include <map>
-#include <memory>
 #include <mutex>
 #include <optional>
 #include <string>
@@ -12,8 +11,6 @@
 
 #include "core/result.hpp"
 #include "core/task.hpp"
-#include "net/http.hpp"
-#include "net/xp_http_adapter.hpp"
 #include "xp/net/http.hpp"
 #include "youtube/models.hpp"
 #include "youtube/streams.hpp"
@@ -41,8 +38,6 @@ struct Endpoints {
 class Client {
 public:
     Client(const xp::net::IHttpTransport& http, Endpoints endpoints, std::string hl, std::string gl);
-    // Compatibility for existing callers/tests; requests still flow through the XP transport contract.
-    Client(const net::HttpClient& http, Endpoints endpoints, std::string hl, std::string gl);
 
     // `params`: the filters (searchParams); empty for a plain search
     core::Result<VideoPage> search(const std::string& query, const core::CancelToken& cancel = {},
@@ -147,7 +142,6 @@ private:
                                        bool& setback, bool& blocked) const;
     bool reachable(const std::string& url, const std::string& userAgent, const core::CancelToken& cancel) const;
 
-    std::unique_ptr<net::XpHttpAdapter> legacyAdapter_;
     const xp::net::IHttpTransport& http_;
     Endpoints endpoints_;
     std::string hl_;
