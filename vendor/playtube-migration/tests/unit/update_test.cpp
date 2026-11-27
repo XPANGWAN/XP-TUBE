@@ -75,7 +75,6 @@ TEST_CASE("the package downloaded is kept only when its size and digest match th
     long long last = 0;
     const auto ok = app::downloadPackage(transport, release, dir + "/XP-TUBE-9.0.0.pkg",
                                          [&](long long received, long long) { last = received; });
-    INFO(ok.ok() ? "download succeeded" : ok.error().message);
     REQUIRE(ok.ok());
     CHECK(last == 200000);
     CHECK(std::filesystem::file_size(dir + "/XP-TUBE-9.0.0.pkg") == 200000);
