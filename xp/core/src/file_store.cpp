@@ -49,7 +49,7 @@ Result<std::string> read_file(const std::string& path, std::size_t max_bytes) {
             Error::make(ErrorCode::invalid_argument, "Invalid file path", path));
     }
 
-    int flags = O_RDONLY;
+    int flags = O_RDONLY | O_NONBLOCK;
 #ifdef O_NOFOLLOW
     flags |= O_NOFOLLOW;
 #endif
@@ -122,23 +122,26 @@ Result<void> write_file_atomic(const std::string& path, std::string_view bytes) 
     }
     temporary.assign(name.data());
 
+    int failure_code = 0;
     bool ok = (::fchmod(fd, 0600) == 0);
+    if (!ok) failure_code = errno;
     std::size_t offset = 0;
     while (ok && offset < bytes.size()) {
         const ssize_t count = ::write(fd, bytes.data() + offset, bytes.size() - offset);
         if (count < 0 && errno == EINTR) continue;
         if (count <= 0) {
+            failure_code = count == 0 ? EIO : errno;
             ok = false;
             break;
         }
         offset += static_cast<std::size_t>(count);
     }
-    if (ok && ::fsync(fd) != 0) ok = false;
+    if (ok && ::fsync(fd) != 0) { failure_code = errno; ok = false; }
     const int close_result = ::close(fd);
-    if (close_result != 0) ok = false;
+    if (close_result != 0 && ok) { failure_code = errno; ok = false; }
 
     if (!ok) {
-        const int code = errno;
+        const int code = failure_code == 0 ? EIO : failure_code;
         (void)::unlink(temporary.c_str());
         return Result<void>::failure(io_error("write temporary file", path, code));
     }
@@ -167,7 +170,7 @@ Result<std::unique_ptr<FileSink>> FileSink::open(const std::string& path,
             Error::make(ErrorCode::invalid_argument, "Invalid download path", path));
     }
     const std::string part = path + ".part";
-    int flags = O_WRONLY | O_CREAT;
+    int flags = O_WRONLY | O_CREAT | O_NONBLOCK;
 #ifdef O_NOFOLLOW
     flags |= O_NOFOLLOW;
 #endif
@@ -178,14 +181,20 @@ Result<std::unique_ptr<FileSink>> FileSink::open(const std::string& path,
     }
 
     struct stat info {};
-    if (::fstat(fd, &info) != 0 || !S_ISREG(info.st_mode) ||
-        info.st_size < 0 || info.st_size > LLONG_MAX) {
+    if (::fstat(fd, &info) != 0) {
         const int code = errno;
         (void)::close(fd);
         if (!resume) (void)::unlink(part.c_str());
+        return Result<std::unique_ptr<FileSink>>::failure(io_error("fstat part file", part, code));
+    }
+    if (!S_ISREG(info.st_mode) || info.st_size < 0 ||
+        static_cast<unsigned long long>(info.st_size) >
+            static_cast<unsigned long long>(LLONG_MAX)) {
+        (void)::close(fd);
+        if (!resume) (void)::unlink(part.c_str());
         return Result<std::unique_ptr<FileSink>>::failure(
-            Error::make(ErrorCode::io, "Part file is not a valid regular file",
-                        part + ": " + std::strerror(code)));
+            Error::make(ErrorCode::invalid_argument,
+                        "Part path must be a regular file with a valid size", part));
     }
     if (::fchmod(fd, 0600) != 0) {
         const int code = errno;
@@ -231,9 +240,15 @@ Result<void> FileSink::fail(Error error) {
 Result<void> FileSink::write_out(const char* data, std::size_t size) {
     std::size_t offset = 0;
     while (offset < size) {
-        const ssize_t count = ::write(fd_, data + offset, size - offset);
+        const std::size_t remaining = size - offset;
+        const std::size_t chunk = std::min(
+            remaining, static_cast<std::size_t>(SSIZE_MAX));
+        const ssize_t count = ::write(fd_, data + offset, chunk);
         if (count < 0 && errno == EINTR) continue;
-        if (count <= 0) return fail(io_error("write part file", part_path_));
+        if (count <= 0) {
+            const int code = count == 0 ? EIO : errno;
+            return fail(io_error("write part file", part_path_, code));
+        }
         offset += static_cast<std::size_t>(count);
     }
     return Result<void>::success();
@@ -311,9 +326,10 @@ Result<void> FileSink::keep() {
     if (!flushed) return flushed;
     if (::fsync(fd_) != 0) return fail(io_error("fsync part file", part_path_));
     if (::close(fd_) != 0) {
+        const int code = errno;
         fd_ = -1;
         (void)::unlink(part_path_.c_str());
-        return Result<void>::failure(io_error("close part file", part_path_));
+        return Result<void>::failure(io_error("close part file", part_path_, code));
     }
     fd_ = -1;
     keep_part_ = true;
@@ -329,9 +345,10 @@ Result<void> FileSink::commit() {
     if (!flushed) return flushed;
     if (::fsync(fd_) != 0) return fail(io_error("fsync part file", part_path_));
     if (::close(fd_) != 0) {
+        const int code = errno;
         fd_ = -1;
         (void)::unlink(part_path_.c_str());
-        return Result<void>::failure(io_error("close part file", part_path_));
+        return Result<void>::failure(io_error("close part file", part_path_, code));
     }
     fd_ = -1;
     if (::rename(part_path_.c_str(), final_path_.c_str()) != 0) {

@@ -1,5 +1,6 @@
 #include "xp/core/file_store.hpp"
 
+#include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -162,6 +163,8 @@ void test_invalid_inputs_and_symlinks(const std::string& root) {
 
     const std::string target = root + "/target";
     const std::string link = root + "/link";
+    const std::string part_target = root + "/part-target";
+    const std::string part_link = root + "/symlink-download.part";
     write_raw(target, "do-not-follow");
     if (::symlink(target.c_str(), link.c_str()) == 0) {
         auto symlink_read = xp::core::read_file(link, 100);
@@ -170,6 +173,17 @@ void test_invalid_inputs_and_symlinks(const std::string& root) {
 #else
         (void)symlink_read;
 #endif
+    }
+    write_raw(part_target, "external");
+    if (::symlink(part_target.c_str(), part_link.c_str()) == 0) {
+        auto symlink_sink = xp::core::FileSink::open(root + "/symlink-download");
+#ifdef O_NOFOLLOW
+        check(!symlink_sink, "download sink refuses a symlink part file");
+#else
+        (void)symlink_sink;
+#endif
+        check(read_raw(part_target) == "external",
+              "opening a symlink part never truncates its target");
     }
 }
 
