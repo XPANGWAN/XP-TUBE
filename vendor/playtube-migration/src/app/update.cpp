@@ -194,6 +194,100 @@ core::Result<core::Unit> downloadPackage(const net::HttpClient& http, const Rele
     return core::Unit{};
 }
 
+
+namespace {
+
+core::Error fromXpError(const xp::core::Error& error) {
+    core::ErrorKind kind = core::ErrorKind::Network;
+    switch (error.code) {
+    case xp::core::ErrorCode::invalid_argument: kind = core::ErrorKind::InvalidAddress; break;
+    case xp::core::ErrorCode::timeout: kind = core::ErrorKind::Timeout; break;
+    case xp::core::ErrorCode::tls: kind = core::ErrorKind::Tls; break;
+    case xp::core::ErrorCode::certificate_untrusted: kind = core::ErrorKind::CertificateUntrusted; break;
+    case xp::core::ErrorCode::cancelled: kind = core::ErrorKind::Cancelled; break;
+    case xp::core::ErrorCode::storage:
+    case xp::core::ErrorCode::io: kind = core::ErrorKind::Storage; break;
+    case xp::core::ErrorCode::bad_response: kind = core::ErrorKind::BadResponse; break;
+    case xp::core::ErrorCode::not_found: kind = core::ErrorKind::NotFound; break;
+    case xp::core::ErrorCode::unavailable: kind = core::ErrorKind::Server; break;
+    case xp::core::ErrorCode::network:
+    case xp::core::ErrorCode::unsupported:
+    case xp::core::ErrorCode::internal: kind = core::ErrorKind::Network; break;
+    }
+    return core::makeError(kind, error.message);
+}
+
+xp::net::CancelToken xpCancel(const core::CancelToken& token) {
+    return xp::net::CancelToken([token] { return token.cancelled(); });
+}
+
+}  // namespace
+
+core::Result<Release> fetchLatestRelease(const xp::net::IHttpTransport& http, const std::string& url,
+                                         const core::CancelToken& token) {
+    xp::net::HttpRequest request;
+    request.url = url;
+    request.max_body_bytes = 1024 * 1024;
+    request.headers = {{"User-Agent", std::string("XP-TUBE/") + core::version()},
+                       {"Accept", "application/vnd.github+json"}};
+    const auto response = http.send(request, xpCancel(token));
+    if (!response.has_value()) {
+        return fromXpError(response.error());
+    }
+    if (response.value().status != 200) {
+        return core::makeError(response.value().status == 404 ? core::ErrorKind::NotFound : core::ErrorKind::Server,
+                               "HTTP " + std::to_string(response.value().status));
+    }
+    return parseLatestRelease(response.value().body);
+}
+
+core::Result<core::Unit> downloadPackage(const xp::net::IHttpTransport& http, const Release& release,
+                                         const std::string& path,
+                                         std::function<void(long long, long long)> progress,
+                                         const core::CancelToken& token) {
+    if (release.size <= 0 || !hex64(release.sha256) || release.packageUrl.rfind("https://", 0) != 0) {
+        return core::makeError(core::ErrorKind::BadResponse, "the release package metadata is invalid");
+    }
+    core::FileSink sink(path);
+    if (!sink.ok()) {
+        return core::makeError(core::ErrorKind::Storage, "the package cannot be written");
+    }
+    net::Sha256Stream digest;
+    xp::net::HttpRequest request;
+    request.url = release.packageUrl;
+    request.timeout_ms = 0;
+    request.headers = {{"User-Agent", std::string("XP-TUBE/") + core::version()}};
+    const auto response = http.download(
+        request,
+        [&](const char* data, std::size_t size) {
+            if (sink.written() + static_cast<long long>(size) > release.size) {
+                return false;
+            }
+            digest.update(data, size);
+            return sink.write(data, size);
+        },
+        [&](const xp::net::TransferProgress& update) {
+            if (progress) {
+                progress(update.received_bytes, update.total_bytes > 0 ? update.total_bytes : release.size);
+            }
+        },
+        xpCancel(token));
+    if (!response.has_value()) {
+        return fromXpError(response.error());
+    }
+    if (response.value().status != 200) {
+        return core::makeError(core::ErrorKind::Server, "HTTP " + std::to_string(response.value().status));
+    }
+    if (sink.written() != release.size || net::hexLower(digest.finish()) != release.sha256) {
+        PF_LOG_WARN("update: the package does not match its published size and digest");
+        return core::makeError(core::ErrorKind::BadResponse, "the package does not match the published one");
+    }
+    if (!sink.commit()) {
+        return core::makeError(core::ErrorKind::Storage, "the package cannot be written");
+    }
+    return core::Unit{};
+}
+
 int removeOldPackages(const std::string& folder, const std::string& current) {
     DIR* listing = ::opendir(folder.c_str());
     if (listing == nullptr) {
