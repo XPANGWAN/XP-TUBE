@@ -23,7 +23,7 @@ FILES = {
     ],
     "src/app/update.cpp": [
         ('"Playtube-" + safe + ".pkg"', '"XP-TUBE-" + safe + ".pkg"'),
-        ('std::string("Playtube/")', 'std::string("XP-TUBE/")'),
+        ('std::string("Playtube/")', 'std::string("XP-TUBE/")', 2),
         ('const std::string prefix = "Playtube-";', 'const std::string prefix = "XP-TUBE-";'),
     ],
     "scripts/build-ps4.sh": [
@@ -35,10 +35,12 @@ FILES = {
 for rel, replacements in FILES.items():
     path = ROOT / rel
     body = path.read_text(encoding="utf-8")
-    for old, new in replacements:
+    for item in replacements:
+        old, new = item[0], item[1]
+        expected = item[2] if len(item) == 3 else 1
         count = body.count(old)
-        if count != 1:
-            raise SystemExit(f"{rel}: expected exactly one occurrence of {old!r}, found {count}")
+        if count != expected:
+            raise SystemExit(f"{rel}: expected {expected} occurrences of {old!r}, found {count}")
         body = body.replace(old, new)
     path.write_text(body, encoding="utf-8")
 
