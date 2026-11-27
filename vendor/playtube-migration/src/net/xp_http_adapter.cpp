@@ -67,7 +67,7 @@ bool prepare(const xp::net::HttpRequest& request, HttpRequest& legacy,
     return true;
 }
 
-xp::net::HttpResponse convertResponse(core::HttpResponse response) {
+xp::net::HttpResponse convertResponse(HttpResponse response) {
     xp::net::HttpResponse converted;
     converted.status = response.status;
     converted.body = std::move(response.body);
