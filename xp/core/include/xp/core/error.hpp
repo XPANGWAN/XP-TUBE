@@ -10,6 +10,12 @@ enum class ErrorCode {
     not_found,
     io,
     network,
+    timeout,
+    tls,
+    certificate_untrusted,
+    bad_response,
+    storage,
+    unsupported,
     cancelled,
     unavailable,
     internal
