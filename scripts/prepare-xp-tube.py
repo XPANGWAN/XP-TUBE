@@ -170,6 +170,53 @@ class RowsScreen : public ShellScreen {'''),
     ],
 }
 
+
+
+# Screen-level XP-TUBE presentation: consistent editorial headers and clearer content hierarchy.
+# Keep all existing controls, focus order, data loading, and navigation behavior unchanged.
+FILES.update({
+    "src/app/shell/search_screen.cpp": [
+        ('        column_->add<NavBar>(session_, Tab::Search);\n        platform::TextInputRequest request;',
+         '''        column_->add<NavBar>(session_, Tab::Search);
+        auto* intro = column_->add<ui::Box>(ui::Axis::Column);
+        intro->padding = {ui::theme().spacingL, ui::theme().spacingXl, ui::theme().spacingL, ui::theme().spacingXl};
+        intro->background = ui::theme().surface;
+        intro->cornerRadius = ui::theme().radius * 1.35f;
+        intro->gap = ui::theme().spacingS;
+        auto* brand = intro->add<ui::Label>("XP-TUBE", ui::FontStyle{ui::theme().fontSmall, ui::FontWeight::Bold});
+        brand->color = ui::theme().accent;
+        auto* heading = intro->add<ui::Label>(ui::tr("shell.search.title"), ui::FontStyle{ui::theme().fontTitle, ui::FontWeight::Bold});
+        heading->color = ui::theme().text;
+        auto* detail = intro->add<ui::Label>(ui::tr("search.filters"), bodyText());
+        detail->color = ui::theme().textSecondary;
+        platform::TextInputRequest request;'''),
+    ],
+    "src/app/shell/settings_screen.cpp": [
+        ('        column->add<NavBar>(session_, Tab::Settings);\n        banner_ = column->add<UpdateBanner>',
+         '''        column->add<NavBar>(session_, Tab::Settings);
+        auto* intro = column->add<ui::Box>(ui::Axis::Column);
+        intro->padding = {ui::theme().spacingL, ui::theme().spacingXl, ui::theme().spacingL, ui::theme().spacingXl};
+        intro->background = ui::theme().surface;
+        intro->cornerRadius = ui::theme().radius * 1.35f;
+        intro->gap = ui::theme().spacingS;
+        auto* brand = intro->add<ui::Label>("XP-TUBE", ui::FontStyle{ui::theme().fontSmall, ui::FontWeight::Bold});
+        brand->color = ui::theme().accent;
+        auto* heading = intro->add<ui::Label>(ui::tr("shell.tab.settings"), ui::FontStyle{ui::theme().fontTitle, ui::FontWeight::Bold});
+        heading->color = ui::theme().text;
+        banner_ = column->add<UpdateBanner>'''),
+    ],
+    "src/app/shell/channel_screen.cpp": [
+        ('        header_->gap = ui::theme().spacingXl;\n        header_->crossAlign = ui::CrossAlign::Center;',
+         '        header_->gap = ui::theme().spacingXl;\n        header_->padding = {ui::theme().spacingL, ui::theme().spacingXl, ui::theme().spacingL, ui::theme().spacingXl};\n        header_->background = ui::theme().surface;\n        header_->cornerRadius = ui::theme().radius * 1.35f;\n        header_->crossAlign = ui::CrossAlign::Center;'),
+    ],
+    "src/app/shell/playlist_screen.cpp": [
+        ('        heading->width = ui::SizeSpec::fill();\n        heading->maxLines = 1;',
+         '        heading->width = ui::SizeSpec::fill();\n        heading->padding = {ui::theme().spacingL, ui::theme().spacingXl, ui::theme().spacingL, ui::theme().spacingXl};\n        heading->background = ui::theme().surface;\n        heading->cornerRadius = ui::theme().radius * 1.35f;\n        heading->maxLines = 1;'),
+        ('        details_->color = ui::theme().textSecondary;',
+         '        details_->color = ui::theme().textSecondary;\n        details_->margin = {0, ui::theme().spacingXl, 0, ui::theme().spacingXl};'),
+    ],
+})
+
 def replace_file(rel, replacements):
     path = ROOT / rel
     body = path.read_text(encoding="utf-8")
