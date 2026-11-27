@@ -48,6 +48,7 @@ TEST_CASE("the package's file name: XP-TUBE-<version>.pkg, nothing that could le
 
 #include "core/file_io.hpp"
 #include "net/crypto.hpp"
+#include "net/xp_http_adapter.hpp"
 #include "support/fake_server.hpp"
 
 TEST_CASE("the package downloaded is kept only when its size and digest match the release") {
@@ -60,7 +61,8 @@ TEST_CASE("the package downloaded is kept only when its size and digest match th
     net::HttpConfig config;
     config.caFile = test::fixturePath("tls/ca.crt");
     const net::HttpClient http(config);
-    char tmpl[] = "/tmp/playtube-update-XXXXXX";
+    const net::XpHttpAdapter transport(http);
+    char tmpl[] = "/tmp/xp-tube-update-XXXXXX";
     REQUIRE(mkdtemp(tmpl) != nullptr);
     const std::string dir = tmpl;
     net::Sha256Stream digest;
@@ -71,13 +73,13 @@ TEST_CASE("the package downloaded is kept only when its size and digest match th
     release.size = static_cast<long long>(package.size());
     release.sha256 = net::hexLower(digest.finish());
     long long last = 0;
-    const auto ok = app::downloadPackage(http, release, dir + "/Playtube-9.0.0.pkg",
+    const auto ok = app::downloadPackage(transport, release, dir + "/XP-TUBE-9.0.0.pkg",
                                          [&](long long received, long long) { last = received; });
     REQUIRE(ok.ok());
     CHECK(last == 200000);
-    CHECK(std::filesystem::file_size(dir + "/Playtube-9.0.0.pkg") == 200000);
+    CHECK(std::filesystem::file_size(dir + "/XP-TUBE-9.0.0.pkg") == 200000);
     release.sha256 = std::string(64, '0');  // another file than the one published
-    const auto bad = app::downloadPackage(http, release, dir + "/other.pkg", {});
+    const auto bad = app::downloadPackage(transport, release, dir + "/other.pkg", {});
     REQUIRE_FALSE(bad.ok());
     CHECK_FALSE(std::filesystem::exists(dir + "/other.pkg"));
     CHECK_FALSE(std::filesystem::exists(dir + "/other.pkg.part"));
@@ -85,7 +87,7 @@ TEST_CASE("the package downloaded is kept only when its size and digest match th
 }
 
 TEST_CASE("update packages of this version or older are removed; newer ones and others' packages stay") {
-    char tmpl[] = "/tmp/playtube-pkg-XXXXXX";
+    char tmpl[] = "/tmp/xp-tube-pkg-XXXXXX";
     REQUIRE(mkdtemp(tmpl) != nullptr);
     const std::string dir = tmpl;
     for (const char* name : {"XP-TUBE-2.1.0.pkg", "XP-TUBE-2.2.0.pkg", "XP-TUBE-2.3.0.pkg", "XP-TUBE-2.2.0.pkg.part",
@@ -94,12 +96,12 @@ TEST_CASE("update packages of this version or older are removed; newer ones and 
     }
     const int removed = app::removeOldPackages(dir, "2.2.0");
     CHECK(removed == 2);
-    CHECK_FALSE(std::filesystem::exists(dir + "/Playtube-2.1.0.pkg"));
-    CHECK_FALSE(std::filesystem::exists(dir + "/Playtube-2.2.0.pkg"));  // the one installed: done with
-    CHECK(std::filesystem::exists(dir + "/Playtube-2.3.0.pkg"));        // newer: not installed yet
-    CHECK(std::filesystem::exists(dir + "/Playtube-2.2.0.pkg.part"));   // not a finished package of ours
+    CHECK_FALSE(std::filesystem::exists(dir + "/XP-TUBE-2.1.0.pkg"));
+    CHECK_FALSE(std::filesystem::exists(dir + "/XP-TUBE-2.2.0.pkg"));  // the one installed: done with
+    CHECK(std::filesystem::exists(dir + "/XP-TUBE-2.3.0.pkg"));        // newer: not installed yet
+    CHECK(std::filesystem::exists(dir + "/XP-TUBE-2.2.0.pkg.part"));   // not a finished package of ours
     CHECK(std::filesystem::exists(dir + "/IV0001-PLTB00000_00-PLTB000000100000.pkg"));  // put there by the user
     CHECK(std::filesystem::exists(dir + "/Playfin-2.2.1.pkg"));  // another app's
-    CHECK(std::filesystem::exists(dir + "/Playtube-x.pkg"));
+    CHECK(std::filesystem::exists(dir + "/XP-TUBE-x.pkg"));
     std::filesystem::remove_all(dir);
 }
