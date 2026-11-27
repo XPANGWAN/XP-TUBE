@@ -67,7 +67,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          ctest --preset linux-debug -R '^unit
+          ctest --preset linux-debug -R unit
+
+  build-xp-tube:
     name: Build isolated XP-TUBE PS4 package
     runs-on: ubuntu-24.04
     timeout-minutes: 100
