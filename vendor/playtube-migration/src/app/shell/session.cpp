@@ -243,7 +243,7 @@ void AppSession::checkForUpdate(std::function<void()> done) {
         return;
     }
     updateChecked = true;
-    const net::HttpClient* http = &http_;
+    const xp::net::IHttpTransport* transport = &xpHttp_;
     const std::string url = updateUrl;
     const auto apply = [this, done](core::Result<Release> release) {
         if (release.ok() && newerVersion(release.value().version, core::version())) {
@@ -262,11 +262,11 @@ void AppSession::checkForUpdate(std::function<void()> done) {
     };
     ui::Application* app = ui::Application::current();
     if (synchronous || app == nullptr) {
-        apply(fetchLatestRelease(*http, url));
+        apply(fetchLatestRelease(*transport, url));
         return;
     }
     core::runAsync<core::Result<Release>>(app->pool(), app->mainQueue(),
-                                          [http, url] { return fetchLatestRelease(*http, url); }, apply,
+                                          [transport, url] { return fetchLatestRelease(*transport, url); }, apply,
                                           core::CancelToken{});
 }
 
@@ -277,21 +277,21 @@ void AppSession::applyLogo() {
         return;
     }
     const unsigned generation = logoGeneration_;
-    const net::HttpClient* http = &http_;
+    const xp::net::IHttpTransport* transport = &xpHttp_;
     const std::string url = youtubeLogoUrl;
     const int height = static_cast<int>(ui::theme().fontLogo);  // read here: the theme belongs to the main thread
-    const auto job = [http, url, height]() -> std::shared_ptr<const ui::SvgPicture> {
+    const auto job = [transport, url, height]() -> std::shared_ptr<const ui::SvgPicture> {
         if (url.rfind("https://", 0) != 0) {
             return nullptr;
         }
-        net::HttpRequest request;
+        xp::net::HttpRequest request;
         request.url = url;
-        request.maxBodyBytes = 64 * 1024;
-        const auto response = http->send(request);
-        if (!response.ok() || response.value().status != 200) {
+        request.max_body_bytes = 64 * 1024;
+        const auto response = transport->send(request);
+        if (!response.has_value() || response.value().status != 200) {
             PF_LOG_INFO("logo: not fetched: %s",
-                        response.ok() ? ("HTTP " + std::to_string(response.value().status)).c_str()
-                                      : response.error().message.c_str());
+                        response.has_value() ? ("HTTP " + std::to_string(response.value().status)).c_str()
+                                             : response.error().message.c_str());
             return nullptr;
         }
         auto picture = ui::rasterizeSvg(response.value().body, height);
