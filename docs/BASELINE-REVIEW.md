@@ -31,6 +31,22 @@ Do not silently track a moving upstream branch for a reproducible baseline. Upda
 6. **Critical first-run migration behavior:** `src/app/app.cpp` calls `session.importPrevious("/data/Playtube/config.json")` on PS4 when `onlyProfile(consoleUser)` is true. `src/app/shell/session.cpp` and `src/youtube/account.cpp` read the old Playtube config and can copy its YouTube refresh token into the new app's profile. The old config is read-only, but the token is duplicated into the development app's data. The baseline development package is therefore a build-validation artifact only; do not install it on the user's console as the XP-TUBE test build.
 7. The upstream device-flow OAuth client values are embedded in source. Before shipping an independently branded app, review the authentication flow and provider requirements rather than assuming the existing client registration is transferable.
 
+## Hardening work started
+
+### Playback recovery
+
+The upstream player already checks stream URLs before handing them to mpv, refreshes URLs after long pauses, and restarts streams that end materially before the reported duration. A remaining failure path is an HTTP/network error after playback has begun: the previous behavior immediately opened the error dialog even when the signed stream URL had simply expired or become invalid.
+
+XP-TUBE now makes one guarded automatic fresh-stream request after an mpv playback error, preserving the last known playback position. The guard prevents an endless retry loop; it is released after the next first frame or when the refreshed stream request fails. If recovery cannot start playback, the normal Retry/Back dialog remains available. This is a source-level improvement and still requires real PS4 testing against actual network interruptions.
+
+### Account credential storage
+
+The refresh token is stored in an atomically written JSON file with mode 0600; the access token remains in memory, and sign-out clears the persisted refresh token. This is filesystem permission hardening, **not encryption at rest**. Do not claim the token is encrypted or protected from a process running as the same console user. A future secure-storage change must use a supported per-user platform key/secure-storage facility; embedding a static encryption key in the application would only disguise the plaintext and is not an acceptable fix.
+
+### Network and YouTube compatibility
+
+InnerTube is undocumented and its client profiles, visitor data, stream reachability probes, and response parsers can change independently of XP-TUBE. Keep captured fixtures and fake-server regression tests, classify HTTP 401/403 separately from network timeouts and server errors, and never treat a successful Linux fixture test as proof that YouTube will serve every real PS4 connection. Do not bypass DRM or access controls.
+
 ## Identity and data isolation requirements
 
 The upstream release app uses title ID `PLTB00000` and data folder `/data/Playtube`. The development build uses title ID `PLTB00001` and data folder `/data/PlaytubeDev`. The development build is distinguishable from the release app, but its first-run migration deliberately reads `/data/Playtube/config.json`.
