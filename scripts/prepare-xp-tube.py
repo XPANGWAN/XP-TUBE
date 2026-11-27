@@ -305,7 +305,7 @@ FILES["src/app/shell/nav_bar.cpp"].append((
     label_->color = focused_ ? ui::theme().onAccent : current_ ? ui::theme().accent : ui::theme().textSecondary;"""))
 
 # Player settings must follow the user's selected accent instead of a fixed white highlight.
-FILES["src/app/shell/player_settings.cpp"].extend([
+FILES["src/app/shell/player_settings.cpp"] = [
     ("background = focused_ ? kFocused : ui::Color{0, 0, 0, 0};",
      "background = focused_ ? ui::theme().accent : ui::Color{0, 0, 0, 0};"),
     ("name_->color = focused_ ? kOnFocused : ui::theme().text;\n    value_->color = focused_ ? kOnFocused : ui::theme().textSecondary;",
