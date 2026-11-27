@@ -12,6 +12,7 @@
 #include "core/result.hpp"
 #include "core/task.hpp"
 #include "net/http.hpp"
+#include "xp/net/http.hpp"
 #include "youtube/models.hpp"
 #include "youtube/streams.hpp"
 
@@ -37,7 +38,7 @@ struct Endpoints {
 // in `hl` (language, "fr") for the region `gl` ("FR").
 class Client {
 public:
-    Client(const net::HttpClient& http, Endpoints endpoints, std::string hl, std::string gl);
+    Client(const xp::net::IHttpTransport& http, Endpoints endpoints, std::string hl, std::string gl);
 
     // `params`: the filters (searchParams); empty for a plain search
     core::Result<VideoPage> search(const std::string& query, const core::CancelToken& cancel = {},
@@ -142,7 +143,7 @@ private:
                                        bool& setback, bool& blocked) const;
     bool reachable(const std::string& url, const std::string& userAgent, const core::CancelToken& cancel) const;
 
-    const net::HttpClient& http_;
+    const xp::net::IHttpTransport& http_;
     Endpoints endpoints_;
     std::string hl_;
     std::string gl_;
