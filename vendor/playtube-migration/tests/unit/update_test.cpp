@@ -61,6 +61,31 @@ TEST_CASE("the package downloaded is kept only when its size and digest match th
     xp::net::HttpConfig config;
     config.ca_file = test::fixturePath("tls/ca.crt");
     const xp::net::CurlHttpTransport transport(config);
+
+    xp::net::HttpRequest probe;
+    probe.url = server.baseUrl() + "/a.pkg";
+    const auto fetched = transport.send(probe);
+    REQUIRE(fetched.has_value());
+    CHECK(fetched.value().status == 200);
+    CHECK(fetched.value().body == package);
+
+    probe.max_body_bytes = 8;
+    const auto oversized = transport.send(probe);
+    REQUIRE_FALSE(oversized.has_value());
+    CHECK(oversized.error().code == xp::core::ErrorCode::bad_response);
+
+    probe.max_body_bytes = 0;
+    xp::net::CancelToken cancelled;
+    cancelled.cancel();
+    const auto stopped = transport.send(probe, cancelled);
+    REQUIRE_FALSE(stopped.has_value());
+    CHECK(stopped.error().code == xp::core::ErrorCode::cancelled);
+
+    const auto certificate = transport.fetch_peer_certificate(probe.url);
+    REQUIRE(certificate.has_value());
+    CHECK(certificate.value().spki_sha256_hex.size() == 64);
+    CHECK_FALSE(certificate.value().subject.empty());
+
     char tmpl[] = "/tmp/xp-tube-update-XXXXXX";
     REQUIRE(mkdtemp(tmpl) != nullptr);
     const std::string dir = tmpl;
