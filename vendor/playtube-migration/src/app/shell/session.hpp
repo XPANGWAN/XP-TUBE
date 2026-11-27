@@ -13,7 +13,6 @@
 #include "app/update.hpp"
 #include "core/result.hpp"
 #include "core/task.hpp"
-#include "net/http.hpp"
 #include "xp/net/curl_transport.hpp"
 #include "youtube/account.hpp"
 #include "youtube/auth.hpp"
@@ -33,12 +32,11 @@ YoutubeLocale youtubeLocale(const std::string& uiLanguage);
 class AppSession {
 public:
     // settings.json and account.json are read here (without a path: defaults, nothing written).
-    AppSession(net::HttpConfig http, std::string settingsPath = {}, std::string accountPath = {});
+    AppSession(xp::net::HttpConfig http, std::string settingsPath = {}, std::string accountPath = {});
     ~AppSession();
     AppSession(const AppSession&) = delete;
     AppSession& operator=(const AppSession&) = delete;
 
-    const net::HttpClient& http() const { return http_; }
     const xp::net::IHttpTransport& transport() const { return xpHttp_; }
     const std::string& caFile() const { return caFile_; }  // the certificates trusted (also for the player)
     Settings& settings() { return settings_; }
@@ -125,7 +123,6 @@ public:
 
 private:
     std::string caFile_;
-    net::HttpClient http_;
     xp::net::CurlHttpTransport xpHttp_;
     std::string settingsPath_;
     Settings settings_;
