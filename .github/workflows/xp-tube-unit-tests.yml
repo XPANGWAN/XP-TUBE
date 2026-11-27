@@ -3,11 +3,13 @@ name: XP-TUBE host unit tests
 on:
   push:
     branches:
-      - feature/xp-tube-independence
+      - main
     paths:
       - .github/workflows/xp-tube-unit-tests.yml
       - scripts/prepare-xp-tube.py
       - scripts/audit-xp-tube.py
+      - docs/**
+      - README.md
   workflow_dispatch:
 
 permissions:
@@ -22,7 +24,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Fetch pinned upstream
+      - name: Fetch pinned upstream (temporary migration stage)
         run: |
           set -euo pipefail
           git clone https://github.com/LowganDev/PlaytubePS4.git upstream
