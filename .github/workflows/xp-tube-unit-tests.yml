@@ -11,6 +11,7 @@ on:
       - docs/**
       - vendor/playtube-migration/**
       - README.md
+      - xp/**
   workflow_dispatch:
 
 permissions:
@@ -62,3 +63,10 @@ jobs:
         run: |
           set -euo pipefail
           ctest --preset linux-debug -R unit
+
+      - name: Build and test XP-TUBE native core
+        run: |
+          set -euo pipefail
+          cmake -S xp -B build/xp-core -G Ninja -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON
+          cmake --build build/xp-core --parallel 2
+          ctest --test-dir build/xp-core --output-on-failure
