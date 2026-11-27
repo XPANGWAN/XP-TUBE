@@ -1,13 +1,14 @@
 #include "core/log.hpp"
 
+#include <atomic>
 #include <cstdarg>
 #include <cstdio>
 #include <string>
 #include <vector>
 
 #include "core/boot_trace.hpp"
+#include "core/redact.hpp"
 #include "xp/core/logger.hpp"
-#include "xp/core/redaction.hpp"
 
 namespace playtube::log {
 namespace {
@@ -44,9 +45,11 @@ std::string format(const char* fmt, va_list args) {
         std::vsnprintf(buffer.data(), buffer.size(), fmt, args);
     }
     std::string message(buffer.data(), length);
+    constexpr char marker[] = "[truncated]";
+    constexpr std::size_t markerSize = sizeof(marker) - 1;
     if (message.size() > kMaxMessage) {
-        message.resize(kMaxMessage);
-        message += "[truncated]";
+        message.resize(kMaxMessage - markerSize);
+        message += marker;
     }
     return message;
 }
@@ -76,10 +79,10 @@ void write(Level logLevel, const char* fmt, ...) {
     va_end(args);
     gLogger.write(toNative(logLevel), message);
 #ifdef PLAYTUBE_PS4
-    static int mirrored = 0;
-    if (mirrored < 200) {
-        ++mirrored;
-        const std::string mirror = xp::core::redact_secrets(message.substr(0, kMaxMessage));
+    static std::atomic<unsigned> mirrored{0};
+    const unsigned index = mirrored.fetch_add(1, std::memory_order_relaxed);
+    if (index < 200) {
+        const std::string mirror = core::redact(message.substr(0, kMaxMessage));
         core::bootMark(mirror.c_str());
     }
 #endif
