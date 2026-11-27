@@ -19,7 +19,7 @@ std::optional<std::string> StoragePaths::package_file(
     std::string_view name) const {
     // Package output is deliberately a single filename, never a subpath.
     if (name.find('/') != std::string_view::npos ||
-        name.find('\\\\') != std::string_view::npos) {
+        name.find('\\') != std::string_view::npos) {
         return std::nullopt;
     }
     return resolve_inside(package_root_, name);
