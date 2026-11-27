@@ -78,12 +78,12 @@ int main() {
 
     FakeTransport transport;
     request.url = "https://example.invalid/resource";
-    auto response = transport.send(request);
+    auto response = transport.send(request, {});
     assert(response.has_value());
     assert(response.value().status == 200);
     assert(response.value().body == request.url);
 
-    auto certificate = transport.fetch_peer_certificate(request.url);
+    auto certificate = transport.fetch_peer_certificate(request.url, {});
     assert(certificate.has_value());
 
     std::string received;
