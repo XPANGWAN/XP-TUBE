@@ -233,7 +233,7 @@ int run(const Options& options) {
         return 1;
     }
     PF_LOG_INFO("startup: network");
-    net::globalInit();
+    // CurlHttpTransport performs thread-safe global initialization on construction.
     const std::string language = platform::systemLanguage();
     PF_LOG_INFO("Playtube %s, language %s, data %s", core::version(), language.c_str(), core::dataRoot().c_str());
 
