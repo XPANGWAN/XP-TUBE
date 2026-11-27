@@ -1,19 +1,19 @@
 #include "core/data_dir.hpp"
 
+#include "xp/core/storage_context.hpp"
 #include "xp/core/storage_paths.hpp"
 #include "xp/core/directory_store.hpp"
 
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <cerrno>
 #include <utility>
 
 namespace playtube::core {
 
 namespace {
 
-std::string gDataRoot;
+xp::core::StorageContext gStorageContext;
 
 bool isDirectory(const std::string& path) {
     return xp::core::is_directory(path);
@@ -28,49 +28,54 @@ std::optional<std::string> resolveInside(const std::string& root, std::string_vi
     return paths.data_file(relative);
 }
 
-void setDataRoot(std::string root) { gDataRoot = std::move(root); }
-
-const std::string& dataRoot() { return gDataRoot; }
-
-std::optional<std::string> dataPath(std::string_view relative) { return resolveInside(gDataRoot, relative); }
-
-std::optional<std::string> packagePath(std::string_view name) {
-    if (name.find('/') != std::string_view::npos) {
-        return std::nullopt;
+void setDataRoot(std::string root) {
+    if (root.empty()) {
+        gStorageContext.reset();
+        return;
     }
 #ifdef PLAYTUBE_PS4
-    // GoldHEN's folder: created when missing (one level, under /data), never changed (no chmod as for our own)
-    const std::string folder = "/data/pkg";
-    if (!xp::core::ensure_single_directory(folder, 0777)) {
+    // Preserve the PS4 Package Installer location; it is not inside app data.
+    gStorageContext.configure(std::move(root), "/data/pkg");
+#else
+    std::string packageRoot = root;
+    if (!packageRoot.empty() && packageRoot.back() != '/') packageRoot.push_back('/');
+    packageRoot += "pkg";
+    gStorageContext.configure(std::move(root), std::move(packageRoot));
+#endif
+}
+
+const std::string& dataRoot() {
+    return gStorageContext.data_root();
+}
+
+std::optional<std::string> dataPath(std::string_view relative) {
+    return gStorageContext.data_file(relative);
+}
+
+std::optional<std::string> packagePath(std::string_view name) {
+    if (!gStorageContext.configured()) return std::nullopt;
+#ifdef PLAYTUBE_PS4
+    // GoldHEN's folder: create one level under /data, without changing its mode.
+    if (!xp::core::ensure_single_directory(gStorageContext.package_root(), 0777)) {
         return std::nullopt;
     }
 #else
-    const auto inside = dataPath("pkg");
-    if (!inside || !xp::core::ensure_directory_tree(*inside, 0755)) {
+    if (!xp::core::ensure_directory_tree(gStorageContext.package_root(), 0755)) {
         return std::nullopt;
     }
-    const std::string folder = *inside;
 #endif
-    return resolveInside(folder, name);
+    return gStorageContext.package_file(name);
 }
 
 std::optional<std::string> packageFolder() {
-#ifdef PLAYTUBE_PS4
-    const std::string folder = "/data/pkg";
-#else
-    const auto inside = dataPath("pkg");
-    if (!inside) {
-        return std::nullopt;
-    }
-    const std::string folder = *inside;
-#endif
+    if (!gStorageContext.configured()) return std::nullopt;
+    const auto& folder = gStorageContext.package_root();
     return isDirectory(folder) ? std::optional<std::string>(folder) : std::nullopt;
 }
 
 bool makeDirs(const std::string& path) {
 #ifdef PLAYTUBE_PS4
-    // a folder created under /data may not end up owned by the app's user: 0755 then forbids creating files in it
-    // (seen on the first console runs). Existing folders, from earlier runs, are opened up too.
+    // Existing PS4 data folders are opened up too, preserving the established permission policy.
     return xp::core::ensure_directory_tree(path, 0777, nullptr, true);
 #else
     return xp::core::ensure_directory_tree(path, 0755);
