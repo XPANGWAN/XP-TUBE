@@ -365,6 +365,16 @@ FILES["src/app/shell/cards.cpp"].extend([
      '    channel_->margin.top = ui::theme().spacingS;'),
 ])
 
+# Keep settings' logo toggle and visible label on the XP-TUBE identity after all screen-level overrides.
+FILES["src/app/shell/settings_screen.cpp"].extend([
+    ('return logo == "youtube" ? "YouTube" : "Playtube";',
+     'return logo == "youtube" ? "YouTube" : "XP-TUBE";'),
+    ('settings.logo == "youtube" ? "playtube" : "youtube"',
+     'settings.logo == "youtube" ? "xp-tube" : "youtube"'),
+    ('// The banner at the top of the settings while a newer Playtube is published:',
+     '// The banner at the top of the settings while a newer XP-TUBE release is published:'),
+])
+
 def replace_file(rel, replacements):
     path = ROOT / rel
     body = path.read_text(encoding="utf-8")
