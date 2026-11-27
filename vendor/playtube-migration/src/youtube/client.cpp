@@ -98,7 +98,14 @@ core::Error cancelled() { return core::makeError(core::ErrorKind::Cancelled, "ca
 }  // namespace
 
 Client::Client(const xp::net::IHttpTransport& http, Endpoints endpoints, std::string hl, std::string gl)
-    : http_(http), endpoints_(std::move(endpoints)), hl_(std::move(hl)), gl_(std::move(gl)) {}
+    : legacyAdapter_(), http_(http), endpoints_(std::move(endpoints)), hl_(std::move(hl)), gl_(std::move(gl)) {}
+
+Client::Client(const net::HttpClient& http, Endpoints endpoints, std::string hl, std::string gl)
+    : legacyAdapter_(std::make_unique<net::XpHttpAdapter>(http)),
+      http_(*legacyAdapter_),
+      endpoints_(std::move(endpoints)),
+      hl_(std::move(hl)),
+      gl_(std::move(gl)) {}
 
 core::Result<std::string> Client::post(const ClientProfile& profile, const char* endpoint, const Fields& fields,
                                        const std::string& accessToken, const core::CancelToken& cancel,
