@@ -5,8 +5,7 @@
 
 #include "core/json.hpp"
 #include "net/url.hpp"
-#include "../net/http.hpp"
-#include "../net/xp_http_compat.hpp"
+#include "youtube/http.hpp"
 #include "youtube/parse.hpp"
 
 namespace playtube::youtube {
@@ -35,13 +34,13 @@ Auth::Auth(const xp::net::IHttpTransport& http, Endpoints endpoints)
 // The token endpoint answers its errors ("authorization_pending", "invalid_grant") with 4xx and a JSON body.
 core::Result<std::string> Auth::send(const std::string& url, const std::string& body,
                                      const core::CancelToken& cancel) const {
-    net::HttpRequest request;
+    xp::net::HttpRequest request;
     request.method = "POST";
     request.url = url;
     request.body = body;
-    request.maxBodyBytes = 64 * 1024;
+    request.max_body_bytes = 64 * 1024;
     request.headers = {{"Content-Type", "application/json"}, {"User-Agent", kTvAgent}};
-    auto response = net::sendViaXp(http_, request, cancel);
+    auto response = detail::sendHttp(http_, request, cancel);
     if (!response.ok()) {
         return response.error();
     }
@@ -96,14 +95,14 @@ core::Result<Token> Auth::refresh(const std::string& refreshToken, const core::C
 }
 
 void Auth::revoke(const std::string& token) const {
-    net::HttpRequest request;
+    xp::net::HttpRequest request;
     request.method = "POST";
     request.url = endpoints_.oauthRevoke + "/revoke";
     request.body = "token=" + net::urlEncode(token);
-    request.timeoutMs = 10000;
-    request.maxBodyBytes = 64 * 1024;
+    request.timeout_ms = 10000;
+    request.max_body_bytes = 64 * 1024;
     request.headers = {{"Content-Type", "application/x-www-form-urlencoded"}, {"User-Agent", kTvAgent}};
-    (void)net::sendViaXp(http_, request);
+    (void)detail::sendHttp(http_, request);
 }
 
 }  // namespace playtube::youtube
