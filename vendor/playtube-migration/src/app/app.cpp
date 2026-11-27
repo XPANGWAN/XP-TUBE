@@ -24,7 +24,6 @@
 #include "core/data_dir.hpp"
 #include "core/task.hpp"
 #include "core/version.hpp"
-#include "net/http.hpp"
 #include "platform/platform.hpp"
 #include "platform/text_input.hpp"
 #include "render/canvas.hpp"
