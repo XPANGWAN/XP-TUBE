@@ -8,6 +8,7 @@
 #include <cerrno>
 #include <climits>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <limits>
 #include <utility>
@@ -174,7 +175,6 @@ Result<std::unique_ptr<FileSink>> FileSink::open(const std::string& path,
 #ifdef O_NOFOLLOW
     flags |= O_NOFOLLOW;
 #endif
-    if (!resume) flags |= O_TRUNC;
     const int fd = ::open(part.c_str(), flags, 0600);
     if (fd < 0) {
         return Result<std::unique_ptr<FileSink>>::failure(io_error("open part file", part));
@@ -187,20 +187,24 @@ Result<std::unique_ptr<FileSink>> FileSink::open(const std::string& path,
         if (!resume) (void)::unlink(part.c_str());
         return Result<std::unique_ptr<FileSink>>::failure(io_error("fstat part file", part, code));
     }
-    if (!S_ISREG(info.st_mode) || info.st_size < 0 ||
+    if (!S_ISREG(info.st_mode) || info.st_nlink != 1 || info.st_size < 0 ||
         static_cast<unsigned long long>(info.st_size) >
             static_cast<unsigned long long>(LLONG_MAX)) {
         (void)::close(fd);
-        if (!resume) (void)::unlink(part.c_str());
         return Result<std::unique_ptr<FileSink>>::failure(
             Error::make(ErrorCode::invalid_argument,
-                        "Part path must be a regular file with a valid size", part));
+                        "Part path must be a single-link regular file with a valid size",
+                        part));
     }
     if (::fchmod(fd, 0600) != 0) {
         const int code = errno;
         (void)::close(fd);
-        if (!resume) (void)::unlink(part.c_str());
         return Result<std::unique_ptr<FileSink>>::failure(io_error("fchmod", part, code));
+    }
+    if (!resume && ::ftruncate(fd, 0) != 0) {
+        const int code = errno;
+        (void)::close(fd);
+        return Result<std::unique_ptr<FileSink>>::failure(io_error("truncate part file", part, code));
     }
     if (resume) {
         if (::lseek(fd, info.st_size, SEEK_SET) < 0) {
@@ -211,7 +215,6 @@ Result<std::unique_ptr<FileSink>> FileSink::open(const std::string& path,
     } else if (::lseek(fd, 0, SEEK_SET) < 0) {
         const int code = errno;
         (void)::close(fd);
-        (void)::unlink(part.c_str());
         return Result<std::unique_ptr<FileSink>>::failure(io_error("seek", part, code));
     }
 

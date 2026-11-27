@@ -165,6 +165,8 @@ void test_invalid_inputs_and_symlinks(const std::string& root) {
     const std::string link = root + "/link";
     const std::string part_target = root + "/part-target";
     const std::string part_link = root + "/symlink-download.part";
+    const std::string hard_target = root + "/hard-target";
+    const std::string hard_part = root + "/hard-download.part";
     write_raw(target, "do-not-follow");
     if (::symlink(target.c_str(), link.c_str()) == 0) {
         auto symlink_read = xp::core::read_file(link, 100);
@@ -184,6 +186,13 @@ void test_invalid_inputs_and_symlinks(const std::string& root) {
 #endif
         check(read_raw(part_target) == "external",
               "opening a symlink part never truncates its target");
+    }
+    write_raw(hard_target, "hard-linked-data");
+    if (::link(hard_target.c_str(), hard_part.c_str()) == 0) {
+        auto hardlink_sink = xp::core::FileSink::open(root + "/hard-download");
+        check(!hardlink_sink, "download sink refuses multiply-linked part files");
+        check(read_raw(hard_target) == "hard-linked-data",
+              "opening a hard-linked part never truncates its other name");
     }
 }
 
