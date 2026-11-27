@@ -1,0 +1,93 @@
+name: Import pinned source into XP-TUBE repository
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/vendor-playtube-source.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: xp-tube-source-import
+  cancel-in-progress: false
+
+jobs:
+  import-pinned-source:
+    name: Preserve source provenance in XP-TUBE
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out XP-TUBE main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Verify subtree support and import exact upstream revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          git subtree --version || {
+            sudo apt-get update
+            sudo apt-get install -y git-subtree
+          }
+
+          UPSTREAM_URL="https://github.com/LowganDev/PlaytubePS4.git"
+          UPSTREAM_SHA="7372c068704f568bf04e1f8b41a04a2149b2e048"
+          PREFIX="vendor/playtube-migration"
+
+          if [ -e "$PREFIX" ]; then
+            echo "Refusing to overwrite existing $PREFIX"
+            exit 1
+          fi
+
+          git remote add playtube "$UPSTREAM_URL"
+          git fetch --no-tags playtube "$UPSTREAM_SHA"
+          ACTUAL_SHA="$(git rev-parse FETCH_HEAD)"
+          test "$ACTUAL_SHA" = "$UPSTREAM_SHA"
+
+          # Import the full upstream commit ancestry under a clearly marked
+          # migration-only directory. This preserves provenance and licenses.
+          git subtree add --prefix="$PREFIX" playtube "$UPSTREAM_SHA"
+
+          test -s "$PREFIX/LICENSE"
+          test -s "$PREFIX/THIRD_PARTY_LICENSES"
+          test -s "$PREFIX/CMakeLists.txt"
+          test -s "$PREFIX/cmake/ps4_pkg.cmake"
+
+          cat > docs/SOURCE-PROVENANCE.md <<EOF
+          # Source provenance and migration boundary
+
+          ## Imported baseline
+
+          - Original repository: https://github.com/LowganDev/PlaytubePS4
+          - Imported revision: $UPSTREAM_SHA
+          - Imported path: `$PREFIX/`
+          - License at imported revision: GNU General Public License v3.0
+          - Import method: Git subtree with upstream commit ancestry preserved.
+          - Import date: $(date -u +%Y-%m-%d)
+
+          The directory `$PREFIX/` is a temporary migration reference. It is
+          not an XP-TUBE-authored implementation and must not be presented as
+          independently rewritten code. Original copyright, GPL, and third-party
+          notices must remain intact wherever required.
+
+          ## Required next steps
+
+          1. Review source provenance and the complete third-party dependency list.
+          2. Move or rewrite the required build and runtime components into
+             XP-TUBE-owned paths while preserving the source history and notices.
+          3. Replace the patch-on-upstream build with a native XP-TUBE build.
+          4. Remove this migration directory only after all required components
+             have been independently replaced and a license review confirms
+             that removal is appropriate.
+          EOF
+
+          git add docs/SOURCE-PROVENANCE.md
+          git commit -m "build: vendor pinned migration source with provenance"
+          git push origin HEAD:main
