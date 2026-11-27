@@ -70,7 +70,7 @@ jobs:
             echo "Data directory: /data/XP-TUBE"
             echo "Legacy Playtube migration: disabled"
             echo "Build dependency: pinned upstream source is still temporary and must be removed for full independence"
-          } | tee ../xp-tube-build-manifest.txt
+          } | tee "$GITHUB_WORKSPACE/xp-tube-build-manifest.txt"
 
       - name: Build XP-TUBE PS4 package
         working-directory: vendor/playtube-migration
@@ -83,7 +83,7 @@ jobs:
           ./scripts/build-ps4.sh
           PKG="dist/IV0001-XPTB00000_00-XPTB000000100000.pkg"
           test -s "$PKG"
-          sha256sum "$PKG" | tee ../xp-tube-package-sha256.txt
+          sha256sum "$PKG" | tee "$GITHUB_WORKSPACE/xp-tube-package-sha256.txt"
 
       - name: Create corresponding GPL source archive
         shell: bash
@@ -99,7 +99,7 @@ jobs:
           PKG="vendor/playtube-migration/dist/IV0001-XPTB00000_00-XPTB000000100000.pkg"
           test -s "$PKG"
           test "$(stat -c '%s' "$PKG")" -gt 1048576
-          (cd vendor/playtube-migration && sha256sum --check ../../xp-tube-package-sha256.txt)
+          (cd vendor/playtube-migration && sha256sum --check "$GITHUB_WORKSPACE/xp-tube-package-sha256.txt")
           test -s xp-tube-build-manifest.txt
           grep -q "XP-TUBE repository commit: $GITHUB_SHA" xp-tube-build-manifest.txt
           grep -q "Build branch: $GITHUB_REF_NAME" xp-tube-build-manifest.txt
