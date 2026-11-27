@@ -12,7 +12,7 @@ This review is based on the pinned source revision:
 - PS4 packaging: `cmake/ps4_pkg.cmake`
 - PS4 build entry point: `scripts/build-ps4.sh`
 
-This is a source-level architecture map, not proof that source has already been imported into XP-TUBE or rewritten. The pinned source is still external until the provenance import workflow completes and is verified.
+This is a source-level architecture map. The pinned source has now been imported into `vendor/playtube-migration/` with subtree ancestry, a provenance record, and a SHA-256 inventory. The import is complete; the implementation remains migration-reference code and has **not** been independently rewritten.
 
 ## Existing architecture discovered
 
