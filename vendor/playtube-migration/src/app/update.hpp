@@ -6,7 +6,6 @@
 
 #include "core/result.hpp"
 #include "core/task.hpp"
-#include "net/http.hpp"
 #include "xp/net/http.hpp"
 
 namespace playtube::app {
@@ -34,16 +33,11 @@ std::string packageFileName(const std::string& version);
 // they only fill GoldHEN's list), and nothing else. Returns how many went.
 int removeOldPackages(const std::string& folder, const std::string& current);
 
-core::Result<Release> fetchLatestRelease(const net::HttpClient& http, const std::string& url,
-                                         const core::CancelToken& token = {});
-// XP-owned transport path used by the application; the legacy overload remains for migration tests/callers.
+// XP-owned transport used by the application and tests.
 core::Result<Release> fetchLatestRelease(const xp::net::IHttpTransport& http, const std::string& url,
                                          const core::CancelToken& token = {});
 // The package to `path` (through `path`.part), checked against the release's size and digest as it arrives:
 // nothing stays at `path` unless both match.
-core::Result<core::Unit> downloadPackage(const net::HttpClient& http, const Release& release, const std::string& path,
-                                         std::function<void(long long received, long long total)> progress,
-                                         const core::CancelToken& token = {});
 core::Result<core::Unit> downloadPackage(const xp::net::IHttpTransport& http, const Release& release,
                                          const std::string& path,
                                          std::function<void(long long received, long long total)> progress,
