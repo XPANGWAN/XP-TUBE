@@ -37,9 +37,9 @@ TEST_CASE("versions compare part by part; a v prefix is accepted") {
     CHECK_FALSE(app::newerVersion("garbage", "1.0.1"));
 }
 
-TEST_CASE("the package's file name: Playtube-<version>.pkg, nothing that could leave the folder") {
-    CHECK(app::packageFileName("2.0.0") == "Playtube-2.0.0.pkg");
-    CHECK(app::packageFileName("../../x") == "Playtube-x.pkg");
+TEST_CASE("the package's file name: XP-TUBE-<version>.pkg, nothing that could leave the folder") {
+    CHECK(app::packageFileName("2.0.0") == "XP-TUBE-2.0.0.pkg");
+    CHECK(app::packageFileName("../../x") == "XP-TUBE-x.pkg");
     CHECK(app::packageFileName("").empty());
 }
 
@@ -88,8 +88,8 @@ TEST_CASE("update packages of this version or older are removed; newer ones and 
     char tmpl[] = "/tmp/playtube-pkg-XXXXXX";
     REQUIRE(mkdtemp(tmpl) != nullptr);
     const std::string dir = tmpl;
-    for (const char* name : {"Playtube-2.1.0.pkg", "Playtube-2.2.0.pkg", "Playtube-2.3.0.pkg", "Playtube-2.2.0.pkg.part",
-                             "IV0001-PLTB00000_00-PLTB000000100000.pkg", "Playfin-2.2.1.pkg", "Playtube-x.pkg"}) {
+    for (const char* name : {"XP-TUBE-2.1.0.pkg", "XP-TUBE-2.2.0.pkg", "XP-TUBE-2.3.0.pkg", "XP-TUBE-2.2.0.pkg.part",
+                             "IV0001-PLTB00000_00-PLTB000000100000.pkg", "Playfin-2.2.1.pkg", "XP-TUBE-x.pkg"}) {
         std::ofstream(dir + "/" + name) << "p";
     }
     const int removed = app::removeOldPackages(dir, "2.2.0");
