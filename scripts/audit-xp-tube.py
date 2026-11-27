@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Fail the XP-TUBE build if its install, storage, updater, or boot-log identity regresses."""
+import os
 from pathlib import Path
 import json
 import re
