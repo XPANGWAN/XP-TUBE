@@ -39,14 +39,8 @@ FILES = {
         ('const ui::Color kPlayedColor{0xFF, 0x00, 0x33, 0xFF};   // YouTube red: the part played and the head', '// The played portion and head follow XP-TUBE\'s selected accent colour.'),
         ('ui::nvgColor(kPlayedColor)', 'ui::nvgColor(ui::theme().accent)', 2),
     ],
-    "src/app/shell/settings_screen.cpp": [
-        ('logo == "youtube" ? "YouTube" : "Playtube"', 'logo == "youtube" ? "YouTube" : "XP-TUBE"'),
-    ],
     "src/app/gallery.cpp": [
         ('"Playtube toolkit"', '"XP-TUBE"'),
-    ],
-    "src/app/app.cpp": [
-        ('PF_LOG_INFO("Playtube %s, language %s, data %s"', 'PF_LOG_INFO("XP-TUBE %s, language %s, data %s"'),
     ],
     "src/platform/sdl_platform.cpp": [
         ('core::dataPath("playtube.log")', 'core::dataPath("xp-tube.log")'),
