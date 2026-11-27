@@ -21,6 +21,10 @@ if(BUILD_TESTING)
     target_link_libraries(xp_core_storage_paths_tests PRIVATE xp_core)
     add_test(NAME xp_core_storage_paths_unit COMMAND xp_core_storage_paths_tests)
 
+    add_executable(xp_core_directory_store_tests tests/directory_store_test.cpp)
+    target_link_libraries(xp_core_directory_store_tests PRIVATE xp_core)
+    add_test(NAME xp_core_directory_store_unit COMMAND xp_core_directory_store_tests)
+
     add_executable(xp_core_file_store_tests tests/file_store_test.cpp)
     target_link_libraries(xp_core_file_store_tests PRIVATE xp_core)
     add_test(NAME xp_core_file_store_unit COMMAND xp_core_file_store_tests)
