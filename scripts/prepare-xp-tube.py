@@ -83,6 +83,49 @@ if body.count(old) != 1:
     raise SystemExit("src/app/app.cpp: expected the single legacy Playtube migration block")
 app.write_text(body.replace(old, "        // XP-TUBE: never read, import, or copy Playtube's settings or account tokens.\n"), encoding="utf-8")
 
+# Harden the importer itself as well as removing its startup call. This prevents a
+# future accidental call site from reading or copying Playtube settings/tokens.
+session = ROOT / "src/app/shell/session.cpp"
+session_body = session.read_text(encoding="utf-8")
+old_importer = '''void AppSession::importPrevious(const std::string& oldConfigPath) {
+    if (account_.lookedForOld()) {
+        return;
+    }
+    account_.importFromOld(oldConfigPath);
+    std::string text;
+    if (core::readSmallFile(oldConfigPath, 1024 * 1024, text) != core::ReadStatus::Ok) {
+        return;
+    }
+    const auto doc = core::json::Document::parse(text);
+    if (!doc) {
+        return;
+    }
+    const auto terms = core::json::strings(core::json::object(doc->root(), "setting"), "yt_search_history");
+    Settings imported = settings_;
+    for (const std::string& term : terms) {  // after the searches made here, in their order
+        if (imported.recentSearches.size() >= 8) {
+            break;
+        }
+        if (std::find(imported.recentSearches.begin(), imported.recentSearches.end(), term) ==
+            imported.recentSearches.end()) {
+            imported.recentSearches.push_back(term);
+        }
+    }
+    if (imported.recentSearches != settings_.recentSearches) {
+        settings_.recentSearches = std::move(imported.recentSearches);
+        saveSettings();
+    }
+}'''
+new_importer = '''void AppSession::importPrevious(const std::string& oldConfigPath) {
+    // XP-TUBE isolation: intentionally disabled. Never read legacy settings,
+    // search history, or account tokens from another application.
+    static_cast<void>(oldConfigPath);
+}'''
+if session_body.count(old_importer) != 1:
+    raise SystemExit("src/app/shell/session.cpp: expected exactly one upstream legacy importer implementation")
+session.write_text(session_body.replace(old_importer, new_importer), encoding="utf-8")
+
+
 # Update the app's shipped translations without changing attribution/license records.
 for path in (ROOT / "resources/i18n").glob("*.json"):
     body = path.read_text(encoding="utf-8")
