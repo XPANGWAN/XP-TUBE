@@ -304,6 +304,18 @@ FILES["src/app/shell/nav_bar.cpp"].append((
                            : current_ ? ui::withAlpha(ui::theme().accent, 0x30) : ui::Color{0, 0, 0, 0};
     label_->color = focused_ ? ui::theme().onAccent : current_ ? ui::theme().accent : ui::theme().textSecondary;"""))
 
+# Player settings must follow the user's selected accent instead of a fixed white highlight.
+FILES["src/app/shell/player_settings.cpp"].extend([
+    ("background = focused_ ? kFocused : ui::Color{0, 0, 0, 0};",
+     "background = focused_ ? ui::theme().accent : ui::Color{0, 0, 0, 0};"),
+    ("name_->color = focused_ ? kOnFocused : ui::theme().text;\n    value_->color = focused_ ? kOnFocused : ui::theme().textSecondary;",
+     "name_->color = focused_ ? ui::theme().onAccent : ui::theme().text;\n    value_->color = focused_ ? ui::theme().onAccent : ui::theme().textSecondary;"),
+    ("card->cornerRadius = kRadius;",
+     "card->cornerRadius = ui::theme().radius * 1.5f;"),
+    ("    title->width = ui::SizeSpec::fill();",
+     "    title->width = ui::SizeSpec::fill();\n    title->color = ui::theme().accent;"),
+])
+
 # Refine playback side-panels with the same rounded, theme-aware surface treatment.
 FILES.update({
     "src/app/shell/chat_panel.cpp": [
