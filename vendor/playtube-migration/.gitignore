@@ -1,0 +1,9 @@
+/build/
+/dist/
+/build-deps/
+/out/
+*.pkg
+*.oelf
+compile_commands.json
+.cache/
+__pycache__/

@@ -1,0 +1,13 @@
+# V2F's channel page, from a search
+wait 60
+press Up
+press Right
+press Confirm
+wait 20
+press Confirm
+type V2F
+press Confirm
+wait 90
+press Confirm
+wait 90
+screenshot channel

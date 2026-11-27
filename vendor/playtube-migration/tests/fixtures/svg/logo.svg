@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A test logo in the shape of a media player's: a red rounded box, a white triangle, a white bar with a hole -->
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 200 50">
+<g>
+	<path fill="#FF0000" d="M10,0h40c5.5,0,10,4.5,10,10v30c0,5.5-4.5,10-10,10H10C4.5,50,0,45.5,0,40V10C0,4.5,4.5,0,10,0z"/>
+	<polygon fill="#FFFFFF" points="22,12 44,25 22,38 	"/>
+	<path fill="#FFFFFF" d="M80,10h100v30H80V10z M100,20v10h60V20H100z"/>
+</g>
+</svg>

@@ -1,0 +1,55 @@
+#include <doctest/doctest.h>
+
+#include <cstdint>
+#include <string>
+
+#include "net/crypto.hpp"
+#include "support/files.hpp"
+
+using playtube::net::base64Encode;
+
+namespace {
+
+std::string b64(const std::string& text) {
+    return base64Encode(reinterpret_cast<const std::uint8_t*>(text.data()), text.size());
+}
+
+}  // namespace
+
+TEST_CASE("base64 follows RFC 4648") {
+    CHECK(b64("") == "");
+    CHECK(b64("f") == "Zg==");
+    CHECK(b64("fo") == "Zm8=");
+    CHECK(b64("foo") == "Zm9v");
+    CHECK(b64("foob") == "Zm9vYg==");
+    CHECK(b64("fooba") == "Zm9vYmE=");
+    CHECK(b64("foobar") == "Zm9vYmFy");
+}
+
+TEST_CASE("the public key hash of a certificate matches openssl") {
+    const auto digest = playtube::net::spkiSha256FromPem(playtube::test::readFixture("tls/server.crt"));
+    REQUIRE(digest.has_value());
+    CHECK(playtube::net::curlPin(*digest) == "sha256//e/lJHyILdq+f84w+ilCF7/374MlV1SHk2yfT9CzB3nM=");
+    CHECK(playtube::net::hexFingerprint(*digest) ==
+          "7B:F9:49:1F:22:0B:76:AF:9F:F3:8C:3E:8A:50:85:EF:FD:FB:E0:C9:55:D5:21:E4:DB:27:D3:F4:2C:C1:DE:73");
+    const auto self = playtube::net::spkiSha256FromPem(playtube::test::readFixture("tls/self.crt"));
+    REQUIRE(self.has_value());
+    CHECK(playtube::net::curlPin(*self) == "sha256//7/0+2QD8rSzUfQ66IS3X1evBTQkOAfJZ7ASxI8fSyTk=");
+}
+
+TEST_CASE("invalid certificates give no hash") {
+    for (const char* bad : {"", "not a pem", "-----BEGIN CERTIFICATE-----\nAAAA\n-----END CERTIFICATE-----\n"}) {
+        INFO(bad);
+        CHECK_FALSE(playtube::net::spkiSha256FromPem(bad).has_value());
+    }
+}
+
+TEST_CASE("SHA-256 in pieces matches the known digests") {
+    playtube::net::Sha256Stream empty;
+    CHECK(playtube::net::hexLower(empty.finish()) ==
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+    playtube::net::Sha256Stream abc;
+    abc.update("a", 1);
+    abc.update("bc", 2);
+    CHECK(playtube::net::hexLower(abc.finish()) == "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
+}

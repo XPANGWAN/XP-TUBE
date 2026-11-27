@@ -1,0 +1,59 @@
+#include <doctest/doctest.h>
+
+#include "testing/script.hpp"
+
+using playtube::platform::Action;
+using playtube::testing::parseScript;
+using Kind = playtube::testing::Step::Kind;
+
+TEST_CASE("a valid script is parsed in order, comments and blank lines skipped") {
+    const auto script = parseScript("# demo\nwait 2\n\npress Down\nscreenshot home_1\nquit\n");
+    REQUIRE(script.ok());
+    REQUIRE(script.steps.size() == 4);
+    CHECK(script.steps[0].kind == Kind::Wait);
+    CHECK(script.steps[0].frames == 2);
+    CHECK(script.steps[1].kind == Kind::Press);
+    CHECK(script.steps[1].action == Action::Down);
+    CHECK(script.steps[2].kind == Kind::Screenshot);
+    CHECK(script.steps[2].name == "home_1");
+    CHECK(script.steps[3].kind == Kind::Quit);
+}
+
+TEST_CASE("down and up hold a button across frames") {
+    const auto script = parseScript("down R2\nwait 90\nup R2\n");
+    REQUIRE(script.ok());
+    REQUIRE(script.steps.size() == 3);
+    CHECK(script.steps[0].kind == Kind::Down);
+    CHECK(script.steps[0].action == Action::R2);
+    CHECK(script.steps[2].kind == Kind::Up);
+    CHECK(script.steps[2].action == Action::R2);
+    CHECK_FALSE(parseScript("down Nothing\n").ok());
+}
+
+TEST_CASE("errors report the line") {
+    auto script = parseScript("wait 1\njump\n");
+    CHECK_FALSE(script.ok());
+    CHECK(script.errorLine == 2);
+    CHECK_FALSE(parseScript("press Fly").ok());
+    CHECK_FALSE(parseScript("wait -3").ok());
+    CHECK_FALSE(parseScript("wait abc").ok());
+    CHECK_FALSE(parseScript("wait 100000").ok());
+    CHECK_FALSE(parseScript("screenshot").ok());
+}
+
+TEST_CASE("screenshot names cannot be paths") {
+    for (const char* bad : {"screenshot ../x", "screenshot /etc/x", "screenshot a/b", "screenshot A.png",
+                            "screenshot a b"}) {
+        INFO(bad);
+        CHECK_FALSE(parseScript(bad).ok());
+    }
+}
+
+TEST_CASE("type sends the rest of the line as text") {
+    const auto script = parseScript("type Ana \xE6\x97\xA5\xE6\x9C\xAC\n");
+    REQUIRE(script.ok());
+    REQUIRE(script.steps.size() == 1);
+    CHECK(script.steps[0].kind == Kind::Type);
+    CHECK(script.steps[0].name == "Ana \xE6\x97\xA5\xE6\x9C\xAC");
+    CHECK_FALSE(parseScript("type").ok());
+}

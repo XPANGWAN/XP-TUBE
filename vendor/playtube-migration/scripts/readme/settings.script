@@ -1,0 +1,10 @@
+# The settings, from the gear beside the account
+wait 60
+press Up
+press Right
+press Right
+press Right
+press Right
+press Confirm
+wait 30
+screenshot settings

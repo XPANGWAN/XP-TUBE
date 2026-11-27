@@ -1,0 +1,36 @@
+# The player on the test clip: the bar on the first picture, the icon row focused (Lecture: tests pause on the first
+# picture), then on its last icon (Paramètres, its name kept on screen), the Paramètres panel (◯ goes back to its
+# icon), the comments panel and a comment's replies (◯ goes back to Commentaires, ◯ leaves the row, ◯ the player)
+wait 20
+press Down
+press Confirm
+wait 30
+screenshot player
+press Down
+wait 10
+screenshot player_row
+press Right
+press Right
+press Right
+wait 10
+screenshot player_row_settings
+press Confirm
+wait 10
+screenshot player_settings
+press Back
+wait 5
+press Left
+press Left
+press Confirm
+wait 20
+screenshot player_comments
+press Confirm
+wait 10
+screenshot player_replies
+press Back
+wait 5
+press Back
+wait 5
+press Back
+wait 10
+screenshot player_back

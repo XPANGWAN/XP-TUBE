@@ -1,0 +1,31 @@
+# Signed in (tests/ui/signed.account): the home's feeds, the subscriptions, the library and its playlists, a
+# playlist, the player's icon row with J'aime, Je n'aime pas, Enregistrer and S'abonner (the focus on J'aime)
+wait 20
+screenshot signed_home
+press Up
+press Right
+press Right
+press Confirm
+wait 15
+screenshot signed_subscriptions
+press Up
+press Up
+press Right
+press Confirm
+wait 15
+screenshot signed_library
+press Down
+press Down
+press Down
+wait 40
+screenshot signed_library_playlists
+press Right
+press Confirm
+wait 15
+screenshot signed_playlist
+press Confirm
+wait 30
+press Down
+press Right
+wait 10
+screenshot signed_player_row

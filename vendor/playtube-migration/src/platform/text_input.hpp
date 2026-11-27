@@ -1,0 +1,29 @@
+#pragma once
+
+#include <string>
+
+namespace playtube::platform {
+
+struct TextInputRequest {
+    std::string title;
+    std::string initial;
+    enum class Kind { Text, Url, Number, Password } kind = Kind::Text;
+    int maxLength = 256;
+    bool autoCapitalize = true;  // false: the first letter as typed (searches: a pasted video id keeps its case)
+};
+
+enum class KeyboardStatus { Idle, Running, Done, Cancelled, Failed };
+
+// PS4: the system keyboard dialog. Linux: not available (the UI edits with the PC keyboard).
+bool systemKeyboardAvailable();
+
+// The PS4 account using the app (its user id as text); empty where there is none (Linux).
+std::string consoleUserId();
+bool openSystemKeyboard(const TextInputRequest& request);
+// Polled every frame while Running; Done fills `text` (UTF-8).
+KeyboardStatus pollSystemKeyboard(std::string& text);
+
+// Linux: SDL text events on/off (EventTranslator text mode). No effect on PS4.
+void setTextEvents(bool on);
+
+}  // namespace playtube::platform

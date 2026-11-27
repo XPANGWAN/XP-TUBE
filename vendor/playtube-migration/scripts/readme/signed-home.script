@@ -1,0 +1,5 @@
+# The signed-in home (fake_youtube --showcase): For you, then Subscriptions
+wait 60
+press Down
+wait 30
+screenshot home
