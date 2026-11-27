@@ -1,6 +1,7 @@
 #include "core/data_dir.hpp"
 
 #include "xp/core/storage_paths.hpp"
+#include "xp/core/directory_store.hpp"
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -15,8 +16,7 @@ namespace {
 std::string gDataRoot;
 
 bool isDirectory(const std::string& path) {
-    struct stat info {};
-    return stat(path.c_str(), &info) == 0 && S_ISDIR(info.st_mode);
+    return xp::core::is_directory(path);
 }
 
 }  // namespace
@@ -41,12 +41,12 @@ std::optional<std::string> packagePath(std::string_view name) {
 #ifdef PLAYTUBE_PS4
     // GoldHEN's folder: created when missing (one level, under /data), never changed (no chmod as for our own)
     const std::string folder = "/data/pkg";
-    if (!isDirectory(folder) && ::mkdir(folder.c_str(), 0777) != 0 && !isDirectory(folder)) {
+    if (!xp::core::ensure_single_directory(folder, 0777)) {
         return std::nullopt;
     }
 #else
     const auto inside = dataPath("pkg");
-    if (!inside || !makeDirs(*inside)) {
+    if (!inside || !xp::core::ensure_directory_tree(*inside, 0755)) {
         return std::nullopt;
     }
     const std::string folder = *inside;
@@ -71,13 +71,9 @@ bool makeDirs(const std::string& path) {
 #ifdef PLAYTUBE_PS4
     // a folder created under /data may not end up owned by the app's user: 0755 then forbids creating files in it
     // (seen on the first console runs). Existing folders, from earlier runs, are opened up too.
-    const bool ok = makeDirsWith(path, ::mkdir, 0777);
-    if (ok) {
-        chmod(path.c_str(), 0777);
-    }
-    return ok;
+    return xp::core::ensure_directory_tree(path, 0777, nullptr, true);
 #else
-    return makeDirsWith(path, ::mkdir);
+    return xp::core::ensure_directory_tree(path, 0755);
 #endif
 }
 
