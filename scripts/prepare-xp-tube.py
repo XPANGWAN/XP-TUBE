@@ -54,6 +54,15 @@ public:
         subtitle->color = ui::theme().textSecondary;
         auto* hint = add<ui::Label>(ui::tr("shell.tab.search"), ui::FontStyle{ui::theme().fontSmall, ui::FontWeight::Bold});
         hint->color = ui::theme().accent;
+        auto* actions = add<ui::Box>(ui::Axis::Row);
+        actions->gap = ui::theme().spacingM;
+        actions->margin.top = ui::theme().spacingM;
+        actions->add<ui::Button>(ui::tr("shell.tab.search"), [&session] {
+            openTab(session, Tab::Search);
+        });
+        actions->add<ui::Button>(ui::tr("shell.tab.subscriptions"), [&session] {
+            openTab(session, Tab::Subscriptions);
+        });
     }
 
     void draw(NVGcontext* vg) const override {
