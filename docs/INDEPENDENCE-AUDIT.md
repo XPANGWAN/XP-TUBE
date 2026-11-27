@@ -20,3 +20,5 @@ has applied the XP-TUBE patch and before the PS4 package is built.
 The upstream importer interface remains for source compatibility, but its implementation is an inert no-op in XP-TUBE. Upstream copyright/license material is retained in the corresponding source archive. The original Playtube installation and its data are not modified or migrated.
 
 This is a source-level regression guard, not a substitute for testing installation and upgrades on a real PS4. The user must keep the known-good XP-TUBE PKG and Playtube installation until a newly built PKG is tested.
+
+- The saved logo preference now uses `xp-tube` as its default key (older XP-TUBE settings remain compatible because every non-YouTube choice resolves to the XP-TUBE wordmark); the visual asset cache also has its own `xp-tube` theme identity.
