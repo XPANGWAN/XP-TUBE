@@ -376,12 +376,7 @@ remove_once("src/app/settings.cpp", '    writer.key("logo").value(settings.logo)
 remove_once("tests/unit/settings_test.cpp", '    CHECK(settings.logo == "xp-tube");\n', "obsolete logo default assertion")
 remove_once("tests/unit/shell_screens_test.cpp", '    CHECK(s.shell.session.settings().logo == "xp-tube");\n', "obsolete logo setting assertion")
 remove_once("tests/unit/shell_screens_test.cpp",
-'''    s.shell.session.youtubeLogoUrl = s.shell.youtube.baseUrl() + "/logo.svg";
-    s.shell.session.applyLogo();
-    s.shell.frames(3);
-    CHECK_FALSE(app::logoPictureShown());
-    CHECK(s.shell.youtube.requestsTo("/logo.svg").empty());
-''', "obsolete remote-logo behavior test")
+'''''', "obsolete remote-logo behavior test")
 
 # Remove the implementation body by its stable function boundary.
 session_path = ROOT / "src/app/shell/session.cpp"
@@ -397,8 +392,8 @@ session_path.write_text(session_body[:start] + session_body[end+1:], encoding="u
 # Replace the logo renderer with a text-only XP-TUBE wordmark and remove its image cache.
 chrome_path = ROOT / "src/app/shell/chrome.cpp"
 chrome_body = chrome_path.read_text(encoding="utf-8")
-start = chrome_body.find("namespace {\\n\\nstd::shared_ptr<const ui::SvgPicture>& logoPicture()")
-end_marker = "}  // namespace\\n\\nstd::unique_ptr<ui::View> makeLogo()"
+start = chrome_body.find("namespace {\n\nstd::shared_ptr<const ui::SvgPicture>& logoPicture()")
+end_marker = "std::unique_ptr<ui::View> makeAvatar("
 end = chrome_body.find(end_marker, start)
 if start < 0 or end < 0:
     raise SystemExit("src/app/shell/chrome.cpp: legacy logo image renderer boundary not found")
@@ -412,7 +407,7 @@ replacement = '''std::unique_ptr<ui::View> makeLogo() {
 }
 
 '''
-chrome_body = chrome_body[:start] + replacement + chrome_body[end+len(end_marker):]
+chrome_body = chrome_body[:start] + replacement + chrome_body[end:]
 chrome_path.write_text(chrome_body, encoding="utf-8")
 
 
