@@ -12,7 +12,7 @@
 namespace playtube::app {
 
 // Where Playtube's releases are published (GitHub's API for the latest one).
-constexpr const char* kLatestReleaseUrl = "https://api.github.com/repos/LowganDev/PlaytubePS4/releases/latest";
+constexpr const char* kLatestReleaseUrl = "https://api.github.com/repos/XPANGWAN/XP-TUBE/releases/latest";
 
 // The newest published version and its PS4 package.
 struct Release {
