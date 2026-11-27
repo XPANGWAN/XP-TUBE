@@ -8,9 +8,8 @@
 
 #include "core/json.hpp"
 #include "core/log.hpp"
-#include "../net/http.hpp"
-#include "../net/xp_http_compat.hpp"
 #include "net/url.hpp"
+#include "youtube/http.hpp"
 #include "youtube/parse.hpp"
 
 namespace playtube::youtube {
@@ -68,7 +67,7 @@ const char* const kChannelPlaylists = "EglwbGF5bGlzdHPyBgQKAkIA";
 const char* const kChannelShorts = "EgZzaG9ydHPyBgUKA5oBAA==";
 const char* const kChannelLives = "EgdzdHJlYW1z8gYECgJ6AA==";
 
-core::Result<std::string> checked(core::Result<net::HttpResponse> response, const char* what) {
+core::Result<std::string> checked(core::Result<xp::net::HttpResponse> response, const char* what) {
     if (!response.ok()) {
         return response.error();
     }
@@ -131,11 +130,11 @@ core::Result<std::string> Client::post(const ClientProfile& profile, const char*
     }
     body.end();
 
-    net::HttpRequest request;
+    xp::net::HttpRequest request;
     request.method = "POST";
     request.url = endpoints_.youtube + "/youtubei/v1/" + endpoint + "?prettyPrint=false";
     request.body = body.str();
-    request.maxBodyBytes = kMaxReplyBytes;
+    request.max_body_bytes = kMaxReplyBytes;
     request.headers = {{"Content-Type", "application/json"},
                        {"User-Agent", profile.userAgent},
                        {"X-YouTube-Client-Name", std::to_string(profile.id)},
@@ -147,7 +146,7 @@ core::Result<std::string> Client::post(const ClientProfile& profile, const char*
     if (!accessToken.empty()) {
         request.headers.emplace_back("Authorization", "Bearer " + accessToken);
     }
-    return checked(net::sendViaXp(http_, request, cancel), endpoint);
+    return checked(detail::sendHttp(http_, request, cancel), endpoint);
 }
 
 core::Result<std::string> Client::get(const std::string& url, const std::string& userAgent,
@@ -155,11 +154,11 @@ core::Result<std::string> Client::get(const std::string& url, const std::string&
     if (cancel.cancelled()) {
         return cancelled();
     }
-    net::HttpRequest request;
+    xp::net::HttpRequest request;
     request.url = url;
-    request.maxBodyBytes = kMaxReplyBytes;
+    request.max_body_bytes = kMaxReplyBytes;
     request.headers = {{"User-Agent", userAgent}};
-    return checked(net::sendViaXp(http_, request, cancel), "request");
+    return checked(detail::sendHttp(http_, request, cancel), "request");
 }
 
 std::string Client::visitorData(const core::CancelToken& cancel) const {
@@ -169,11 +168,11 @@ std::string Client::visitorData(const core::CancelToken& cancel) const {
             return visitor_;
         }
     }
-    net::HttpRequest request;
+    xp::net::HttpRequest request;
     request.url = endpoints_.youtube + "/sw.js_data";
-    request.maxBodyBytes = kMaxReplyBytes;
+    request.max_body_bytes = kMaxReplyBytes;
     request.headers = {{"User-Agent", kWebAgent}, {"Cookie", "SOCS=CAI"}};
-    const auto body = checked(net::sendViaXp(http_, request, cancel), "sw.js_data");
+    const auto body = checked(detail::sendHttp(http_, request, cancel), "sw.js_data");
     const std::string visitor = body.ok() ? parseVisitorData(body.value()) : std::string();
     if (visitor.empty()) {
         PF_LOG_WARN("youtube: no visitor id");
@@ -194,13 +193,13 @@ bool Client::reachable(const std::string& url, const std::string& userAgent, con
         length = std::atoll(url.c_str() + clen + 5);
     }
     const long long at = length > 0 ? length / 10 * 8 : 0;
-    net::HttpRequest request;
+    xp::net::HttpRequest request;
     request.url = url;
-    request.maxBodyBytes = 64 * 1024;
-    request.timeoutMs = 15000;
+    request.max_body_bytes = 64 * 1024;
+    request.timeout_ms = 15000;
     request.headers = {{"User-Agent", userAgent},
                        {"Range", "bytes=" + std::to_string(at) + "-" + std::to_string(length > 0 ? at : 1023)}};
-    const auto response = net::sendViaXp(http_, request, cancel);
+    const auto response = detail::sendHttp(http_, request, cancel);
     const bool ok = response.ok() && response.value().status >= 200 && response.value().status < 300;
     if (!ok) {
         PF_LOG_DEBUG("youtube: probe at %lld: %s", at,
@@ -520,11 +519,11 @@ core::Result<core::Unit> Client::report(const std::string& url, const std::strin
     if (cancel.cancelled()) {
         return cancelled();
     }
-    net::HttpRequest request;
+    xp::net::HttpRequest request;
     request.url = url;
-    request.maxBodyBytes = 64 * 1024;
+    request.max_body_bytes = 64 * 1024;
     request.headers = {{"User-Agent", kTvAgent}, {"Authorization", "Bearer " + accessToken}};
-    const auto body = checked(net::sendViaXp(http_, request, cancel), "report");
+    const auto body = checked(detail::sendHttp(http_, request, cancel), "report");
     if (!body.ok()) {
         return body.error();
     }
