@@ -105,7 +105,6 @@ playtube_set_warnings(playtube_base)
 add_library(playtube_net STATIC
     src/net/url.cpp
     src/net/crypto.cpp
-    src/net/http.cpp
 )
 if(XP_TUBE_USE_NATIVE_STORAGE)
     target_link_libraries(playtube_net PUBLIC xp_net)
@@ -115,7 +114,7 @@ if(PLATFORM_PS4)
 else()
     target_sources(playtube_net PRIVATE src/net/crypto_openssl.cpp)
 endif()
-target_link_libraries(playtube_net PUBLIC playtube_base PRIVATE playtube_curl playtube_crypto)
+target_link_libraries(playtube_net PUBLIC playtube_base PRIVATE playtube_crypto)
 playtube_set_warnings(playtube_net)
 
 # window, input, rendering helpers, system keyboard
