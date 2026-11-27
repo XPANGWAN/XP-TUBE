@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Fail the XP-TUBE build if its install, storage, updater, or boot-log identity regresses."""
 from pathlib import Path
+import json
 import re
 import sys
 
@@ -47,4 +48,18 @@ app = read("src/app/app.cpp")
 if "session.importPrevious(" in app:
     sys.exit("[FAIL] XP-TUBE startup invokes the legacy importer")
 print("[PASS] XP-TUBE startup does not invoke the legacy importer")
+
+# Translation files are user-visible; retain upstream legal notices elsewhere.
+translation_files = sorted((ROOT / "resources/i18n").glob("*.json"))
+if not translation_files:
+    sys.exit("[FAIL] no translation JSON files found")
+for translation in translation_files:
+    content = translation.read_text(encoding="utf-8")
+    try:
+        json.loads(content)
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        sys.exit(f"[FAIL] invalid translation file {translation.relative_to(ROOT)}: {error}")
+    if "Playtube" in content:
+        sys.exit(f"[FAIL] legacy Playtube branding remains in {translation.relative_to(ROOT)}")
+print(f"[PASS] {len(translation_files)} translation files are valid and use XP-TUBE branding")
 print("XP-TUBE independence audit passed.")
