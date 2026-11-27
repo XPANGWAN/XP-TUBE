@@ -67,12 +67,12 @@ jobs:
 
           - Original repository: https://github.com/LowganDev/PlaytubePS4
           - Imported revision: $UPSTREAM_SHA
-          - Imported path: `$PREFIX/`
+          - Imported path: $PREFIX/
           - License at imported revision: GNU General Public License v3.0
           - Import method: Git subtree with upstream commit ancestry preserved.
           - Import date: $(date -u +%Y-%m-%d)
 
-          The directory `$PREFIX/` is a temporary migration reference. It is
+          The directory $PREFIX/ is a temporary migration reference. It is
           not an XP-TUBE-authored implementation and must not be presented as
           independently rewritten code. Original copyright, GPL, and third-party
           notices must remain intact wherever required.
