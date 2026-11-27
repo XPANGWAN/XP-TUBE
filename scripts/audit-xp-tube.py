@@ -104,6 +104,9 @@ require("src/app/shell/cards.cpp", r"ui::theme\(\)\.accent", "video-card focus s
 
 require("src/app/settings.hpp", r'std::string logo = "xp-tube"', "XP-TUBE is the default saved header-logo identity")
 require("src/app/shell/settings_screen.cpp", r'settings\.logo == "youtube" \? "xp-tube" : "youtube"', "logo selector stores XP-TUBE or YouTube explicitly")
+require("src/app/shell/settings_screen.cpp", r'logo == "youtube" \? "YouTube" : "XP-TUBE"', "settings screen displays the correct XP-TUBE and YouTube logo names")
+require("src/app/shell/chrome.cpp", r'add<ui::Label>.*"TUBE", style', "header displays the XP-TUBE wordmark")
+forbid("src/app/shell/chrome.cpp", r'add<ui::Label>\("Playtube"', "legacy Playtube header wordmark")
 require("src/ui/theme.hpp", r'std::string id = "xp-tube"', "derived visual assets use the XP-TUBE theme cache identity")
 forbid("src/app/settings.hpp", r'std::string logo = "playtube"', "legacy Playtube logo preference as the default")
 forbid("src/app/shell/settings_screen.cpp", r'\? "playtube" : "youtube"', "legacy Playtube logo preference in the selector")
