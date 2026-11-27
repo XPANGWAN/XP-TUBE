@@ -109,6 +109,8 @@ require("src/app/shell/chrome.cpp", r'add<ui::Label>.*"TUBE", style', "header di
 forbid("src/app/shell/chrome.cpp", r'add<ui::Label>\("Playtube"', "legacy Playtube header wordmark")
 require("src/ui/theme.hpp", r'std::string id = "xp-tube"', "derived visual assets use the XP-TUBE theme cache identity")
 forbid("src/app/settings.hpp", r'std::string logo = "playtube"', "legacy Playtube logo preference as the default")
+forbid("src/app/settings.hpp", r'logo: "playtube"', "stale Playtube logo preference documentation")
+forbid("src/app/shell/settings_screen.cpp", r'newer Playtube is published', "stale Playtube updater banner documentation")
 forbid("src/app/shell/settings_screen.cpp", r'\? "playtube" : "youtube"', "legacy Playtube logo preference in the selector")
 forbid("src/ui/theme.hpp", r'projecteur|Playtube identity', "legacy theme identity")
 
