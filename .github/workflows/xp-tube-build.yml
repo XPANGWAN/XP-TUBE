@@ -39,7 +39,14 @@ jobs:
           git -C upstream status --short
 
       - name: Install artwork generator dependency
-        run: sudo apt-get update && sudo apt-get install -y python3-pil
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The hosted runner's optional Microsoft feed can intermittently return 403;
+          # it is not needed for this build, so disable only that feed before apt update.
+          sudo find /etc/apt/sources.list.d -maxdepth 1 -type f -iname '*microsoft*' -delete
+          sudo apt-get update
+          sudo apt-get install -y python3-pil
 
       - name: Apply XP-TUBE identity and account-isolation patch
         shell: bash
