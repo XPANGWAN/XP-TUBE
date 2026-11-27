@@ -54,10 +54,12 @@ FILES = {
 
     "src/app/settings.hpp": [
         ('std::string logo = "playtube";', 'std::string logo = "xp-tube";'),
+        ('// the header\'s logo: "playtube", or "youtube" (fetched from YouTube)', '// the header\'s logo: "xp-tube", or "youtube" (fetched from YouTube)'),
     ],
     "src/app/shell/settings_screen.cpp": [
         ('logo == "youtube" ? "YouTube" : "Playtube"', 'logo == "youtube" ? "YouTube" : "XP-TUBE"'),
         ('settings.logo == "youtube" ? "playtube" : "youtube"', 'settings.logo == "youtube" ? "xp-tube" : "youtube"'),
+        ('// The banner at the top of the settings while a newer Playtube is published:', '// The banner at the top of the settings while a newer XP-TUBE release is published:'),
     ],
     "src/ui/theme.hpp": [
         ("// Design tokens of the Playtube identity (Playfin's look in YouTube red; one look, no theme setting): widgets read these, never\n// hard-coded values.", "// XP-TUBE design tokens: a dark neutral base with a user-selectable accent; widgets read these, never hard-coded values."),
