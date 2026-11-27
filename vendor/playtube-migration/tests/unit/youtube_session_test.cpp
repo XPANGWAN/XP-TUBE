@@ -25,7 +25,7 @@ TEST_CASE("the YouTube language and region follow the UI language") {
 
 TEST_CASE("the session reaches YouTube and keeps the account in its file") {
     FakeYouTube yt;
-    xp::xp::net::HttpConfig config;
+    xp::net::HttpConfig config;
     config.ca_file = test::fixturePath("tls/ca.crt");
     char folder[] = "/tmp/playtube-session-XXXXXX";
     REQUIRE(mkdtemp(folder) != nullptr);
