@@ -62,8 +62,8 @@ YoutubeLocale youtubeLocale(const std::string& uiLanguage) {
 
 AppSession::AppSession(net::HttpConfig http, std::string settingsPath, std::string accountPath)
     : caFile_(http.caFile),
-      http_(std::move(http)),
-      xpHttp_(toXpHttpConfig(http_)),
+      http_(http),
+      xpHttp_(toXpHttpConfig(http)),
       settingsPath_(std::move(settingsPath)),
       account_(std::move(accountPath)) {
     if (!settingsPath_.empty()) {
