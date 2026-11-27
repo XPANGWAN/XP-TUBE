@@ -1,9 +1,9 @@
 # XP-TUBE native core
 
-This directory contains XP-owned C++ foundations. The storage implementation
-is now linked into the migrated application's PS4 and host builds through a
-small compatibility adapter. Other native-core APIs remain independently
-testable and are not yet used throughout the application.
+This directory contains XP-owned C++ foundations. The migrated application's
+file operations, path validation, and directory creation now delegate to XP
+native storage components through compatibility adapters. The remaining
+application services are still being migrated in stages.
 
 ## Current components
 
