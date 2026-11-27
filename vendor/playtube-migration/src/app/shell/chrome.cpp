@@ -184,7 +184,7 @@ class Logo : public ui::Box {
 public:
     Logo() : ui::Box(ui::Axis::Row) {
         const ui::FontStyle style{ui::theme().fontLogo, ui::FontWeight::Bold};
-        add<ui::Label>("Playtube", style);
+        add<ui::Label>("XP-TUBE", style);
         add<AccentLabel>(".", style);
         all().push_back(this);
     }
