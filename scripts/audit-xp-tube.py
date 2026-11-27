@@ -42,7 +42,7 @@ session = read("src/app/shell/session.cpp")
 marker = "void AppSession::importPrevious("
 if marker not in session:
     sys.exit("[FAIL] legacy importer interface is missing")
-importer = session.split(marker, 1)[1].split("\\nvoid AppSession::completeAccount()", 1)[0]
+importer = session.split(marker, 1)[1].split("\nvoid AppSession::completeAccount()", 1)[0]
 if "static_cast<void>(oldConfigPath);" not in importer:
     sys.exit("[FAIL] legacy importer is not an inert no-op")
 for forbidden in ("account_.importFromOld(", "core::readSmallFile(", "core::json::"):
