@@ -41,7 +41,7 @@ FILES = {
          '''// XP-TUBE's home showcase: a cinematic introduction above the live YouTube feed.
 class HomeShowcase : public ui::Box {
 public:
-    explicit HomeShowcase(AppSession& session) : ui::Box(ui::Axis::Column) {
+    HomeShowcase() : ui::Box(ui::Axis::Column) {
         width = ui::SizeSpec::fill();
         padding = {28, 36, 28, 36};
         gap = ui::theme().spacingS;
@@ -78,7 +78,7 @@ public:
 // when none came.
 class RowsScreen : public ShellScreen {'''),
         ('        setStart(bar->currentTab());\n        rows_ = column_->add<ui::Box>(ui::Axis::Column);',
-         '        setStart(bar->currentTab());\n        if (tab == Tab::Home) {\n            column_->add<HomeShowcase>(session_);\n        }\n        rows_ = column_->add<ui::Box>(ui::Axis::Column);'),
+         '        setStart(bar->currentTab());\n        if (tab == Tab::Home) {\n            column_->add<HomeShowcase>();\n        }\n        rows_ = column_->add<ui::Box>(ui::Axis::Column);'),
     ],
     "src/app/shell/nav_bar.cpp": [
         ('NavBar::NavBar(AppSession& session, Tab current) : ui::Box(ui::Axis::Row) {\n    width = ui::SizeSpec::fill();',
