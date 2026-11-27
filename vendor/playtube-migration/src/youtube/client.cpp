@@ -9,6 +9,7 @@
 #include "core/json.hpp"
 #include "core/log.hpp"
 #include "net/url.hpp"
+#include "net/xp_http_compat.hpp"
 #include "youtube/parse.hpp"
 
 namespace playtube::youtube {
@@ -96,7 +97,7 @@ core::Error cancelled() { return core::makeError(core::ErrorKind::Cancelled, "ca
 
 }  // namespace
 
-Client::Client(const net::HttpClient& http, Endpoints endpoints, std::string hl, std::string gl)
+Client::Client(const xp::net::IHttpTransport& http, Endpoints endpoints, std::string hl, std::string gl)
     : http_(http), endpoints_(std::move(endpoints)), hl_(std::move(hl)), gl_(std::move(gl)) {}
 
 core::Result<std::string> Client::post(const ClientProfile& profile, const char* endpoint, const Fields& fields,
@@ -145,7 +146,7 @@ core::Result<std::string> Client::post(const ClientProfile& profile, const char*
     if (!accessToken.empty()) {
         request.headers.emplace_back("Authorization", "Bearer " + accessToken);
     }
-    return checked(http_.send(request, {}, cancel), endpoint);
+    return checked(net::sendViaXp(http_, request, cancel), endpoint);
 }
 
 core::Result<std::string> Client::get(const std::string& url, const std::string& userAgent,
