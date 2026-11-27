@@ -267,8 +267,8 @@ int run(const Options& options) {
     {
         PF_LOG_INFO("startup: fonts and translations");
         const std::string resources = platform::resourceDir();
-        net::HttpConfig httpConfig;
-        httpConfig.caFile = resources + "/certs/cacert.pem";
+        xp::net::HttpConfig httpConfig;
+        httpConfig.ca_file = resources + "/certs/cacert.pem";
         youtube::Endpoints endpoints;
 #ifdef PLAYTUBE_TESTING
         if (!options.caFile.empty()) {
