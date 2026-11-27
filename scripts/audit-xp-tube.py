@@ -119,6 +119,11 @@ require("src/app/shell/player_screen.cpp", r"ui::nvgColor\(ui::theme\(\)\.accent
 require("src/app/shell/cards.cpp", r"ui::theme\(\)\.accent", "video-card focus styling follows the selected theme accent")
 
 
+require("src/app/settings.hpp", r'std::string accent = "violet"', "XP-TUBE starts with its violet brand accent")
+require("src/ui/theme.hpp", r'Color accent\{0x8E, 0x4E, 0xC6, 0xFF\}', "XP-TUBE theme default accent is violet")
+require("scripts/make-ps4-art.py", r'RED = \(0xB8, 0xC0, 0xCC\)', "PS4 artwork uses a metallic-silver XP-TUBE mark")
+require("scripts/make-ps4-art.py", r'WHITE = \(0x8E, 0x4E, 0xC6\)', "PS4 artwork uses the XP-TUBE violet play accent")
+require("scripts/make-ps4-art.py", r'icon = Image.new\("RGB", \(512, 512\), BACKGROUND\)', "PS4 icon uses the dark XP-TUBE background")
 require("src/app/settings.hpp", r'std::string logo = "xp-tube"', "XP-TUBE is the default saved header-logo identity")
 require("src/app/shell/settings_screen.cpp", r'settings\.logo == "youtube" \? "xp-tube" : "youtube"', "logo selector stores XP-TUBE or YouTube explicitly")
 require("src/app/shell/settings_screen.cpp", r'logo == "youtube" \? "YouTube" : "XP-TUBE"', "settings screen displays the correct XP-TUBE and YouTube logo names")
