@@ -1,6 +1,7 @@
 add_library(xp_core STATIC
     src/error.cpp
     src/path.cpp
+    src/storage_paths.cpp
 )
 target_include_directories(xp_core PUBLIC include)
 target_compile_features(xp_core PUBLIC cxx_std_17)
@@ -14,4 +15,8 @@ if(BUILD_TESTING)
     add_executable(xp_core_path_tests tests/path_test.cpp)
     target_link_libraries(xp_core_path_tests PRIVATE xp_core)
     add_test(NAME xp_core_path_unit COMMAND xp_core_path_tests)
+
+    add_executable(xp_core_storage_paths_tests tests/storage_paths_test.cpp)
+    target_link_libraries(xp_core_storage_paths_tests PRIVATE xp_core)
+    add_test(NAME xp_core_storage_paths_unit COMMAND xp_core_storage_paths_tests)
 endif()
