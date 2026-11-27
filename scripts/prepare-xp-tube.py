@@ -44,6 +44,12 @@ FILES = {
     "src/app/app.cpp": [
         ('PF_LOG_INFO("Playtube %s, language %s, data %s"', 'PF_LOG_INFO("XP-TUBE %s, language %s, data %s"'),
     ],
+    "src/platform/sdl_platform.cpp": [
+        ('core::dataPath("playtube.log")', 'core::dataPath("xp-tube.log")'),
+    ],
+    "src/core/boot_trace.cpp": [
+        ('playtube boot:', 'XP-TUBE boot:', 2),
+    ],
     "scripts/make-ps4-art.py": [
         ("Playtube", "XP-TUBE", 7),
     ],
@@ -86,6 +92,8 @@ checks = [
     ("src/core/version.cpp", ["PLTB00000", "PLTB00001", "PlaytubeDev", 'return "Playtube";']),
     ("cmake/ps4_pkg.cmake", ["PLTB00000", "PLTB00001"]),
     ("src/app/app.cpp", ["/data/Playtube/config.json", "session.importPrevious("]),
+    ("src/platform/sdl_platform.cpp", ['core::dataPath("playtube.log")']),
+    ("src/core/boot_trace.cpp", ["playtube boot:"]),
     ("src/app/update.hpp", ["LowganDev/PlaytubePS4/releases"]),
     ("src/app/update.cpp", ['"Playtube-"', 'std::string("Playtube/")']),
     ("scripts/build-ps4.sh", ["IV0001-PLTB"]),
