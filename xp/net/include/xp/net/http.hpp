@@ -23,6 +23,13 @@ private:
     std::shared_ptr<std::atomic<bool>> state_;
 };
 
+struct PeerCertificate {
+    std::string subject;
+    std::string issuer;
+    std::string not_after;
+    std::string spki_sha256_hex;
+};
+
 enum class TlsMode {
     verify_system_ca,
     verify_pinned_public_key,
@@ -57,6 +64,9 @@ struct HttpConfig {
     std::string ca_file;
     std::size_t max_body_bytes{64u * 1024u * 1024u};
     long low_speed_seconds{15};
+    long low_speed_limit_bytes_per_second{1};
+    long max_redirects{5};
+    bool reject_https_downgrade{true};
 };
 
 struct TransferProgress {
@@ -77,6 +87,10 @@ public:
 
     virtual core::Result<HttpResponse> send(const HttpRequest& request,
                                             const CancelToken& cancel = {}) const = 0;
+
+    // Informational only: callers must obtain explicit approval before pinning this key.
+    virtual core::Result<PeerCertificate> fetch_peer_certificate(
+        const std::string& https_url, const CancelToken& cancel = {}) const = 0;
 
     virtual core::Result<HttpResponse> download(const HttpRequest& request,
                                                 HttpSink sink,
