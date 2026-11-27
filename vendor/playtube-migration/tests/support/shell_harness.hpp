@@ -42,9 +42,9 @@ struct ShellDir {
     ~ShellDir() { std::filesystem::remove_all(path); }
 };
 
-inline net::HttpConfig testHttp() {
-    net::HttpConfig config;
-    config.caFile = test::fixturePath("tls/ca.crt");
+inline xp::net::HttpConfig testHttp() {
+    xp::net::HttpConfig config;
+    config.ca_file = test::fixturePath("tls/ca.crt");
     return config;
 }
 
