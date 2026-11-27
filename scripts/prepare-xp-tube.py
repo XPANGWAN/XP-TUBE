@@ -355,6 +355,9 @@ TEST_PATCHES = {
     ],
     "tests/unit/shell_screens_test.cpp": [
         ('shows(*s.shell.application, "White")', 'shows(*s.shell.application, "Violet")'),
+        ('"/pkg/Playtube-9.0.0.pkg"', '"/pkg/XP-TUBE-9.0.0.pkg"', 2),
+        ('"Playtube 9.0.0 is available"', '"XP-TUBE 9.0.0 is available"'),
+        ('"Playtube is up to date"', '"XP-TUBE is up to date"'),
     ],
     "tests/unit/theme_test.cpp": [
         ('playtube::app::Settings{}.accent == "white"', 'playtube::app::Settings{}.accent == "violet"'),
