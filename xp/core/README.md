@@ -12,6 +12,11 @@ application runtime**.
 - `xp::core::resolve_inside`: lexical validation and joining of an untrusted
   relative path beneath a trusted root. It rejects absolute paths, traversal
   segments, empty segments, backslashes and embedded NUL bytes.
+- `xp::core::StoragePaths`: keeps the application data root and package-output
+  root explicit, resolves data files beneath the former, and limits package
+  output to a single filename beneath the latter. The platform selects the
+  package root (for example, `/data/pkg` on PS4); this class does not create
+  directories or perform filesystem I/O.
 
 ## Path resolver security boundary
 
