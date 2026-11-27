@@ -139,7 +139,7 @@ core::Result<Release> fetchLatestRelease(const net::HttpClient& http, const std:
     request.url = url;
     request.maxBodyBytes = 1024 * 1024;
     // GitHub's API wants a User-Agent; a generic one (no personal detail)
-    request.headers = {{"User-Agent", std::string("Playtube/") + core::version()}, {"Accept", "application/vnd.github+json"}};
+    request.headers = {{"User-Agent", std::string("XP-TUBE/") + core::version()}, {"Accept", "application/vnd.github+json"}};
     const auto response = http.send(request, {}, token);
     if (!response.ok()) {
         return response.error();
@@ -162,7 +162,7 @@ core::Result<core::Unit> downloadPackage(const net::HttpClient& http, const Rele
     net::HttpRequest request;
     request.url = release.packageUrl;
     request.timeoutMs = 0;  // a large file on a slow network: only the low-speed limit stops it
-    request.headers = {{"User-Agent", std::string("Playtube/") + core::version()}};
+    request.headers = {{"User-Agent", std::string("XP-TUBE/") + core::version()}};
     const auto response = http.download(
         request,
         [&](const char* data, std::size_t size) {
