@@ -1,10 +1,13 @@
 #pragma once
 
+#include <memory>
 #include <string>
 
 #include "core/result.hpp"
 #include "core/task.hpp"
 #include "net/http.hpp"
+#include "net/xp_http_adapter.hpp"
+#include "xp/net/http.hpp"
 #include "youtube/client.hpp"
 #include "youtube/models.hpp"
 
@@ -14,6 +17,8 @@ namespace playtube::youtube {
 // another device, poll() waits for it, refresh() renews the access token. Blocking: worker threads only.
 class Auth {
 public:
+    Auth(const xp::net::IHttpTransport& http, Endpoints endpoints);
+    // Compatibility for existing callers and tests; requests still cross the XP transport contract.
     Auth(const net::HttpClient& http, Endpoints endpoints);
 
     core::Result<DeviceCode> start(const core::CancelToken& cancel = {}) const;
@@ -28,7 +33,8 @@ private:
     core::Result<std::string> send(const std::string& url, const std::string& body,
                                    const core::CancelToken& cancel) const;
 
-    const net::HttpClient& http_;
+    std::unique_ptr<net::XpHttpAdapter> legacyAdapter_;
+    const xp::net::IHttpTransport& http_;
     Endpoints endpoints_;
 };
 
