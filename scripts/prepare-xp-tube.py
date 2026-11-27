@@ -180,7 +180,7 @@ rel = "tests/unit/youtube_session_test.cpp"
 path = ROOT / rel
 body = path.read_text(encoding="utf-8")
 old = 'CHECK(again.settings().recentSearches == std::vector<std::string>{"mine"});'
-new = 'CHECK(again.settings().recentSearches.empty());'
+new = 'CHECK(again.settings().recentSearches == std::vector<std::string>{"mine"});'
 if body.count(old) != 1:
     raise SystemExit(f"{rel}: expected one fresh-session no-import assertion, found {body.count(old)}")
 path.write_text(body.replace(old, new), encoding="utf-8")
