@@ -8,6 +8,8 @@
 
 #include "core/json.hpp"
 #include "core/log.hpp"
+#include "net/http.hpp"
+#include "net/xp_http_compat.hpp"
 #include "net/url.hpp"
 #include "youtube/parse.hpp"
 
