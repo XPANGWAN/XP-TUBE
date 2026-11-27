@@ -56,13 +56,13 @@ jobs:
         run: |
           set -euo pipefail
           cmake --preset linux-debug -DXP_TUBE_USE_NATIVE_STORAGE=ON -DXP_TUBE_NATIVE_ROOT="$GITHUB_WORKSPACE/xp"
-          cmake --build --preset linux-debug --target playtube_tests xp_core_result_tests xp_core_path_tests xp_core_storage_paths_tests xp_core_file_store_tests -j2
+          cmake --build --preset linux-debug --config Development --target playtube_tests xp_core_result_tests xp_core_path_tests xp_core_storage_paths_tests xp_core_file_store_tests -j2
 
       - name: Run unit tests
         working-directory: vendor/playtube-migration
         run: |
           set -euo pipefail
-          ctest --preset linux-debug -R unit
+          ctest --preset linux-debug -C Development -R unit
 
       - name: Build and test XP-TUBE native core
         run: |
