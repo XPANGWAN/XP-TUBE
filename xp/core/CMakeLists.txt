@@ -3,6 +3,7 @@ add_library(xp_core STATIC
     src/path.cpp
     src/storage_paths.cpp
     src/file_store.cpp
+    src/directory_store.cpp
 )
 target_include_directories(xp_core PUBLIC include)
 target_compile_features(xp_core PUBLIC cxx_std_17)
