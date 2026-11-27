@@ -10,14 +10,14 @@
    "name": "IV0001-XPTB00000_00-XPTB000000100000.pkg",
    "size": 50921472,
    "digest": "sha256:0f4d7d60ed66f9927f9c5b3a5da498a942c2edb0e5c56c1d4fa5a53307560f26",
-   "browser_download_url": "https://github.com/LowganDev/XP-TUBEPS4/releases/download/1.0.1/IV0001-XPTB00000_00-XPTB000000100000.pkg",
+   "browser_download_url": "https://github.com/XPANGWAN/XP-TUBE/releases/download/1.0.1/IV0001-XPTB00000_00-XPTB000000100000.pkg",
    "content_type": "application/x-xar"
   },
   {
    "name": "playfin-1.0.1-sources.tar",
    "size": 164782080,
    "digest": "sha256:be04dd9792d51ece4197ce5e9f671ed54e307772416b5771098d3b1f18213c17",
-   "browser_download_url": "https://github.com/LowganDev/XP-TUBEPS4/releases/download/1.0.1/playfin-1.0.1-sources.tar",
+   "browser_download_url": "https://github.com/XPANGWAN/XP-TUBE/releases/download/1.0.1/playfin-1.0.1-sources.tar",
    "content_type": "application/x-tar"
   }
  ]
