@@ -23,10 +23,13 @@ std::string urlEncode(std::string_view text) {
 }
 
 Query& Query::add(std::string_view key, std::string_view value) {
-    text_ = xp::core::url::Query().add(key, value).str().empty()
-                ? text_
-                : text_ + (text_.empty() ? "" : "&") +
-                      xp::core::url::Query().add(key, value).str().substr(1);
+    const std::string encoded = xp::core::url::Query().add(key, value).str();
+    if (text_.empty()) {
+        text_ = encoded;
+    } else {
+        text_ += "&";
+        text_ += encoded.substr(1);
+    }
     return *this;
 }
 
