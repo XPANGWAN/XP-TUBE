@@ -1,60 +1,120 @@
-# XP-TUBE development roadmap
+# XP-TUBE — full independence roadmap
 
-This roadmap is the working sequence for the independent XP-TUBE client. Keep the Playtube-derived feature set and controller-first experience intact while replacing XP-TUBE identity and improving reliability. Work stays on `feature/xp-tube-independence`; do not merge to `main` without explicit approval.
+## Final definition of done
 
-## Stage 1 — Independence and stability
+XP-TUBE is independent only when all of the following are true:
 
-- Give XP-TUBE its own title ID, application title, data folder, updater endpoint, package naming, runtime log, and boot trace.
-- Keep settings and account data scoped to XP-TUBE and the active console profile.
-- Disable legacy Playtube settings, search-history, and account-token import. Never read or modify the original Playtube data directory.
-- Preserve upstream GPL-3.0 terms, third-party notices, attribution, and a corresponding source archive.
-- Run the source-level independence audit and verify the PKG, manifest, SHA-256, and source archive in CI.
+1. GitHub Actions does not clone, download, or otherwise fetch Playtube source to build XP-TUBE.
+2. The build consumes source owned and maintained in the XP-TUBE repository.
+3. Runtime code does not link to, load, or require Playtube components or services.
+4. The Playtube patching/generation layer has been removed from the release build.
+5. All Playtube-derived components selected for replacement have been rewritten or replaced with documented, independently maintained implementations.
+6. The user-facing UI contains no Playtube branding.
+7. Required GPL and third-party notices remain intact.
+8. Search, channels, videos, account features where supported, library, and internal playback pass regression tests.
+9. A clean PKG builds from the XP-TUBE repository alone and is tested on real PS4 hardware.
 
-**Exit gate:** a successful CI build for the current branch head, with the expected artifact and all integrity/license checks passing.
+A new name, title ID, isolated data directory, or redesigned UI alone does not satisfy this definition.
 
-## Stage 2 — XP-TUBE identity and interface consistency
+## Repository policy
 
-- Keep the familiar Playtube layout and navigation that the user already tested and likes.
-- Use XP-TUBE branding consistently in the app header, settings, updater text, package artwork, and shipped translations.
-- Keep the optional YouTube logo choice available; XP-TUBE remains the default.
-- Apply the selected theme accent consistently without replacing the user's theme choices or hard-coding YouTube red.
-- Keep third-party acknowledgements and legal attribution intact.
+- Active branch: `main`.
+- Backup branch: `feature/xp-tube-independence`, preserved at the pre-main migration baseline.
+- Historical research branch: `research/playtube-baseline`, preserved.
+- Never delete these backups or rewrite their history.
+- All normal development is committed directly to `main`.
+- Do not use force-push.
+- Keep the last known-good PKG and build evidence until the replacement passes PS4 testing.
 
-**Exit gate:** source audit passes and a clean package builds; no layout or feature is removed just for rebranding.
+## Stage 0 — Establish the working baseline
 
-## Stage 3 — Main, search, channel, and video-page experience
+- [x] Advance `main` safely to the last known development baseline.
+- [x] Preserve the former development branch as a backup.
+- [x] Enable package build and host test workflows on `main`.
+- [x] Identify the current dependency: both workflows clone `LowganDev/PlaytubePS4` and apply an XP-TUBE patch.
+- [ ] Verify the first main-branch CI runs and retain their logs/artifacts.
 
-- Review the home feed/rows, loading and retry states, empty states, and focus restoration.
-- Review search suggestions, recent searches, filters, pasted video links, pagination, and stale-response handling.
-- Review channel identity, videos/Shorts/live/playlists tabs, subscription state, and pagination.
-- Review video detail/navigation flows and ensure playlists and channel links continue to open correctly.
-- Make only targeted changes where source review demonstrates a clear usability or reliability benefit.
+**Exit gate:** main builds reproducibly and its CI status is known.
 
-**Exit gate:** regression checks pass for all existing flows; no removal of working functionality.
+## Stage 1 — Source provenance and migration into XP-TUBE
 
-## Stage 4 — Player and PS4 controller experience
+- Review the pinned upstream revision and complete file inventory.
+- Determine which files are original upstream, XP-TUBE modifications, and third-party components.
+- Preserve required copyright, GPL-3.0, and third-party license notices.
+- Import the reviewed source into XP-TUBE's own repository, with clear provenance and license history.
+- Do not remove or misrepresent original authorship.
+- Establish an XP-TUBE-owned source tree and build entry point.
 
-- Review play/pause, seek, previous/next shortcuts, options/menu overlays, focus order, and return navigation.
-- Preserve internal playback and the currently working YouTube playback path.
-- Improve responsiveness and clarity without introducing heavy animations or breaking controller navigation.
-- Keep player progress and focus styling tied to the selected XP-TUBE theme accent.
+**Exit gate:** the required source is present in the XP-TUBE repository, provenance is documented, and a build can be prepared without cloning Playtube.
 
-**Exit gate:** static checks and package build pass; real-device validation remains a separate user test.
+## Stage 2 — Remove upstream build dependency
 
-## Stage 5 — Release-candidate package and user test
+- Replace `scripts/prepare-xp-tube.py` patch-on-upstream behavior with native XP-TUBE source.
+- Remove Playtube clone/checkout steps from both workflows.
+- Build the PS4 package from repository-owned source only.
+- Build host unit tests from the same repository-owned source.
+- Keep a source manifest, dependency manifest, checksums, and license audit.
+- Add CI checks that fail if the workflow fetches Playtube or if release build scripts reference its repository.
 
-- Build from the pinned upstream commit and exact XP-TUBE branch commit.
-- Verify package title ID and filename, package checksum, manifest, source archive, GPL license, and third-party notices.
-- Publish the PKG only after all CI checks pass.
-- Keep the known-good XP-TUBE package and original Playtube installation/data untouched.
-- Ask the user to test the new PKG on PS4 when they are available; do not claim device validation before that test.
+**Exit gate:** clean build and unit tests succeed with network access to Playtube blocked.
 
-**Exit gate:** user confirms the new package works on the PS4. Only then consider the next release milestone or a merge request.
+## Stage 3 — Independent architecture and core systems
+
+- Inventory every inherited application module and dependency.
+- Define XP-TUBE-owned interfaces for app lifecycle, state, navigation, settings, networking, content models, storage, and playback.
+- Replace inherited implementation modules incrementally with independently maintained XP-TUBE modules.
+- Keep third-party libraries only where their licenses and technical role are documented.
+- Preserve tested features with regression tests before removing old implementations.
+
+**Exit gate:** the XP-TUBE runtime no longer relies on Playtube application implementation.
+
+## Stage 4 — Original XP-TUBE interface
+
+- Build the complete XP-TUBE visual system and screen layouts.
+- Rebuild home, search, video details, channels, library, account, and settings.
+- Give settings a completely new information architecture and visual design.
+- Use black, silver, and violet; do not copy Playtube layout or interaction patterns.
+- Keep 16:9 TV readability and DualShock 4 navigation.
+- Use vector icons, no emoji, and lightweight animations.
+
+**Exit gate:** all main screens are XP-TUBE designs and all controls work with the PS4 controller.
+
+## Stage 5 — YouTube services and playback
+
+- Implement and maintain XP-TUBE-owned YouTube integration modules.
+- Keep search, suggestions, pagination, channel content, video metadata, and supported account operations working.
+- Maintain the internal video playback path.
+- Handle network timeouts, stream expiry, retries, and service changes safely.
+- Do not bypass DRM or access controls.
+- Do not promise universal advertisement removal or guaranteed immunity from anti-bot restrictions.
+
+**Exit gate:** real search and playback regression tests pass, with documented limitations.
+
+## Stage 6 — Security, quality, and performance
+
+- Review account/session storage and credential handling.
+- Review TLS, certificate validation, profile isolation, and data deletion.
+- Test memory use, long sessions, network recovery, unsupported codecs, and crash recovery.
+- Run unit, integration, static, and license checks.
+- Verify package metadata, title ID, updater, logs, and data paths.
+
+**Exit gate:** no known critical defects in CI and a reproducible release candidate is available.
+
+## Stage 7 — PS4 validation and release
+
+- Produce a clean PKG from `main`.
+- Verify PKG metadata, checksum, source archive, manifest, and licenses.
+- Keep the existing working PKG and Playtube installation untouched.
+- Provide a clear PS4 test checklist.
+- Wait for actual user test feedback before calling the build hardware-validated.
+
+**Exit gate:** the user confirms the release candidate works on PS4 and the independence audit passes.
 
 ## Working rules
 
-- Complete related work in coherent batches rather than scattering tiny cosmetic commits.
-- Do not make speculative UI rewrites; inspect the existing implementation first.
-- Do not change or remove tested features without a concrete reason and a regression check.
-- Never merge to `main` or overwrite the original Playtube installation/data without explicit approval.
-- A successful CI build proves build/package integrity, not real-console runtime compatibility.
+- Work in coherent, substantial batches; avoid cosmetic-only cycles.
+- Inspect current source before changing it.
+- Never remove a working feature without a tested replacement.
+- Never claim success without checking the actual commit and CI result.
+- Do not change project scope or add unrelated features.
+- If a technical or licensing blocker appears, explain it and stop that specific unsafe change rather than disguising it.
