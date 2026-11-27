@@ -10,7 +10,7 @@
 #include <thread>
 
 #include "core/file_io.hpp"
-#include "net/http.hpp"
+#include "xp/net/curl_transport.hpp"
 #include "support/fake_youtube.hpp"
 #include "youtube/account.hpp"
 #include "youtube/auth.hpp"
@@ -22,10 +22,10 @@ using playtube::test::FakeYouTube;
 
 namespace {
 
-net::HttpClient testHttp() {
-    net::HttpConfig config;
-    config.caFile = test::fixturePath("tls/ca.crt");
-    return net::HttpClient(config);
+xp::net::CurlHttpTransport testHttp() {
+    xp::net::HttpConfig config;
+    config.ca_file = test::fixturePath("tls/ca.crt");
+    return xp::net::CurlHttpTransport(config);
 }
 
 Endpoints at(const FakeYouTube& yt) {
