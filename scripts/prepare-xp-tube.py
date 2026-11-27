@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Apply an auditable XP-TUBE identity, branding, and account-isolation patch."""
+import os
 from pathlib import Path
 
-ROOT = Path(__import__("os").environ.get("XP_TUBE_SOURCE_ROOT", Path(__file__).resolve().parents[1] / "upstream")).resolve()
+ROOT = Path(os.environ.get("XP_TUBE_SOURCE_ROOT", Path(__file__).resolve().parents[1] / "upstream")).resolve()
 
 FILES = {
     "src/core/version.cpp": [
