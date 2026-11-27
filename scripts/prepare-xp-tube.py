@@ -44,8 +44,7 @@ FILES = {
          'case player::EngineEvent::Error:\n            PF_LOG_WARN("player: %s: %s", videoId_.c_str(), engine_->state().error.c_str());\n            if (!streamRecoveryInFlight_) {\n                // A stream URL can expire or be cut even after its initial reachability probe.\n                // Refresh it once automatically, preserving the last known playback position.\n                streamRecoveryInFlight_ = true;\n                lastPosition_ = std::max(lastPosition_, engine_->state().position);\n                PF_LOG_WARN("player: %s: refreshing a failed stream once", videoId_.c_str());\n                restart();\n                showBar();\n            } else {\n                streamRecoveryInFlight_ = false;\n                showError(core::makeError(core::ErrorKind::Network, engine_->state().error));\n            }\n            break;'),
         ('    bool frameShown_ = false;\n    bool errorShown_ = false;',
          '    bool frameShown_ = false;\n    bool streamRecoveryInFlight_ = false;  // one automatic fresh-URL attempt until a frame plays\n    bool errorShown_ = false;'),
-    ],
-        ('const ui::Color kPlayedColor{0xFF, 0x00, 0x33, 0xFF};   // YouTube red: the part played and the head', '// The played portion and head follow XP-TUBE\'s selected accent colour.'),
+        ('const ui::Color kPlayedColor{0xFF, 0x00, 0x33, 0xFF};   // YouTube red: the part played and the head', '// The played portion and head follow XP-TUBE\\'s selected accent colour.'),
         ('ui::nvgColor(kPlayedColor)', 'ui::nvgColor(ui::theme().accent)', 2),
     ],
     "src/app/gallery.cpp": [
@@ -65,6 +64,29 @@ FILES = {
         ("draw_name(icon, (512 - name_width(font(size), size)) / 2, 452, size, INK)", "draw_name(icon, (512 - name_width(font(size), size)) / 2, 452, size, LIGHT_TEXT)"),
     ],
 
+    "src/youtube/account.hpp": [
+        ('    std::int64_t expiresAt_ = 0;', '    std::int64_t expiresAt_ = 0;\n    std::uint64_t generation_ = 0;  // rejects stale refresh replies after sign-in/sign-out changes'),
+    ],
+    "src/youtube/account.cpp": [
+        ('    imported_ = json::boolean(doc->root(), "imported", false);',
+         '    imported_ = json::boolean(doc->root(), "imported", false);\n    ++generation_;'),
+        ('    std::lock_guard<std::mutex> lock(mutex_);\n    if (!token.refreshToken.empty()) {',
+         '    std::lock_guard<std::mutex> lock(mutex_);\n    ++generation_;\n    if (!token.refreshToken.empty()) {'),
+        ('    std::string refreshToken;\n    {\n        std::lock_guard<std::mutex> lock(mutex_);',
+         '    std::string refreshToken;\n    std::uint64_t generation = 0;\n    {\n        std::lock_guard<std::mutex> lock(mutex_);'),
+        ('        refreshToken = refreshToken_;\n    }\n    const auto renewed = auth.refresh(refreshToken, cancel);',
+         '        refreshToken = refreshToken_;\n        generation = generation_;\n    }\n    const auto renewed = auth.refresh(refreshToken, cancel);'),
+        ('        if (renewed.error().kind == core::ErrorKind::Unauthorized && refreshToken_ == refreshToken) {',
+         '        if (generation_ == generation && renewed.error().kind == core::ErrorKind::Unauthorized && refreshToken_ == refreshToken) {'),
+        ('    if (refreshToken_ != refreshToken) {  // signed out or in again meanwhile',
+         '    if (generation_ != generation || refreshToken_ != refreshToken) {  // account changed while renewal was in flight'),
+        ('    std::string refreshToken = std::exchange(refreshToken_, {});',
+         '    ++generation_;  // invalidate any refresh request already in flight\n    std::string refreshToken = std::exchange(refreshToken_, {});'),
+    ],
+    "tests/unit/youtube_account_test.cpp": [
+        ('TEST_CASE("account: forgetting signs out at once and hands back the token to revoke") {',
+         'TEST_CASE("account: a stale refresh cannot overwrite a newer sign-in with the same refresh token") {\n    FakeYouTube yt;\n    yt.setTokenDelay(400);\n    const auto http = testHttp();\n    const Auth auth(http, at(yt));\n    TempDir dir;\n    Account account(dir.path + "/account.json");\n    account.signIn(tokens("old-access", "same-refresh-token"), "Old", 1000);\n    bool staleRejected = false;\n    std::thread renewing([&] {\n        const auto result = account.accessToken(auth, 1000 + 4000);\n        staleRejected = !result.ok();\n    });\n    std::this_thread::sleep_for(std::chrono::milliseconds(100));\n    account.signIn(tokens("new-access", "same-refresh-token"), "New", 2000);\n    renewing.join();\n    CHECK(staleRejected);\n    CHECK(account.name() == "New");\n    const auto current = account.accessToken(auth, 2010);\n    REQUIRE(current.ok());\n    CHECK(current.value() == "new-access");\n}\n\nTEST_CASE("account: forgetting signs out at once and hands back the token to revoke") {'),
+    ],
     "src/app/settings.hpp": [
         ('std::string accent = "white";', 'std::string accent = "violet";'),
         ('std::string logo = "playtube";', 'std::string logo = "xp-tube";'),
