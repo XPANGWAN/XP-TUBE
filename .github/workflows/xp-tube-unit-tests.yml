@@ -1,0 +1,58 @@
+name: XP-TUBE host unit tests
+
+on:
+  push:
+    branches:
+      - feature/xp-tube-independence
+    paths:
+      - .github/workflows/xp-tube-unit-tests.yml
+      - scripts/prepare-xp-tube.py
+      - scripts/audit-xp-tube.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    name: Build and run host unit tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch pinned upstream
+        run: |
+          set -euo pipefail
+          git clone https://github.com/LowganDev/PlaytubePS4.git upstream
+          git -C upstream checkout 7372c068704f568bf04e1f8b41a04a2149b2e048
+          test "$(git -C upstream rev-parse HEAD)" = "7372c068704f568bf04e1f8b41a04a2149b2e048"
+
+      - name: Install dependencies
+        run: |
+          set -euo pipefail
+          sudo find /etc/apt/sources.list.d -maxdepth 1 -type f -iname '*microsoft*' -delete
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config python3-pil \
+            libsdl2-dev libcurl4-openssl-dev libssl-dev libfribidi-dev \
+            libavcodec-dev libswscale-dev libavutil-dev libmpv-dev
+
+      - name: Apply XP-TUBE patches and audit
+        run: |
+          set -euo pipefail
+          python3 scripts/prepare-xp-tube.py
+          python3 scripts/audit-xp-tube.py
+
+      - name: Build unit test binary
+        working-directory: upstream
+        run: |
+          set -euo pipefail
+          cmake --preset linux-debug
+          cmake --build --preset linux-debug --target playtube_tests -j2
+
+      - name: Run unit tests
+        working-directory: upstream
+        run: |
+          set -euo pipefail
+          ctest --preset linux-debug -R unit
