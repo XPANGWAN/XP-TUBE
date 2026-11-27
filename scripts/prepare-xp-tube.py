@@ -132,6 +132,51 @@ def replace_file(rel, replacements):
 for rel, replacements in FILES.items():
     replace_file(rel, replacements)
 
+
+# Keep upstream regression tests aligned with the deliberately independent XP-TUBE identity.
+# These are behavioral expectations, not skipped tests: the new defaults, package namespace,
+# wordmark, and no-migration policy are tested explicitly.
+TEST_PATCHES = {
+    "tests/unit/settings_test.cpp": [
+        ('settings.accent == "white"', 'settings.accent == "violet"', 3),
+    ],
+    "tests/unit/shell_screens_test.cpp": [
+        ('shows(*s.shell.application, "White")', 'shows(*s.shell.application, "Violet")'),
+        ('Playtube', 'XP-TUBE', 6),
+        ('"playtube"', '"xp-tube"', 2),
+        ('/pkg/Playtube-', '/pkg/XP-TUBE-', 2),
+    ],
+    "tests/unit/theme_test.cpp": [
+        ('playtube::app::Settings{}.accent == "white"', 'playtube::app::Settings{}.accent == "violet"'),
+    ],
+    "tests/unit/update_test.cpp": [
+        ('Playtube-<version>.pkg', 'XP-TUBE-<version>.pkg'),
+        ('"Playtube-', '"XP-TUBE-', 5),
+    ],
+    "tests/unit/version_test.cpp": [
+        ('"PLTB00000"', '"XPTB00000"'),
+        ('"Playtube"', '"XP-TUBE"', 2),
+    ],
+    "tests/unit/youtube_session_test.cpp": [
+        ("the previous Playtube: its sign-in and recent searches imported once, its file left as it is",
+         "XP-TUBE never imports a previous Playtube account or search history"),
+        ("CHECK(session.account().signedIn());", "CHECK_FALSE(session.account().signedIn());"),
+        ('std::vector<std::string>{"mine", "lofi", "jazz"}', 'std::vector<std::string>{"mine"}', 2),
+    ],
+}
+for rel, replacements in TEST_PATCHES.items():
+    path = ROOT / rel
+    body = path.read_text(encoding="utf-8")
+    for item in replacements:
+        before, after = item[0], item[1]
+        expected = item[2] if len(item) == 3 else 1
+        count = body.count(before)
+        if count != expected:
+            raise SystemExit(f"{rel}: expected {expected} test expectation occurrences of {before!r}, found {count}")
+        body = body.replace(before, after)
+    path.write_text(body, encoding="utf-8")
+
+
 # The old migration block is removed entirely: no Playtube settings or tokens are read.
 app = ROOT / "src/app/app.cpp"
 body = app.read_text(encoding="utf-8")
