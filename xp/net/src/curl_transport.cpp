@@ -10,7 +10,7 @@
 #include <utility>
 #include <vector>
 
-#include "net/crypto.hpp"
+#include "xp/net/certificate.hpp"
 
 namespace xp::net {
 namespace {
@@ -364,12 +364,12 @@ core::Result<PeerCertificate> CurlHttpTransport::fetch_peer_certificate(
         }
     }
 
-    const auto digest = playtube::net::spkiSha256FromPem(pem);
+    const auto digest = spki_sha256_hex_from_pem(pem);
     if (!digest) {
         return core::Result<PeerCertificate>::failure(
             core::Error::make(core::ErrorCode::tls, "cannot read the peer certificate public key"));
     }
-    certificate.spki_sha256_hex = playtube::net::hexLower(*digest);
+    certificate.spki_sha256_hex = *digest;
     return core::Result<PeerCertificate>::success(std::move(certificate));
 }
 
