@@ -1,5 +1,7 @@
 #include "core/data_dir.hpp"
 
+#include "xp/core/storage_paths.hpp"
+
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -20,30 +22,10 @@ bool isDirectory(const std::string& path) {
 }  // namespace
 
 std::optional<std::string> resolveInside(const std::string& root, std::string_view relative) {
-    if (root.empty() || relative.empty() || relative.front() == '/') {
-        return std::nullopt;
-    }
-    if (relative.find('\\') != std::string_view::npos || relative.find('\0') != std::string_view::npos) {
-        return std::nullopt;
-    }
-    std::size_t start = 0;
-    while (start <= relative.size()) {
-        std::size_t slash = relative.find('/', start);
-        if (slash == std::string_view::npos) {
-            slash = relative.size();
-        }
-        const std::string_view segment = relative.substr(start, slash - start);
-        if (segment.empty() || segment == "." || segment == "..") {
-            return std::nullopt;
-        }
-        start = slash + 1;
-    }
-    std::string out = root;
-    if (out.back() != '/') {
-        out += '/';
-    }
-    out.append(relative);
-    return out;
+    // Keep the legacy app-facing API stable while delegating path validation
+    // to the XP-owned core implementation.
+    const xp::core::StoragePaths paths(root, root);
+    return paths.data_file(relative);
 }
 
 void setDataRoot(std::string root) { gDataRoot = std::move(root); }
