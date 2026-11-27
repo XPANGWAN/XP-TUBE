@@ -62,6 +62,8 @@ jobs:
           ! grep -q 'PLTB00000\|PLTB00001\|/data/Playtube' cmake/ps4_pkg.cmake src/core/version.cpp src/app/app.cpp
           {
             echo "XP-TUBE source baseline"
+            echo "XP-TUBE repository commit: $GITHUB_SHA"
+            echo "Build branch: $GITHUB_REF_NAME"
             echo "Upstream commit: $(git rev-parse HEAD)"
             echo "XP-TUBE package ID: XPTB00000"
             echo "Data directory: /data/XP-TUBE"
@@ -97,6 +99,8 @@ jobs:
           test "$(stat -c '%s' "$PKG")" -gt 1048576
           (cd upstream && sha256sum --check ../xp-tube-package-sha256.txt)
           test -s xp-tube-build-manifest.txt
+          grep -q "XP-TUBE repository commit: $GITHUB_SHA" xp-tube-build-manifest.txt
+          grep -q "Build branch: $GITHUB_REF_NAME" xp-tube-build-manifest.txt
           grep -q 'XP-TUBE package ID: XPTB00000' xp-tube-build-manifest.txt
           grep -q 'Data directory: /data/XP-TUBE' xp-tube-build-manifest.txt
           tar -tzf xp-tube-corresponding-source.tar.gz > source-archive-files.txt
