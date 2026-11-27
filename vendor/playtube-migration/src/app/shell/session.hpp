@@ -14,7 +14,7 @@
 #include "core/result.hpp"
 #include "core/task.hpp"
 #include "net/http.hpp"
-#include "net/xp_http_adapter.hpp"
+#include "xp/net/curl_transport.hpp"
 #include "youtube/account.hpp"
 #include "youtube/auth.hpp"
 #include "youtube/client.hpp"
@@ -126,7 +126,7 @@ public:
 private:
     std::string caFile_;
     net::HttpClient http_;
-    net::XpHttpAdapter xpHttp_;
+    xp::net::CurlHttpTransport xpHttp_;
     std::string settingsPath_;
     Settings settings_;
     youtube::Account account_;
