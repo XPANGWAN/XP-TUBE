@@ -22,3 +22,4 @@ OpenOrbis PS4 Toolchain (files in the package)|0.5|GPL-3.0|GPL-3.0.txt|
 Sora|google/fonts (variable font, static instances)|OFL-1.1|OFL-Sora.txt|
 Noto Sans and Noto Sans CJK|notofonts|OFL-1.1|OFL-Noto.txt|
 Mozilla CA certificate list|2026-09-25|MPL-2.0|MPL-2.0.txt|
+XP-TUBE native core|0.1|GPL-3.0-or-later|GPL-3.0.txt|xp_core
