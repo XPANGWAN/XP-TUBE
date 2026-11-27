@@ -16,6 +16,14 @@ namespace playtube::app {
 
 namespace {
 
+xp::net::HttpConfig toXpHttpConfig(const net::HttpConfig& legacy) {
+    xp::net::HttpConfig config;
+    config.ca_file = legacy.caFile;
+    config.max_body_bytes = legacy.maxBodyBytes;
+    config.low_speed_seconds = legacy.lowSpeedSeconds;
+    return config;
+}
+
 constexpr std::size_t kMaxImageBytes = 8u * 1024u * 1024u;
 
 }  // namespace
@@ -55,7 +63,7 @@ YoutubeLocale youtubeLocale(const std::string& uiLanguage) {
 AppSession::AppSession(net::HttpConfig http, std::string settingsPath, std::string accountPath)
     : caFile_(http.caFile),
       http_(std::move(http)),
-      xpHttp_(http_),
+      xpHttp_(toXpHttpConfig(http_)),
       settingsPath_(std::move(settingsPath)),
       account_(std::move(accountPath)) {
     if (!settingsPath_.empty()) {
