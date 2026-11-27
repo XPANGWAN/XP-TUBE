@@ -454,7 +454,7 @@ def update_visible_brand(value, key=""):
 
 for path in (ROOT / "resources/i18n").glob("*.json"):
     data = json.loads(path.read_text(encoding="utf-8"))
-    path.write_text(json.dumps(update_visible_brand(data), ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+    path.write_text(json.dumps(update_visible_brand(data), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 checks = [
     ("src/core/version.cpp", ["PLTB00000", "PLTB00001", "PlaytubeDev", 'return "Playtube";']),
