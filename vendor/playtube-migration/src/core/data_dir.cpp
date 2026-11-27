@@ -78,25 +78,7 @@ bool makeDirs(const std::string& path) {
 }
 
 bool makeDirsWith(const std::string& path, int (*makeDir)(const char*, mode_t), mode_t mode) {
-    if (path.empty()) {
-        return false;
-    }
-    for (std::size_t i = 1; i <= path.size(); ++i) {
-        if (i == path.size() || path[i] == '/') {
-            const std::string prefix = path.substr(0, i);
-            if (isDirectory(prefix)) {
-                continue;  // never mkdir what exists: the PS4 sandbox refuses it for "/" and "/data" (not EEXIST)
-            }
-            if (makeDir(prefix.c_str(), mode) != 0) {
-                if (errno != EEXIST) {
-                    return false;
-                }
-            } else {
-                chmod(prefix.c_str(), mode);  // the umask would narrow it
-            }
-        }
-    }
-    return isDirectory(path);
+    return xp::core::ensure_directory_tree(path, mode, makeDir);
 }
 
 }  // namespace playtube::core
