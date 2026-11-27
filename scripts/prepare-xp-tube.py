@@ -52,9 +52,8 @@ public:
         title->color = ui::theme().text;
         auto* subtitle = add<ui::Label>(ui::tr("shell.search.title"), ui::FontStyle{ui::theme().fontBody, ui::FontWeight::Regular});
         subtitle->color = ui::theme().textSecondary;
-        auto* action = add<ui::Button>(ui::tr("shell.tab.search"), [&session] { openTab(session, Tab::Search); });
-        action->setPrimary(true);
-        action->margin.top = ui::theme().spacingS;
+        auto* hint = add<ui::Label>(ui::tr("shell.tab.search"), ui::FontStyle{ui::theme().fontSmall, ui::FontWeight::Bold});
+        hint->color = ui::theme().accent;
     }
 
     void draw(NVGcontext* vg) const override {
@@ -69,7 +68,7 @@ public:
         ui::Box::draw(vg);
         nvgBeginPath(vg);
         nvgRoundedRect(vg, 1, 1, frame.width - 2, frame.height - 2, radius);
-        nvgStrokeColor(vg, ui::nvgColor(ui::theme().accent));
+        nvgStrokeColor(vg, nvgRGBA(184, 192, 204, 220));
         nvgStrokeWidth(vg, 1.5f);
         nvgStroke(vg);
     }
