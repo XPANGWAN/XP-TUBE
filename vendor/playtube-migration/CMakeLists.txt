@@ -104,6 +104,10 @@ add_library(playtube_net STATIC
     src/net/crypto.cpp
     src/net/http.cpp
 )
+if(XP_TUBE_USE_NATIVE_STORAGE)
+    target_sources(playtube_net PRIVATE "${XP_TUBE_NATIVE_ROOT}/net/src/http_contract.cpp")
+    target_link_libraries(playtube_net PUBLIC xp_net)
+endif()
 if(PLATFORM_PS4)
     target_sources(playtube_net PRIVATE src/net/crypto_mbedtls.cpp)
 else()
