@@ -217,6 +217,36 @@ FILES.update({
     ],
 })
 
+
+
+# Extend the same visual language to subscription and account-entry flows.
+FILES.update({
+    "src/app/shell/subscriptions_screen.cpp": [
+        ('        auto* bar = column_->add<NavBar>(session_, Tab::Subscriptions);\n        setStart(bar->currentTab());',
+         '''        auto* bar = column_->add<NavBar>(session_, Tab::Subscriptions);
+        setStart(bar->currentTab());
+        auto* intro = column_->add<ui::Box>(ui::Axis::Column);
+        intro->padding = {ui::theme().spacingL, ui::theme().spacingXl, ui::theme().spacingL, ui::theme().spacingXl};
+        intro->background = ui::theme().surface;
+        intro->cornerRadius = ui::theme().radius * 1.35f;
+        intro->gap = ui::theme().spacingS;
+        auto* brand = intro->add<ui::Label>("XP-TUBE", ui::FontStyle{ui::theme().fontSmall, ui::FontWeight::Bold});
+        brand->color = ui::theme().accent;
+        auto* heading = intro->add<ui::Label>(ui::tr("shell.tab.subscriptions"), ui::FontStyle{ui::theme().fontTitle, ui::FontWeight::Bold});
+        heading->color = ui::theme().text;'''),
+    ],
+    "src/app/shell/signin_screen.cpp": [
+        ('        column->padding = {120, 160, 0, 160};\n        column->gap = ui::theme().spacingL;\n        column->add<ui::Label>(ui::tr("signin.title"),',
+         '''        column->padding = {ui::theme().spacingXl, 160, ui::theme().spacingXl, 160};
+        column->gap = ui::theme().spacingL;
+        column->background = ui::theme().surface;
+        column->cornerRadius = ui::theme().radius * 1.5f;
+        auto* brand = column->add<ui::Label>("XP-TUBE", ui::FontStyle{ui::theme().fontSmall, ui::FontWeight::Bold});
+        brand->color = ui::theme().accent;
+        column->add<ui::Label>(ui::tr("signin.title"),'''),
+    ],
+})
+
 def replace_file(rel, replacements):
     path = ROOT / rel
     body = path.read_text(encoding="utf-8")
