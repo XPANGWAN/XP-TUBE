@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Apply an auditable XP-TUBE identity, branding, and account-isolation patch."""
+import json
 import os
 from pathlib import Path
 
@@ -25,7 +26,7 @@ FILES = {
         ('IV0001-PLTB00001_00-PLTB000010100000.pkg', 'IV0001-XPTB00000_00-XPTB000000100000.pkg'),
     ],
     "src/app/shell/chrome.cpp": [
-        ('add<ui::Label>("Playtube", style);', 'gap = ui::theme().spacingS / 2;\n        add<AccentLabel>("XP", style);\n        add<ui::Label>("TUBE", style);'),
+        ('add<ui::Label>("XP-TUBE", style);', 'gap = ui::theme().spacingS / 2;\n        add<AccentLabel>("XP", style);\n        add<ui::Label>("TUBE", style);'),
     ],
     "src/app/shell/row_screens.cpp": [
         ('#include <memory>', '#include <memory>\n#include <nanovg.h>'),
@@ -136,12 +137,8 @@ class RowsScreen : public ShellScreen {'''),
     ],
     "src/app/settings.hpp": [
         ('std::string accent = "white";', 'std::string accent = "violet";'),
-        ('std::string logo = "playtube";', 'std::string logo = "xp-tube";'),
-        ('// the header\'s logo: "playtube", or "youtube" (fetched from YouTube)', '// the header\'s logo: "xp-tube", or "youtube" (fetched from YouTube)'),
     ],
     "src/app/shell/settings_screen.cpp": [
-        ('logo == "youtube" ? "YouTube" : "Playtube"', 'logo == "youtube" ? "YouTube" : "XP-TUBE"'),
-        ('settings.logo == "youtube" ? "playtube" : "youtube"', 'settings.logo == "youtube" ? "xp-tube" : "youtube"'),
         ('// The banner at the top of the settings while a newer Playtube is published:', '// The banner at the top of the settings while a newer XP-TUBE release is published:'),
     ],
     "src/ui/theme.hpp": [
@@ -184,8 +181,6 @@ FILES.update({
         platform::TextInputRequest request;'''),
     ],
     "src/app/shell/settings_screen.cpp": [
-        ('static std::string logoName(const std::string& logo) { return logo == "youtube" ? "YouTube" : "Playtube"; }', 'static std::string logoName(const std::string& logo) { return logo == "youtube" ? "YouTube" : "XP-TUBE"; }'),
-        ('settings.logo == "youtube" ? "playtube" : "youtube"', 'settings.logo == "youtube" ? "xp-tube" : "youtube"'),
         ('// The banner at the top of the settings while a newer Playtube is published:', '// The banner at the top of the settings while a newer XP-TUBE release is published:'),
         ('        column->add<NavBar>(session_, Tab::Settings);\n        banner_ = column->add<UpdateBanner>',
          '''        column->add<NavBar>(session_, Tab::Settings);
@@ -273,21 +268,6 @@ public:
             column_->add<SectionShowcase>(ui::tr("shell.tab.library"));
         }'''),
 ])
-
-
-
-# Settings groups become distinct, calm panels instead of unstructured text separators.
-FILES["src/app/shell/settings_screen.cpp"].append((
-    '''    auto* heading = column.add<ui::Label>(text, ui::FontStyle{ui::theme().fontHeading, ui::FontWeight::SemiBold});
-    heading->margin = {ui::theme().spacingL, 0, 0, 0};
-    return heading;''',
-    '''    auto* heading = column.add<ui::Label>(text, ui::FontStyle{ui::theme().fontHeading, ui::FontWeight::SemiBold});
-    heading->width = ui::SizeSpec::fill();
-    heading->padding = {ui::theme().spacingM, ui::theme().spacingL, ui::theme().spacingM, ui::theme().spacingL};
-    heading->background = ui::theme().surface;
-    heading->cornerRadius = ui::theme().radius;
-    heading->margin = {ui::theme().spacingL, 0, 0, 0};
-    return heading;'''))
 
 
 
@@ -462,10 +442,19 @@ if session_body.count(old_importer) != 1:
 session.write_text(session_body.replace(old_importer, new_importer), encoding="utf-8")
 
 
-# Update the app's shipped translations without changing attribution/license records.
+# Update visible product wording while retaining original product attribution in license pages.
+def update_visible_brand(value, key=""):
+    if isinstance(value, dict):
+        return {name: update_visible_brand(item, name) for name, item in value.items()}
+    if isinstance(value, list):
+        return [update_visible_brand(item, key) for item in value]
+    if isinstance(value, str) and not any(part in key.lower() for part in ("license", "notice", "copyright")):
+        return value.replace("Playtube", "XP-TUBE")
+    return value
+
 for path in (ROOT / "resources/i18n").glob("*.json"):
-    body = path.read_text(encoding="utf-8")
-    path.write_text(body.replace("Playtube", "XP-TUBE"), encoding="utf-8")
+    data = json.loads(path.read_text(encoding="utf-8"))
+    path.write_text(json.dumps(update_visible_brand(data), ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
 
 checks = [
     ("src/core/version.cpp", ["PLTB00000", "PLTB00001", "PlaytubeDev", 'return "Playtube";']),
