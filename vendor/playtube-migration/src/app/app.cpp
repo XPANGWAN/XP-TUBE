@@ -272,7 +272,7 @@ int run(const Options& options) {
         youtube::Endpoints endpoints;
 #ifdef PLAYTUBE_TESTING
         if (!options.caFile.empty()) {
-            httpConfig.caFile = options.caFile;
+            httpConfig.ca_file = options.caFile;
         }
         if (!options.youtubeUrl.empty()) {
             endpoints.youtube = endpoints.suggest = endpoints.sponsor = endpoints.oauthRevoke = endpoints.dislikes =
