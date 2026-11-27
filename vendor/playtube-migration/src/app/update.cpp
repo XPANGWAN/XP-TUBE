@@ -130,7 +130,7 @@ std::string packageFileName(const std::string& version) {
     while (!safe.empty() && safe.front() == '.') {
         safe.erase(0, 1);
     }
-    return safe.empty() ? std::string() : "Playtube-" + safe + ".pkg";
+    return safe.empty() ? std::string() : "XP-TUBE-" + safe + ".pkg";
 }
 
 core::Result<Release> fetchLatestRelease(const net::HttpClient& http, const std::string& url,
@@ -294,7 +294,7 @@ int removeOldPackages(const std::string& folder, const std::string& current) {
         return 0;
     }
     std::vector<std::string> old;
-    const std::string prefix = "Playtube-";
+    const std::string prefix = "XP-TUBE-";
     const std::string suffix = ".pkg";
     while (const dirent* file = ::readdir(listing)) {
         const std::string name = file->d_name;
