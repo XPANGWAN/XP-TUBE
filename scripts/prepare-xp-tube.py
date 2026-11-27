@@ -272,9 +272,9 @@ public:
 
 // A tab of titled rows of videos, each fetched on its own and shown when it arrives; the reason and "Réessayer"
 // when none came.'''),
-    ('        if (tab == Tab::Home) {\n            column_->add<HomeShowcase>(session_);\n        }',
+    ('        if (tab == Tab::Home) {\n            column_->add<HomeShowcase>();\n        }',
      '''        if (tab == Tab::Home) {
-            column_->add<HomeShowcase>(session_);
+            column_->add<HomeShowcase>();
         } else if (tab == Tab::Subscriptions) {
             column_->add<SectionShowcase>(ui::tr("shell.tab.subscriptions"));
         } else if (tab == Tab::Library) {
