@@ -33,11 +33,12 @@ The technical baseline is [PlaytubePS4](https://github.com/LowganDev/PlaytubePS4
 
 ## Latest verified package
 
-The latest package was produced by GitHub Actions run [45987561218](https://github.com/XPANGWAN/XP-TUBE/actions/runs/45987561218) from commit `53b57bab9a077003d3fc94f09444586b684ab1e0`.
+The latest package was produced by GitHub Actions run [45991023580](https://github.com/XPANGWAN/XP-TUBE/actions/runs/45991023580) from commit `5ef5983805af270a166f89d0c1385e95ed4e5db5` on `feature/xp-tube-independence`.
 
 - Package: `IV0001-XPTB00000_00-XPTB000000100000.pkg`
-- SHA-256: `fedec1bca309655139eac80c15f54b51dfbec7bb071875ab3643786b1f1cd530`
+- SHA-256: `124336d0b5c42a10569f10c614ca671671d95c03b9bf55e40f2f2184ca4c3564`
 - Data directory: `/data/XP-TUBE`
+- Package size: `53,215,232` bytes
 - Runtime log: `/data/XP-TUBE/xp-tube.log`
 - Early boot trace: `/data/XP-TUBE/boot.txt`
 
