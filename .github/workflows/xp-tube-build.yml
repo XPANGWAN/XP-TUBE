@@ -37,7 +37,7 @@ jobs:
           git -C upstream status --short
 
       - name: Install artwork generator dependency
-        run: python3 -m pip install --user Pillow
+        run: sudo apt-get update && sudo apt-get install -y python3-pil
 
       - name: Apply XP-TUBE identity and account-isolation patch
         shell: bash
