@@ -320,15 +320,11 @@ FILES["src/app/shell/player_settings.cpp"] = [
 FILES.update({
     "src/app/shell/chat_panel.cpp": [
         ('    card_->background = ui::theme().surfaceRaised;  // opaque: the video plays on at the left\n    card_->padding = ui::Insets::all(ui::theme().spacingXl);',
-         '    card_->background = ui::theme().surfaceRaised;  // opaque: the video plays on at the left\n    card_->cornerRadius = ui::theme().radius * 1.35f;\n    card_->padding = ui::Insets::all(ui::theme().spacingXl);'),
-        ('    card_->gap = ui::theme().spacingL;\n    card_->focusable = true;',
-         '    card_->gap = ui::theme().spacingL;\n    card_->clip = true;\n    card_->focusable = true;'),
+         '    card_->background = ui::theme().surfaceRaised;  // opaque: the video plays on at the left\n    card_->cornerRadius = ui::theme().radius * 1.35f;\n    card_->clip = true;\n    card_->padding = ui::Insets::all(ui::theme().spacingXl);'),
     ],
     "src/app/shell/comments_panel.cpp": [
         ('    card_->background = ui::theme().surfaceRaised;  // opaque: the video plays on at the left\n    card_->padding = ui::Insets::all(ui::theme().spacingXl);',
-         '    card_->background = ui::theme().surfaceRaised;  // opaque: the video plays on at the left\n    card_->cornerRadius = ui::theme().radius * 1.35f;\n    card_->padding = ui::Insets::all(ui::theme().spacingXl);'),
-        ('    card_->gap = ui::theme().spacingL;\n    card_->focusable = true;',
-         '    card_->gap = ui::theme().spacingL;\n    card_->clip = true;\n    card_->focusable = true;'),
+         '    card_->background = ui::theme().surfaceRaised;  // opaque: the video plays on at the left\n    card_->cornerRadius = ui::theme().radius * 1.35f;\n    card_->clip = true;\n    card_->padding = ui::Insets::all(ui::theme().spacingXl);'),
     ],
 })
 
