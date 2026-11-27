@@ -5,7 +5,6 @@
 
 #include "core/json.hpp"
 #include "net/url.hpp"
-#include "net/xp_http_compat.hpp"
 #include "youtube/parse.hpp"
 
 namespace playtube::youtube {
@@ -29,11 +28,7 @@ std::string randomDeviceId() {
 }  // namespace
 
 Auth::Auth(const xp::net::IHttpTransport& http, Endpoints endpoints)
-    : legacyAdapter_(), http_(http), endpoints_(std::move(endpoints)) {}
-
-Auth::Auth(const net::HttpClient& http, Endpoints endpoints)
-    : legacyAdapter_(std::make_unique<net::XpHttpAdapter>(http)), http_(*legacyAdapter_),
-      endpoints_(std::move(endpoints)) {}
+    : http_(http), endpoints_(std::move(endpoints)) {}
 
 // The token endpoint answers its errors ("authorization_pending", "invalid_grant") with 4xx and a JSON body.
 core::Result<std::string> Auth::send(const std::string& url, const std::string& body,
