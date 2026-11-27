@@ -70,11 +70,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          tar -czf xp-tube-corresponding-source.tar.gz \\
-            --exclude=.git \\
-            --exclude=./build \\
-            --exclude=./dist \\
-            -C upstream .
+          tar -czf xp-tube-corresponding-source.tar.gz --exclude=.git --exclude=./build --exclude=./dist -C upstream .
           test -s xp-tube-corresponding-source.tar.gz
 
       - name: Upload XP-TUBE package and build evidence
