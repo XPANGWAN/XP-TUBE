@@ -25,8 +25,8 @@ TEST_CASE("the YouTube language and region follow the UI language") {
 
 TEST_CASE("the session reaches YouTube and keeps the account in its file") {
     FakeYouTube yt;
-    net::HttpConfig config;
-    config.caFile = test::fixturePath("tls/ca.crt");
+    xp::net::HttpConfig config;
+    config.ca_file = test::fixturePath("tls/ca.crt");
     char folder[] = "/tmp/playtube-session-XXXXXX";
     REQUIRE(mkdtemp(folder) != nullptr);
     const std::string accountPath = std::string(folder) + "/account.json";
