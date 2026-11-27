@@ -66,6 +66,17 @@ jobs:
           test -n "$(find dist -maxdepth 1 -type f -name 'IV0001-XPTB00000_00-XPTB000000100000.pkg' -print -quit)"
           sha256sum dist/*.pkg | tee ../xp-tube-package-sha256.txt
 
+      - name: Create corresponding GPL source archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          tar -czf xp-tube-corresponding-source.tar.gz \\
+            --exclude=.git \\
+            --exclude=./build \\
+            --exclude=./dist \\
+            -C upstream .
+          test -s xp-tube-corresponding-source.tar.gz
+
       - name: Upload XP-TUBE package and build evidence
         uses: actions/upload-artifact@v4
         with:
@@ -74,5 +85,6 @@ jobs:
             upstream/dist/IV0001-XPTB00000_00-XPTB000000100000.pkg
             xp-tube-build-manifest.txt
             xp-tube-package-sha256.txt
+            xp-tube-corresponding-source.tar.gz
           if-no-files-found: error
           retention-days: 30
