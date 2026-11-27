@@ -303,15 +303,15 @@ private:
         }
         downloading_ = true;
         showProgress(0);
-        const net::HttpClient* http = &session_.http();
+        const xp::net::IHttpTransport* transport = &session_.transport();
         const std::string target = *path;
         const core::CancelToken token = token_;
         ui::Application* app = ui::Application::current();
         auto percent = std::make_shared<std::atomic<int>>(0);
         runTransfer<core::Result<core::Unit>>(
-            [http, release, target, token, app, percent, this] {
+            [transport, release, target, token, app, percent, this] {
                 return downloadPackage(
-                    *http, release, target,
+                    *transport, release, target,
                     [app, percent, token, this](long long received, long long total) {
                         const int now = total > 0 ? static_cast<int>(received * 100 / total) : 0;
                         if (now != percent->exchange(now) && app != nullptr) {
