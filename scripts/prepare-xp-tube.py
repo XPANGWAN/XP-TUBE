@@ -65,14 +65,14 @@ FILES = {
         ('settings.logo == "youtube" ? "playtube" : "youtube"', 'settings.logo == "youtube" ? "xp-tube" : "youtube"'),
     ],
     "src/ui/theme.hpp": [
-        ("// Design tokens of the Playtube identity (Playfin's look in YouTube red; one look, no theme setting): widgets read these, never\\n// hard-coded values.", "// XP-TUBE design tokens: a dark neutral base with a user-selectable accent; widgets read these, never hard-coded values."),
+        ("// Design tokens of the Playtube identity (Playfin's look in YouTube red; one look, no theme setting): widgets read these, never\n// hard-coded values.", "// XP-TUBE design tokens: a dark neutral base with a user-selectable accent; widgets read these, never hard-coded values."),
         ('std::string id = "projecteur";  // the look (Playtube has one); derived pictures are kept per look', 'std::string id = "xp-tube";  // derived pictures are cached separately for XP-TUBE'),
     ],
     "src/app/shell/chrome.hpp": [
-        ('// "Playtube." with the dot in the accent colour; the picture given to setLogoPicture instead while there is one\\n// (the YouTube logo, when the user chose it in the settings). Every logo shown changes at once.', "// XP-TUBE wordmark with its accent-coloured mark; the optional YouTube logo is shown only when selected in settings."),
+        ('// "Playtube." with the dot in the accent colour; the picture given to setLogoPicture instead while there is one\n// (the YouTube logo, when the user chose it in the settings). Every logo shown changes at once.', "// XP-TUBE wordmark with its accent-coloured mark; the optional YouTube logo is shown only when selected in settings."),
     ],
     "src/app/shell/session.hpp": [
-        ("// The header's logo of the settings: the YouTube logo fetched (YouTube's own file, never shipped with Playtube)\\n    // and drawn, or Playtube's; the text logo stays while it comes or when it cannot.", "// The header logo: XP-TUBE by default, or YouTube's own fetched logo when explicitly selected in settings."),
+        ("// The header's logo of the settings: the YouTube logo fetched (YouTube's own file, never shipped with Playtube)\n    // and drawn, or Playtube's; the text logo stays while it comes or when it cannot.", "// The header logo: XP-TUBE by default, or YouTube's own fetched logo when explicitly selected in settings."),
     ],
     "src/app/app.cpp": [
         ('session.checkForUpdate();  // the settings tab gets a dot when a newer Playtube is published', 'session.checkForUpdate();  // the settings tab gets a dot when a newer XP-TUBE release is published'),
