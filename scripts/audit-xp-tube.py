@@ -77,4 +77,7 @@ for translation in translation_files:
 print(f"[PASS] {len(translation_files)} translation files are valid and use XP-TUBE branding")
 require("src/app/shell/chrome.cpp", r'add<AccentLabel>.*"XP", style', "XP-TUBE wordmark has a distinct accent XP mark")
 require("src/app/shell/chrome.cpp", r'add<ui::Label>.*"TUBE", style', "XP-TUBE wordmark has a separate TUBE label")
+require("src/app/shell/chrome.cpp", r'gap = ui::theme\(\)\.spacingS / 2;', "XP-TUBE wordmark has balanced letter-group spacing")
+require("src/app/shell/player_screen.cpp", r'ui::nvgColor\(ui::theme\(\)\.accent\)', "player progress follows the selected XP-TUBE accent")
+forbid("src/app/shell/player_screen.cpp", r'kPlayedColor|0xFF, 0x00, 0x33', "hard-coded YouTube-red player progress colour")
 print("XP-TUBE independence audit passed.")

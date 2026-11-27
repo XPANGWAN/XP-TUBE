@@ -33,7 +33,11 @@ FILES = {
         ('IV0001-PLTB00001_00-PLTB000010100000.pkg', 'IV0001-XPTB00000_00-XPTB000000100000.pkg'),
     ],
     "src/app/shell/chrome.cpp": [
-        ('add<ui::Label>("Playtube", style);', 'add<AccentLabel>("XP", style);\n        add<ui::Label>("TUBE", style);'),
+        ('add<ui::Label>("Playtube", style);', 'gap = ui::theme().spacingS / 2;\n        add<AccentLabel>("XP", style);\n        add<ui::Label>("TUBE", style);'),
+    ],
+    "src/app/shell/player_screen.cpp": [
+        ('const ui::Color kPlayedColor{0xFF, 0x00, 0x33, 0xFF};   // YouTube red: the part played and the head', '// The played portion and head follow XP-TUBE\'s selected accent colour.'),
+        ('ui::nvgColor(kPlayedColor)', 'ui::nvgColor(ui::theme().accent)', 2),
     ],
     "src/app/shell/settings_screen.cpp": [
         ('logo == "youtube" ? "YouTube" : "Playtube"', 'logo == "youtube" ? "YouTube" : "XP-TUBE"'),
