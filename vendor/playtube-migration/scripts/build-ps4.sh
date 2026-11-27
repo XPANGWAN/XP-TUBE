@@ -17,7 +17,8 @@ for pkg in \$(grep -v '^#' scripts/ps4/deps.txt); do
 done
 trap 'chown -R $(id -u):$(id -g) build/ps4' EXIT
 cmake --preset ps4-release -DPLAYTUBE_DEV=$([ "${PLAYTUBE_DEV:-0}" = 1 ] && echo ON || echo OFF) \
-    -DPLAYTUBE_START_LOOP=$([ "${PLAYTUBE_START_LOOP:-0}" = 1 ] && echo ON || echo OFF)
+    -DPLAYTUBE_START_LOOP=$([ "${PLAYTUBE_START_LOOP:-0}" = 1 ] && echo ON || echo OFF) \\
+    -DXP_TUBE_USE_NATIVE_STORAGE=ON -DXP_TUBE_NATIVE_ROOT=/xp-native -DBUILD_TESTING=OFF
 cmake --build --preset ps4-release -j\$(nproc)
 "
 "$ROOT/scripts/check-ps4-imports.sh" "$ROOT/build/ps4/playtube" "$ROOT/build/ps4/pkg/eboot.bin"
