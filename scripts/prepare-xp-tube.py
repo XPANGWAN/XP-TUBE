@@ -374,7 +374,12 @@ remove_once("src/app/settings.cpp", '    writer.key("logo").value(settings.logo)
 remove_once("tests/unit/settings_test.cpp", '    CHECK(settings.logo == "xp-tube");\n', "obsolete logo default assertion")
 remove_once("tests/unit/shell_screens_test.cpp", '    CHECK(s.shell.session.settings().logo == "xp-tube");\n', "obsolete logo setting assertion")
 remove_once("tests/unit/shell_screens_test.cpp",
-'''''', "obsolete remote-logo behavior test")
+'''    s.shell.session.youtubeLogoUrl = s.shell.youtube.baseUrl() + "/logo.svg";
+    s.shell.session.applyLogo();
+    s.shell.frames(3);
+    CHECK_FALSE(app::logoPictureShown());
+    CHECK(s.shell.youtube.requestsTo("/logo.svg").empty());
+''', "obsolete remote-logo behavior test")
 
 # Remove the implementation body by its stable function boundary.
 session_path = ROOT / "src/app/shell/session.cpp"
