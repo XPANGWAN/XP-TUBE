@@ -38,6 +38,10 @@ require("src/core/boot_trace.cpp", r'XP-TUBE boot:', "early boot messages use XP
 require("src/core/boot_trace.cpp", r'"/data/%s".*appFolder\(\)', "early boot trace uses the app-specific data folder")
 require("src/core/boot_trace.cpp", r'"%s/boot\.txt"', "early boot trace writes boot.txt")
 forbid("src/app/app.cpp", r'session\.importPrevious\s*\(', "legacy Playtube account/settings import call")
+require("src/app/shell/session.cpp", r'void AppSession::importPrevious\\(const std::string& oldConfigPath\\) \\{[\\s\\S]*?static_cast<void>\\(oldConfigPath\\);[\\s\\S]*?\\}', "legacy importer implementation is an inert no-op")
+forbid("src/app/shell/session.cpp", r'account_\\.importFromOld\\s*\\(', "legacy account-token importer")
+forbid("src/app/shell/session.cpp", r'core::readSmallFile\\(oldConfigPath', "legacy settings-file read")
+
 forbid("src/app/app.cpp", r'/data/Playtube', "legacy Playtube data path in app startup")
 forbid("src/platform/sdl_platform.cpp", r'playtube\.log', "legacy Playtube log filename")
 forbid("src/core/boot_trace.cpp", r'playtube boot:', "legacy Playtube boot-log label")
