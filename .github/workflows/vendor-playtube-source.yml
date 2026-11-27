@@ -42,18 +42,21 @@ jobs:
           PREFIX="vendor/playtube-migration"
 
           if [ -e "$PREFIX" ]; then
-            echo "Refusing to overwrite existing $PREFIX"
-            exit 1
+            echo "Existing migration source found; validating before continuing."
+            test -s "$PREFIX/LICENSE"
+            test -s "$PREFIX/THIRD_PARTY_LICENSES"
+            test -s "$PREFIX/CMakeLists.txt"
+            test -s "$PREFIX/cmake/ps4_pkg.cmake"
+          else
+            git remote add playtube "$UPSTREAM_URL"
+            git fetch --no-tags playtube "$UPSTREAM_SHA"
+            ACTUAL_SHA="$(git rev-parse FETCH_HEAD)"
+            test "$ACTUAL_SHA" = "$UPSTREAM_SHA"
+
+            # Import the full upstream commit ancestry under a clearly marked
+            # migration-only directory. This preserves provenance and licenses.
+            git subtree add --prefix="$PREFIX" playtube "$UPSTREAM_SHA"
           fi
-
-          git remote add playtube "$UPSTREAM_URL"
-          git fetch --no-tags playtube "$UPSTREAM_SHA"
-          ACTUAL_SHA="$(git rev-parse FETCH_HEAD)"
-          test "$ACTUAL_SHA" = "$UPSTREAM_SHA"
-
-          # Import the full upstream commit ancestry under a clearly marked
-          # migration-only directory. This preserves provenance and licenses.
-          git subtree add --prefix="$PREFIX" playtube "$UPSTREAM_SHA"
 
           test -s "$PREFIX/LICENSE"
           test -s "$PREFIX/THIRD_PARTY_LICENSES"
