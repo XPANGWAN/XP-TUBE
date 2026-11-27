@@ -345,6 +345,76 @@ def replace_file(rel, replacements):
 for rel, replacements in FILES.items():
     replace_file(rel, replacements)
 
+# Remove the obsolete, remotely replaceable YouTube logo path. XP-TUBE's wordmark is
+# compiled into the shell; no logo URL, image cache, or logo preference is needed.
+def remove_once(path, old, description):
+    target = ROOT / path
+    body = target.read_text(encoding="utf-8")
+    count = body.count(old)
+    if count != 1:
+        raise SystemExit(f"{path}: expected one {description}, found {count}")
+    target.write_text(body.replace(old, "", 1), encoding="utf-8")
+
+remove_once("src/app/shell/session.hpp",
+'''    // The header's logo of the settings: the YouTube logo fetched (YouTube's own file, never shipped with Playtube)
+    // and drawn, or Playtube's; the text logo stays while it comes or when it cannot.
+    std::string youtubeLogoUrl =
+        "https://www.gstatic.com/youtube/img/branding/youtubelogo/svg/youtubelogo_dark.svg";
+    void applyLogo();
+
+''', "legacy remote logo API")
+remove_once("src/app/shell/session.hpp", "    unsigned logoGeneration_ = 0;\n", "legacy logo generation state")
+remove_once("src/app/shell/chrome.hpp",
+'''// "Playtube." with the dot in the accent colour; the picture given to setLogoPicture instead while there is one
+// (the YouTube logo, when the user chose it in the settings). Every logo shown changes at once.
+std::unique_ptr<ui::View> makeLogo();
+void setLogoPicture(std::shared_ptr<const ui::SvgPicture> picture);
+bool logoPictureShown();
+''', "replaceable logo declarations")
+remove_once("src/app/settings.hpp", '    std::string logo = "xp-tube";        // XP-TUBE wordmark; legacy YouTube image selection is disabled\n', "obsolete logo setting")
+remove_once("src/app/settings.cpp", '    writer.key("logo").value(settings.logo);\n', "obsolete logo serialization")
+remove_once("tests/unit/settings_test.cpp", '    CHECK(settings.logo == "xp-tube");\n', "obsolete logo default assertion")
+remove_once("tests/unit/shell_screens_test.cpp", '    CHECK(s.shell.session.settings().logo == "xp-tube");\n', "obsolete logo setting assertion")
+remove_once("tests/unit/shell_screens_test.cpp",
+'''    s.shell.session.youtubeLogoUrl = s.shell.youtube.baseUrl() + "/logo.svg";
+    s.shell.session.applyLogo();
+    s.shell.frames(3);
+    CHECK_FALSE(app::logoPictureShown());
+    CHECK(s.shell.youtube.requestsTo("/logo.svg").empty());
+''', "obsolete remote-logo behavior test")
+
+# Remove the implementation body by its stable function boundary.
+session_path = ROOT / "src/app/shell/session.cpp"
+session_body = session_path.read_text(encoding="utf-8")
+start = session_body.find("void AppSession::applyLogo() {")
+if start < 0:
+    raise SystemExit("src/app/shell/session.cpp: legacy applyLogo function not found")
+end = session_body.find("\\n}  // namespace playtube::app", start)
+if end < 0:
+    raise SystemExit("src/app/shell/session.cpp: applyLogo function boundary not found")
+session_path.write_text(session_body[:start] + session_body[end+1:], encoding="utf-8")
+
+# Replace the logo renderer with a text-only XP-TUBE wordmark and remove its image cache.
+chrome_path = ROOT / "src/app/shell/chrome.cpp"
+chrome_body = chrome_path.read_text(encoding="utf-8")
+start = chrome_body.find("namespace {\\n\\nstd::shared_ptr<const ui::SvgPicture>& logoPicture()")
+end_marker = "}  // namespace\\n\\nstd::unique_ptr<ui::View> makeLogo()"
+end = chrome_body.find(end_marker, start)
+if start < 0 or end < 0:
+    raise SystemExit("src/app/shell/chrome.cpp: legacy logo image renderer boundary not found")
+replacement = '''std::unique_ptr<ui::View> makeLogo() {
+    auto logo = std::make_unique<ui::Box>(ui::Axis::Row);
+    const ui::FontStyle style{ui::theme().fontLogo, ui::FontWeight::Bold};
+    logo->gap = ui::theme().spacingS / 2;
+    logo->add<AccentLabel>("XP", style);
+    logo->add<ui::Label>("TUBE", style);
+    return logo;
+}
+
+'''
+chrome_body = chrome_body[:start] + replacement + chrome_body[end+len(end_marker):]
+chrome_path.write_text(chrome_body, encoding="utf-8")
+
 
 # Keep upstream regression tests aligned with the deliberately independent XP-TUBE identity.
 # These are behavioral expectations, not skipped tests: the new defaults, package namespace,
