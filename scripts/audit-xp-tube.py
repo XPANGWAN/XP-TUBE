@@ -75,6 +75,9 @@ for translation in translation_files:
     if "Playtube" in content:
         sys.exit(f"[FAIL] legacy Playtube branding remains in {translation.relative_to(ROOT)}")
 print(f"[PASS] {len(translation_files)} translation files are valid and use XP-TUBE branding")
+require("src/app/shell/player_screen.cpp", r"streamRecoveryInFlight_ = true;", "failed playback streams trigger one guarded automatic refresh")
+require("src/app/shell/player_screen.cpp", r"lastPosition_ = std::max\\(lastPosition_, engine_->state\\(\\).position\\);", "stream recovery preserves the last playback position")
+require("src/app/shell/player_screen.cpp", r"streamRecoveryInFlight_ = false;", "stream recovery guard is released on success or failure")
 require("src/app/shell/chrome.cpp", r'add<AccentLabel>.*"XP", style', "XP-TUBE wordmark has a distinct accent XP mark")
 require("src/app/shell/chrome.cpp", r'add<ui::Label>.*"TUBE", style', "XP-TUBE wordmark has a separate TUBE label")
 require("src/app/shell/chrome.cpp", r'gap = ui::theme\(\)\.spacingS / 2;', "XP-TUBE wordmark has balanced letter-group spacing")
