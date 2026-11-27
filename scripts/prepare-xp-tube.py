@@ -82,6 +82,8 @@ FILES = {
          '    if (generation_ != generation || refreshToken_ != refreshToken) {  // account changed while renewal was in flight'),
         ('    std::string refreshToken = std::exchange(refreshToken_, {});',
          '    ++generation_;  // invalidate any refresh request already in flight\n    std::string refreshToken = std::exchange(refreshToken_, {});'),
+        ('        refreshToken_ = token;\n        PF_LOG_INFO("account: sign-in imported from the previous Playtube");',
+         '        ++generation_;  // invalidate any refresh request before changing credentials\n        refreshToken_ = token;\n        PF_LOG_INFO("account: sign-in imported from the previous Playtube");'),
     ],
     "tests/unit/youtube_account_test.cpp": [
         ('TEST_CASE("account: forgetting signs out at once and hands back the token to revoke") {',
