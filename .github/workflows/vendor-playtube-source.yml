@@ -28,18 +28,19 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
-      - name: Verify subtree support and import exact upstream revision
+      - name: Import exact upstream revision and verify provenance
         shell: bash
         run: |
           set -euo pipefail
-          git subtree --version || {
-            sudo apt-get update
-            sudo apt-get install -y git-subtree
-          }
-
           UPSTREAM_URL="https://github.com/LowganDev/PlaytubePS4.git"
           UPSTREAM_SHA="7372c068704f568bf04e1f8b41a04a2149b2e048"
           PREFIX="vendor/playtube-migration"
+
+          # Ubuntu runner provides git-subtree; avoid unsupported version probing.
+          git subtree -h >/dev/null 2>&1 || {
+            echo "git-subtree is unavailable on this runner."
+            exit 1
+          }
 
           if [ -e "$PREFIX" ]; then
             echo "Existing migration source found; validating before continuing."
@@ -52,9 +53,6 @@ jobs:
             git fetch --no-tags playtube "$UPSTREAM_SHA"
             ACTUAL_SHA="$(git rev-parse FETCH_HEAD)"
             test "$ACTUAL_SHA" = "$UPSTREAM_SHA"
-
-            # Import the full upstream commit ancestry under a clearly marked
-            # migration-only directory. This preserves provenance and licenses.
             git subtree add --prefix="$PREFIX" playtube "$UPSTREAM_SHA"
           fi
 
@@ -63,8 +61,6 @@ jobs:
           test -s "$PREFIX/CMakeLists.txt"
           test -s "$PREFIX/cmake/ps4_pkg.cmake"
 
-          # Produce a deterministic inventory and content hashes for every
-          # imported file. This is evidence for the later rewrite audit.
           mkdir -p docs
           (
             cd "$PREFIX"
@@ -91,19 +87,18 @@ jobs:
           - SHA-256 inventory: docs/SOURCE-FILE-CHECKSUMS.txt
 
           The directory $PREFIX/ is a temporary migration reference. It is
-          not an XP-TUBE-authored implementation and must not be presented as
-          independently rewritten code. Original copyright, GPL, and third-party
-          notices must remain intact wherever required.
+          not an XP-TUBE-authored implementation. Original copyright, GPL,
+          and third-party notices must remain intact wherever required.
 
           ## Required next steps
 
           1. Review source provenance and the complete third-party dependency list.
-          2. Move or rewrite the required build and runtime components into
-             XP-TUBE-owned paths while preserving the source history and notices.
+          2. Move or rewrite required build and runtime components into
+             XP-TUBE-owned paths while preserving source history and notices.
           3. Replace the patch-on-upstream build with a native XP-TUBE build.
           4. Remove this migration directory only after all required components
-             have been independently replaced and a license review confirms
-             that removal is appropriate.
+             have been independently replaced and license review confirms
+             removal is appropriate.
           EOF
 
           git config user.name "github-actions[bot]"
