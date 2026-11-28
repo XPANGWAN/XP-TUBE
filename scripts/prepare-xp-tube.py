@@ -345,15 +345,7 @@ def replace_file(rel, replacements):
 for rel, replacements in FILES.items():
     replace_file(rel, replacements)
 
-# The upstream shell script escapes its loop variable as \\$file. Match the
-# complete line structurally so Python string escaping cannot weaken this gate.
-build_script = ROOT / "scripts/build-ps4.sh"
-build_lines = build_script.read_text(encoding="utf-8").splitlines()
-fallback_lines = [i for i, value in enumerate(build_lines) if value.strip().startswith("if [ -f build-deps/") and "BASE_URL" in value]
-if len(fallback_lines) != 1:
-    raise SystemExit(f"scripts/build-ps4.sh: expected one dependency download fallback, found {len(fallback_lines)}")
-build_lines[fallback_lines[0]] = '  test -s "build-deps/$file" || { echo "Missing locally built XP-TUBE dependency: $file"; exit 1; }; pacman --noconfirm -U "build-deps/$file"'
-build_script.write_text("\n".join(build_lines) + "\n", encoding="utf-8")
+# The XP-TUBE-owned build script already enforces local dependency packages.
 
 # Remove the obsolete, remotely replaceable YouTube logo path. XP-TUBE's wordmark is
 # compiled into the shell; no logo URL, image cache, or logo preference is needed.
