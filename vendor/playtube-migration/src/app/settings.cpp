@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cstdio>
 
-#include "core/file_io.hpp"
+#include "xp/core/config_file.hpp"
 #include "core/log.hpp"
 #include "core/strings.hpp"
 #include "core/utf.hpp"
@@ -28,20 +28,19 @@ bool knownAccent(const std::string& id) {
 
 Settings loadSettings(const std::string& path) {
     Settings settings;
-    std::string text;
-    switch (core::readSmallFile(path, kMaxFileBytes, text)) {
-    case core::ReadStatus::Missing:
-        return settings;
-    case core::ReadStatus::Failed:
+    auto loaded = xp::core::read_config_file(path, kMaxFileBytes);
+    if (!loaded) {
         PF_LOG_WARN("cannot read %s: default settings", path.c_str());
         return settings;
-    case core::ReadStatus::Ok:
-        break;
     }
+    if (!loaded.value().has_value()) return settings;
+    const std::string& text = *loaded.value();
     const auto doc = core::json::Document::parse(text);
     if (!doc || !yyjson_is_obj(doc->root())) {
         PF_LOG_WARN("%s is damaged: kept as .bad, default settings", path.c_str());
-        std::rename(path.c_str(), (path + ".bad").c_str());
+        if (!xp::core::quarantine_config_file(path)) {
+            PF_LOG_WARN("could not quarantine damaged settings file %s", path.c_str());
+        }
         return settings;
     }
     yyjson_val* root = doc->root();
@@ -136,7 +135,7 @@ bool saveSettings(const std::string& path, const Settings& settings) {
     writer.key("dearrow").value(settings.dearrow);
     writer.key("logo").value(settings.logo);
     writer.end();
-    return core::writeFileAtomic(path, writer.str());
+    return static_cast<bool>(xp::core::write_config_file(path, writer.str()));
 }
 
 void addRecentSearch(Settings& settings, std::string term) {

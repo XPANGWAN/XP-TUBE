@@ -4,6 +4,7 @@ add_library(xp_core STATIC
     src/storage_paths.cpp
     src/storage_context.cpp
     src/file_store.cpp
+    src/config_file.cpp
     src/directory_store.cpp
     src/redaction.cpp
     src/logger.cpp
@@ -40,6 +41,10 @@ if(BUILD_TESTING)
     add_executable(xp_core_directory_store_tests tests/directory_store_test.cpp)
     target_link_libraries(xp_core_directory_store_tests PRIVATE xp_core)
     add_test(NAME xp_core_directory_store_unit COMMAND xp_core_directory_store_tests)
+
+    add_executable(xp_core_config_file_tests tests/config_file_test.cpp)
+    target_link_libraries(xp_core_config_file_tests PRIVATE xp_core)
+    add_test(NAME xp_core_config_file_unit COMMAND xp_core_config_file_tests)
 
     add_executable(xp_core_file_store_tests tests/file_store_test.cpp)
     target_link_libraries(xp_core_file_store_tests PRIVATE xp_core)
