@@ -30,3 +30,9 @@ Host tests validate the backend-neutral contracts and state logic. They do not p
 The XP-owned `ControllerRegistry` tracks up to eight controller instance IDs, rejects duplicate connections, ignores unknown disconnects, and reuses slots after disconnect. It deliberately does not open, close, or poll SDL/OpenOrbis devices; hardware ownership remains single-source until the adapter migration is complete.
 
 تتولى `ControllerRegistry` المملوكة لـ XP تتبع ما يصل إلى ثماني هويات لوحدات التحكم، وترفض الاتصالات المكررة، وتتجاهل قطع الاتصال لهوية غير معروفة، وتعيد استخدام الخانات بعد قطع الاتصال. ولا تفتح أجهزة SDL/OpenOrbis أو تغلقها أو تقرأها؛ إذ تبقى ملكية العتاد لدى مصدر واحد إلى أن يكتمل ترحيل المحوّل.
+
+## Display and presentation contract | عقد الشاشة والعرض
+
+XP now defines a bounded, backend-neutral display contract in `display.hpp`. `DisplayInfo` describes the drawable dimensions, refresh rate, and display mode. `PresentationFrame` describes a non-owning RGBA frame with explicit row stride and byte size; validation rejects null pixels, unsupported dimensions, undersized rows, and incomplete buffers. The contract does not create an SDL window, GL context, or renderer. SDL remains the sole owner of those resources while platform-specific Linux and PS4 presentation paths are migrated separately.
+
+تعرّف XP الآن عقداً مستقلاً ومحدوداً للشاشة والعرض في `display.hpp`. يصف `DisplayInfo` أبعاد مساحة الرسم ومعدل التحديث ونمط العرض. ويصف `PresentationFrame` إطار RGBA دون امتلاك الذاكرة، مع تحديد طول الصف وحجم المخزن صراحةً؛ ويرفض التحقق المؤشرات الفارغة والأبعاد غير المدعومة والصفوف الأقصر من المطلوب والمخازن غير المكتملة. لا ينشئ هذا العقد نافذة SDL أو سياق OpenGL أو محرك رسم. تظل SDL المالك الوحيد لهذه الموارد، بينما يجري ترحيل مساري العرض الخاصين بـ Linux وPS4 كلٌّ على حدة.
