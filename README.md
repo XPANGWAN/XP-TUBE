@@ -1,74 +1,58 @@
 # XP-TUBE
 
-**XP-TUBE** is an independently developed YouTube client for PS4 running GoldHEN.
+**XP-TUBE** is an independently developed PlayStation 4 media application project. The current work focuses on replacing inherited platform and application boundaries with XP-owned, testable components while preserving third-party licenses and notices.
 
-## Project objective
+**XP-TUBE** مشروع تطبيق وسائط مستقل قيد التطوير لمنصة PlayStation 4. يركّز العمل الحالي على استبدال حدود المنصة والتطبيق الموروثة بمكوّنات مملوكة لمشروع XP وقابلة للاختبار، مع الحفاظ على تراخيص المكوّنات الخارجية وإشعاراتها.
 
-The final product must not depend on Playtube source code, its repository, its build scripts, or its runtime implementation. The current codebase is still a Playtube-derived migration baseline; complete independence has **not** yet been achieved.
+## Project status | حالة المشروع
 
-Third-party libraries may be used under their respective licenses. GPL-3.0 obligations, original copyright notices, and third-party notices must be preserved wherever legally required. Removing Playtube branding from the product UI does not authorize removing required attribution or license material.
+| Area | English | العربية |
+|---|---|---|
+| XP Core | Implemented and integrated through transitional adapters; some inherited JSON handling remains. | نُفّذ ودُمج عبر طبقات توافق انتقالية؛ وما زالت معالجة JSON تعتمد جزئياً على المكوّن الموروث. |
+| XP Network | XP-owned HTTP and certificate-inspection implementation; integration remains transitional. | تنفيذ HTTP وفحص الشهادات مملوك لـ XP؛ وما زال الدمج انتقالياً. |
+| XP Platform | Runtime/event queue, PS4 system-service adapter, and language mapping are implemented. | نُفّذ وقت التشغيل وطابور الأحداث ومحوّل خدمات نظام PS4 وتحويل معرّفات اللغات. |
+| PS4 input | SDL still owns controller discovery and polling; migration to XP contracts is in progress. | ما زالت SDL مسؤولة عن اكتشاف وحدات التحكم وقراءة أحداثها؛ ونقل هذه المسؤولية إلى عقود XP جارٍ. |
+| Display and audio | Display/presentation, audio focus, and system dialogs remain in the migration layer. | ما زالت الشاشة والعرض وتركيز الصوت وحوارات النظام ضمن طبقة الترحيل. |
+| UI and services | Existing screens and service integrations have not yet been independently replaced. | لم تُستبدل الشاشات وطبقات الخدمات الحالية بتنفيذ مستقل بعد. |
+| Playback | The application playback integration remains migration-derived and uses third-party media components. | ما زال دمج تشغيل الوسائط مشتقاً من المصدر المرحّل ويستخدم مكوّنات وسائط خارجية. |
+| Build independence | The build still prepares the vendored migration source using a patching script. | ما زال البناء يجهّز مصدر الترحيل المضمّن باستخدام سكربت لتطبيق التعديلات. |
+| PS4 hardware validation | A successful CI build is not a substitute for testing on a real console; hardware validation is still required. | نجاح البناء الآلي لا يعوّض الاختبار على جهاز حقيقي؛ وما زال اختبار الجهاز مطلوباً. |
 
-## Repository and branch policy
+## Current development sequence | تسلسل التطوير الحالي
 
-- Active development branch: `main`.
-- Backup branch: `feature/xp-tube-independence` (kept at the pre-main migration baseline).
-- Research branch: `research/playtube-baseline` (preserved as historical reference).
-- Do not delete backup/research branches.
-- Do not force-push or rewrite branch history.
-- Changes are made on `main`; use small, reviewable commits for infrastructure changes and coherent batches for product work.
-- Keep a known-good PKG and all build evidence until a replacement is tested on the real PS4.
+1. Complete the XP-owned platform boundary: controller/input, display/presentation, audio focus, and dialogs.
+   استكمال حدود المنصة المملوكة لـ XP: وحدة التحكم والإدخال، الشاشة والعرض، تركيز الصوت، وحوارات النظام.
+2. Move application services and account/session interfaces onto XP-owned contracts.
+   نقل خدمات التطبيق وواجهات الحساب والجلسة إلى عقود مملوكة لـ XP.
+3. Build the independent XP UI and playback layers in testable stages.
+   بناء طبقتي واجهة XP ومحرك التشغيل المستقلتين على مراحل قابلة للاختبار.
+4. Replace the source-patching workflow with maintained repository-owned source.
+   استبدال آلية تطبيق التعديلات بمصدر يحتفظ به المشروع ويطوّره مباشرة.
+5. Run feature regression, security and licensing checks, then validate on real PS4 hardware.
+   إجراء اختبارات تراجع الميزات والأمان والتراخيص، ثم التحقق على جهاز PS4 حقيقي.
 
-## Non-negotiable product requirements
+## Build and verification | البناء والتحقق
 
-- XP-TUBE owns its application identity, package metadata, data directory, logs, updater, UI, settings, navigation, and application architecture.
-- Never overwrite, uninstall, import data from, or modify the user's Playtube installation.
-- Preserve working search, channels, videos, library, account capabilities, and internal playback while replacing implementation.
-- No Playtube repository fetch or Playtube source dependency in the final build.
-- No Playtube branding in the user-facing product.
-- Keep legally required source attribution, GPL notices, and third-party licenses.
-- Do not claim complete YouTube ad removal. SponsorBlock is not a universal ad blocker.
-- Treat YouTube's undocumented InnerTube interface and anti-bot/IP restrictions as reliability risks.
-- Do not claim a package works until build evidence is verified and it is tested on real hardware.
+GitHub Actions workflows provide host unit tests and an isolated PS4 package build. Check the workflow result and artifact for the exact commit being evaluated. A package build alone does not establish that the application runs correctly on console hardware.
 
-## Current engineering state
+توفر GitHub Actions مسارات لاختبارات الوحدات على بيئة المضيف وبناء حزمة PS4 معزولة. يجب التحقق من نتيجة المسار والملف الناتج للالتزام البرمجي نفسه. نجاح إنشاء الحزمة وحده لا يثبت أن التطبيق يعمل بصورة صحيحة على جهاز PS4.
 
-- [x] XP-TUBE package identity: `XPTB00000`.
-- [x] XP-TUBE data directory: `/data/XP-TUBE`.
-- [x] XP-TUBE-specific updater, runtime log, and boot trace.
-- [x] Playtube settings/account migration disabled.
-- [x] Source-level identity and regression audit exists.
-- [x] Existing baseline package and corresponding-source archive were built and checksum-verified on the backup branch.
-- [x] `main` advanced safely to the latest pre-migration baseline commit `e279d0405124b7cdab367547254e217a7023ec70`.
-- [x] Package-build and host-unit-test workflows now target `main`.
-- [x] Added a provenance-preserving source-import workflow, pinned to upstream revision `7372c068704f568bf04e1f8b41a04a2149b2e048`.
-- [x] Added a source architecture review and explicit rewrite boundaries.
-- [ ] Verify that the source-import workflow ran successfully and that the imported source and license files are present in this repository.
-- [ ] Remove all build-time fetching of the Playtube repository.
-- [ ] Replace the patch-on-upstream build with a native XP-TUBE build.
-- [ ] Inventory and rewrite all Playtube-derived application components required for complete independence.
-- [ ] Rebuild the UI and settings as original XP-TUBE experiences.
-- [ ] Verify no Playtube source/runtime/build dependency remains.
-- [ ] Build and test the independent PKG on a real PS4.
+## Licensing | التراخيص
 
-## Temporary migration boundary
+This project includes and adapts third-party software. The GPL-3.0 license, third-party license texts, copyright notices, and required attributions must remain with the corresponding source and release archives. XP-TUBE branding does not transfer ownership of inherited or third-party code.
 
-The current release workflows still clone the pinned Playtube repository and apply `scripts/prepare-xp-tube.py`. This is a temporary migration mechanism only. The new import workflow is intended to bring the exact source revision and its ancestry into a clearly marked migration directory, but that import has not yet been verified. XP-TUBE is not yet independent.
+يتضمن المشروع برمجيات خارجية ويجري تعديلها. يجب الإبقاء على ترخيص GPL-3.0 ونصوص تراخيص الأطراف الخارجية وإشعارات حقوق النشر والإسنادات المطلوبة مع المصدر وحزم الإصدار ذات الصلة. لا تعني هوية XP-TUBE امتلاك الشيفرة الموروثة أو شيفرات الأطراف الخارجية.
 
-The previous verified package is historical evidence only. It does not prove that the current `main` build is independent or that the package was tested on the current PS4 installation.
+## Repository layout | بنية المستودع
 
-## Design direction
+- `xp/core` — XP-owned core utilities and persistence boundaries.
+- `xp/net` — XP-owned network contracts and transport.
+- `xp/platform` — platform contracts, runtime, event queue, and PS4 adapters.
+- `vendor/playtube-migration` — temporary migration source; not yet removed.
+- `scripts/prepare-xp-tube.py` — temporary source preparation/patching step.
 
-- Cinematic dark interface, black and metallic silver with violet as the supporting accent.
-- Original XP-TUBE visual language, not a Playtube reskin.
-- 16:9 TV-first layouts and readable typography.
-- Controller-first navigation for DualShock 4.
-- Vector icons, no emoji, smooth low-overhead transitions.
-- Preserve all working core functions while replacing their implementation.
-
-## Build and audit
-
-The workflows under `.github/workflows/` currently provide a temporary pinned-source build and host unit-test path. The next independence milestone is to complete and verify the source import, then change both workflows to build only from repository-owned source.
-
-- [Full independence roadmap](docs/ROADMAP.md)
-- [Source architecture review](docs/ARCHITECTURE-REVIEW.md)
-- [Independence audit](docs/INDEPENDENCE-AUDIT.md)
+- `xp/core` — أدوات XP الأساسية وحدود حفظ البيانات.
+- `xp/net` — عقود الشبكة وطبقة النقل المملوكة لـ XP.
+- `xp/platform` — عقود المنصة ووقت التشغيل وطابور الأحداث ومحوّلات PS4.
+- `vendor/playtube-migration` — مصدر الترحيل المؤقت؛ لم يُحذف بعد.
+- `scripts/prepare-xp-tube.py` — خطوة مؤقتة لتجهيز المصدر وتطبيق التعديلات.
