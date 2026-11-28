@@ -1,6 +1,6 @@
-# PS4 dependencies installed before building Playtube (name-version-release of the pacbrew packages).
-# They are built from the recipes of this folder (scripts/ps4/build-deps.sh) and
-# published as the "deps" release of the repository. Bump a line here when its recipe changes.
+# Third-party PS4 build dependencies for XP-TUBE (package name-version-release).
+# Each dependency is built locally from the pinned recipe in scripts/ps4/build-deps.sh.
+# Keep this list aligned with the recipe versions; no prebuilt Playtube release is used.
 musl-1.5-3
 mbedtls-3.6.7-2
 sdl2-2.0.18-20
