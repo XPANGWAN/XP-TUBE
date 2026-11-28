@@ -71,8 +71,8 @@ void AppSession::startYoutube(const std::string& uiLanguage, youtube::Endpoints 
 }
 
 void AppSession::importPrevious(const std::string& oldConfigPath) {
-    // XP-TUBE isolation: intentionally disabled. Never read legacy settings,
-    // search history, or account tokens from another application.
+    // XP-TUBE isolation boundary: deliberately a no-op. Keep the inherited call
+    // site harmless until the startup lifecycle is fully migrated.
     static_cast<void>(oldConfigPath);
 }
 void AppSession::completeAccount() {

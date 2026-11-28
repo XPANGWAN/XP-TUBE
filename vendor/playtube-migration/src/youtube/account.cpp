@@ -33,6 +33,7 @@ void Account::load() {
     std::lock_guard<std::mutex> lock(mutex_);
     refreshToken_ = json::string(doc->root(), "refresh_token");
     name_ = json::string(doc->root(), "name");
+    imported_ = json::boolean(doc->root(), "imported", false);
 }
 
 bool Account::signedIn() const {
@@ -124,7 +125,34 @@ std::string Account::forget() {
     return refreshToken;
 }
 
+bool Account::lookedForOld() const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return imported_;
+}
 
+bool Account::importFromOld(const std::string& oldConfigPath) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (imported_) {
+        return false;
+    }
+    imported_ = true;
+    std::string token;
+    auto loaded = xp::core::read_config_file(oldConfigPath, kMaxFileBytes);
+    if (refreshToken_.empty() && loaded && loaded.value().has_value()) {
+        if (const auto doc = json::Document::parse(*loaded.value())) {
+            token = json::string(json::object(doc->root(), "setting"), "yt_refresh_token");
+            if (token.empty()) {
+                token = json::string(doc->root(), "yt_refresh_token");
+            }
+        }
+    }
+    if (!token.empty()) {
+        refreshToken_ = token;
+        PF_LOG_INFO("account: sign-in imported from the previous Playtube");
+    }
+    saveLocked();
+    return !token.empty();
+}
 
 void Account::saveLocked() const {
     if (path_.empty()) {
@@ -136,6 +164,7 @@ void Account::saveLocked() const {
         writer.key("refresh_token").value(refreshToken_);
         writer.key("name").value(name_);
     }
+    writer.key("imported").value(imported_);
     writer.end();
     if (!xp::core::write_config_file(path_, writer.str())) {
         PF_LOG_WARN("account: could not be saved");

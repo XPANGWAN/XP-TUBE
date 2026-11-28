@@ -46,8 +46,8 @@ public:
     // Work for the worker pool that nothing waits for; inline in test mode.
     void submit(std::function<void()> job);
 
-    // At the first start: the previous Playtube's sign-in and recent searches, from its config.json (only read),
-    // once ever.
+    // Compatibility hook retained for the inherited startup call site. Intentionally does not
+    // inspect or import data from another application.
     void importPrevious(const std::string& oldConfigPath);
 
     // Signed in without the account's name (an imported sign-in): asks for it in the background.

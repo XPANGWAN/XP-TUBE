@@ -28,13 +28,14 @@ interactions remain intact while screens are migrated.
 
 The XP Network module no longer references migration-project target names or its legacy PS4 compile macro; the temporary parent build supplies curl, crypto, and platform selection through generic XP-TUBE inputs. This is build-boundary decoupling, not a claim that the application source is independent.
 
-Settings, watch-progress, account persistence, and legacy account/search
-import reads now use XP Core's bounded file API; writes use atomic persistence.
-Malformed settings, progress, and account documents are quarantined instead of
-silently overwritten. Account token files retain the private 0600 permission
-provided by XP Core. The inherited JSON parser and serializer remain in use,
-so this is a storage-boundary migration rather than a new application-owned
-configuration format.
+Settings, watch-progress, and account persistence now use
+XP Core's bounded file API; writes use atomic persistence. Importing settings,
+search history, or account tokens from the previous Playtube application is
+explicitly disabled. Malformed settings, progress, and account documents are
+quarantined instead of silently overwritten. Account token files retain the
+private 0600 permission provided by XP Core. The inherited JSON parser and
+serializer remain in use, so this is a storage-boundary migration rather than
+a new application-owned configuration format.
 
 The PS4 build script consumes only locally built dependency packages and
 validates the XP-TUBE package filename. This removes the fallback download of

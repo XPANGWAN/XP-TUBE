@@ -242,3 +242,32 @@ TEST_CASE("account: damaged private account file is quarantined") {
     const std::string contents((std::istreambuf_iterator<char>(damaged)), {});
     CHECK(contents == "{broken-account");
 }
+
+TEST_CASE("account: the previous app's sign-in is imported once") {
+    TempDir dir;
+    const std::string old = dir.path + "/config.json";
+    REQUIRE(core::writeFileAtomic(old, R"({"setting":{"yt_refresh_token":"old-refresh-token","x":1}})"));
+    const std::string path = dir.path + "/account.json";
+    {
+        Account account(path);
+        account.load();
+        CHECK(account.importFromOld(old));
+        CHECK(account.signedIn());
+    }
+    CHECK(test::readFile(old).find("old-refresh-token") != std::string::npos);  // left as it was
+    Account account(path);
+    account.load();
+    CHECK(account.signedIn());
+    FakeYouTube yt;
+    const auto http = testHttp();
+    account.signOut(Auth(http, at(yt)));
+    CHECK_FALSE(account.importFromOld(old));  // never again, even signed out
+    CHECK_FALSE(account.signedIn());
+
+    Account fresh(dir.path + "/other.json");
+    CHECK_FALSE(fresh.importFromOld(dir.path + "/missing.json"));
+    CHECK_FALSE(fresh.importFromOld(dir.path + "/missing.json"));
+    REQUIRE(core::writeFileAtomic(dir.path + "/top.json", R"({"yt_refresh_token":"top-level"})"));
+    Account top(dir.path + "/top-account.json");
+    CHECK(top.importFromOld(dir.path + "/top.json"));
+}
