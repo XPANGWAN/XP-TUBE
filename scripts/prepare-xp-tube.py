@@ -531,9 +531,14 @@ new_importer = '''void AppSession::importPrevious(const std::string& oldConfigPa
     // search history, or account tokens from another application.
     static_cast<void>(oldConfigPath);
 }'''
-if session_body.count(old_importer) != 1:
-    raise SystemExit("src/app/shell/session.cpp: expected exactly one upstream legacy importer implementation")
-session.write_text(session_body.replace(old_importer, new_importer), encoding="utf-8")
+if session_body.count(old_importer) == 1:
+    session_body = session_body.replace(old_importer, new_importer)
+elif session_body.count(new_importer) == 1:
+    # Already isolated in the vendored source; keep the preparation step idempotent.
+    pass
+else:
+    raise SystemExit("src/app/shell/session.cpp: expected one legacy importer or its XP-TUBE no-op replacement")
+session.write_text(session_body, encoding="utf-8")
 
 
 # Update visible product wording while retaining original product attribution in license pages.
