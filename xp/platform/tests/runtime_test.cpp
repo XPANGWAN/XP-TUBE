@@ -60,6 +60,8 @@ int main() {
     assert(runtime.state() == RuntimeState::Stopped);
     assert(backend.shutdown_calls == 1);
     assert(!runtime.pump_once());
+    assert(!runtime.start());
+    assert(backend.initialize_calls == 1);
 
     FakeBackend failing_backend;
     failing_backend.initialize_ok = false;
