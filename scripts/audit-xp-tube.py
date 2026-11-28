@@ -147,6 +147,7 @@ require("src/app/shell/settings_screen.cpp", r"addSection\(ui::Box& column", "se
 require("src/app/shell/settings_screen.cpp", r"displaySection|playbackSection|homeSection|accountSection|aboutSection", "settings retain distinct display, playback, home, account, and about groups")
 forbid("src/app/shell/settings_screen.cpp", r"settings\.logo|logoName\(", "removed legacy logo preference control")
 require("src/app/shell/chrome.cpp", r'add<ui::Label>.*"TUBE", style', "header displays the XP-TUBE wordmark")
+forbid("src/app/app.cpp", r"session\.applyLogo\s*\(", "retired remote-logo application call")
 forbid("src/app/shell/session.hpp", r"youtubeLogoUrl|applyLogo|logoGeneration_", "legacy remote-logo session API and state")
 forbid("src/app/shell/session.cpp", r"youtubeLogoUrl|AppSession::applyLogo|logoGeneration_", "legacy remote-logo implementation")
 forbid("src/app/shell/chrome.hpp", r"setLogoPicture|logoPictureShown|SvgPicture", "legacy replaceable logo API")
