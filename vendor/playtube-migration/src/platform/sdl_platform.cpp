@@ -14,6 +14,7 @@
 #include "platform/remote.hpp"
 #include "platform/text_input.hpp"
 #include "xp/platform/controller_registry.hpp"
+#include "xp/platform/controller_input.hpp"
 
 namespace playtube::platform {
 
@@ -28,6 +29,7 @@ std::deque<Event> gPending;  // its events not given yet
 std::uint32_t gRemoteReadMs = 0xFFFFFFFFu;
 std::vector<SDL_GameController*> gControllers;
 xp::platform::ControllerRegistry gXpControllers;
+xp::platform::ControllerInputTranslator gXpControllerInput;
 
 void openController(int deviceIndex) {
     if (!SDL_IsGameController(deviceIndex)) {
@@ -56,9 +58,75 @@ void closeController(SDL_JoystickID instance) {
     if (it != gControllers.end()) {
         PF_LOG_INFO("controller disconnected");
         gXpControllers.disconnect(static_cast<std::uint32_t>(instance));
+        gXpControllerInput.disconnect(static_cast<std::uint32_t>(instance));
         SDL_GameControllerClose(*it);
         gControllers.erase(it);
     }
+}
+
+std::optional<Event> translateXpControllerEvent(const SDL_Event& source) {
+    using xp::platform::ControllerButton;
+    using xp::platform::ControllerAxis;
+    using xp::platform::EventType;
+
+    const auto device = static_cast<std::uint32_t>(
+        source.type == SDL_CONTROLLERAXISMOTION ? source.caxis.which : source.cbutton.which);
+    std::optional<xp::platform::Event> translated;
+
+    if (source.type == SDL_CONTROLLERBUTTONDOWN || source.type == SDL_CONTROLLERBUTTONUP) {
+        ControllerButton button = ControllerButton::Unknown;
+        switch (source.cbutton.button) {
+        case SDL_CONTROLLER_BUTTON_DPAD_UP: button = ControllerButton::Up; break;
+        case SDL_CONTROLLER_BUTTON_DPAD_DOWN: button = ControllerButton::Down; break;
+        case SDL_CONTROLLER_BUTTON_DPAD_LEFT: button = ControllerButton::Left; break;
+        case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: button = ControllerButton::Right; break;
+        case SDL_CONTROLLER_BUTTON_A: button = ControllerButton::Confirm; break;
+        case SDL_CONTROLLER_BUTTON_B: button = ControllerButton::Cancel; break;
+        case SDL_CONTROLLER_BUTTON_Y: button = ControllerButton::Options; break;
+        case SDL_CONTROLLER_BUTTON_X: button = ControllerButton::Context; break;
+        case SDL_CONTROLLER_BUTTON_LEFTSHOULDER: button = ControllerButton::L1; break;
+        case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER: button = ControllerButton::R1; break;
+        case SDL_CONTROLLER_BUTTON_START: button = ControllerButton::Menu; break;
+        case SDL_CONTROLLER_BUTTON_TOUCHPAD: button = ControllerButton::Touchpad; break;
+        default: break;
+        }
+        translated = gXpControllerInput.button(device, button,
+                                                source.type == SDL_CONTROLLERBUTTONDOWN,
+                                                SDL_GetTicks());
+    } else if (source.type == SDL_CONTROLLERAXISMOTION) {
+        ControllerAxis axis;
+        if (source.caxis.axis == SDL_CONTROLLER_AXIS_TRIGGERLEFT) {
+            axis = ControllerAxis::LeftTrigger;
+        } else if (source.caxis.axis == SDL_CONTROLLER_AXIS_TRIGGERRIGHT) {
+            axis = ControllerAxis::RightTrigger;
+        } else {
+            return std::nullopt;
+        }
+        translated = gXpControllerInput.axis(device, axis, source.caxis.value, SDL_GetTicks());
+    }
+
+    if (!translated) return std::nullopt;
+    Action action;
+    switch (translated->button) {
+    case ControllerButton::Up: action = Action::Up; break;
+    case ControllerButton::Down: action = Action::Down; break;
+    case ControllerButton::Left: action = Action::Left; break;
+    case ControllerButton::Right: action = Action::Right; break;
+    case ControllerButton::Confirm: action = Action::Confirm; break;
+    case ControllerButton::Cancel: action = Action::Back; break;
+    case ControllerButton::Options: action = Action::Options; break;
+    case ControllerButton::Context: action = Action::Context; break;
+    case ControllerButton::L1: action = Action::L1; break;
+    case ControllerButton::R1: action = Action::R1; break;
+    case ControllerButton::L2: action = Action::L2; break;
+    case ControllerButton::R2: action = Action::R2; break;
+    case ControllerButton::Menu: action = Action::Menu; break;
+    case ControllerButton::Touchpad: action = Action::Touchpad; break;
+    default: return std::nullopt;
+    }
+    const auto type = translated->type == EventType::ControllerButtonDown
+                          ? Event::Type::ActionDown : Event::Type::ActionUp;
+    return actionEvent(type, action);
 }
 
 }  // namespace
@@ -112,7 +180,10 @@ bool init(const Config& config) {
 void shutdown() {
     for (SDL_GameController* controller : gControllers) {
         const SDL_JoystickID instance = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller));
-        if (instance >= 0) gXpControllers.disconnect(static_cast<std::uint32_t>(instance));
+        if (instance >= 0) {
+            gXpControllers.disconnect(static_cast<std::uint32_t>(instance));
+            gXpControllerInput.disconnect(static_cast<std::uint32_t>(instance));
+        }
         SDL_GameControllerClose(controller);
     }
     gControllers.clear();
@@ -135,7 +206,11 @@ bool pollEvent(Event& out, std::uint32_t nowMs) {
         } else if (event.type == SDL_CONTROLLERDEVICEREMOVED) {
             closeController(event.cdevice.which);
         }
-        const auto translated = gTranslator.translate(event);
+        const auto translated = (event.type == SDL_CONTROLLERBUTTONDOWN ||
+                                 event.type == SDL_CONTROLLERBUTTONUP ||
+                                 event.type == SDL_CONTROLLERAXISMOTION)
+                                    ? translateXpControllerEvent(event)
+                                    : gTranslator.translate(event);
         if (!translated) {
             continue;
         }
