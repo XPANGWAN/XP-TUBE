@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include "core/file_io.hpp"
+#include "xp/core/config_file.hpp"
 #include "core/json.hpp"
 #include "core/log.hpp"
 
@@ -20,13 +20,14 @@ constexpr std::int64_t kRenewMargin = 60;  // seconds before the expiry
 Account::Account(std::string path) : path_(std::move(path)) {}
 
 void Account::load() {
-    std::string text;
-    if (core::readSmallFile(path_, kMaxFileBytes, text) != core::ReadStatus::Ok) {
-        return;
-    }
-    const auto doc = json::Document::parse(text);
-    if (!doc) {
-        PF_LOG_WARN("account: damaged file, signed out");
+    auto loaded = xp::core::read_config_file(path_, kMaxFileBytes);
+    if (!loaded || !loaded.value().has_value()) return;
+    const auto doc = json::Document::parse(*loaded.value());
+    if (!doc || !yyjson_is_obj(doc->root())) {
+        PF_LOG_WARN("account: damaged file, quarantining and signing out");
+        if (!xp::core::quarantine_config_file(path_)) {
+            PF_LOG_WARN("account: could not quarantine damaged file");
+        }
         return;
     }
     std::lock_guard<std::mutex> lock(mutex_);
@@ -136,9 +137,9 @@ bool Account::importFromOld(const std::string& oldConfigPath) {
     }
     imported_ = true;
     std::string token;
-    std::string text;
-    if (refreshToken_.empty() && core::readSmallFile(oldConfigPath, kMaxFileBytes, text) == core::ReadStatus::Ok) {
-        if (const auto doc = json::Document::parse(text)) {
+    auto loaded = xp::core::read_config_file(oldConfigPath, kMaxFileBytes);
+    if (refreshToken_.empty() && loaded && loaded.value().has_value()) {
+        if (const auto doc = json::Document::parse(*loaded.value())) {
             token = json::string(json::object(doc->root(), "setting"), "yt_refresh_token");
             if (token.empty()) {
                 token = json::string(doc->root(), "yt_refresh_token");
@@ -165,7 +166,7 @@ void Account::saveLocked() const {
     }
     writer.key("imported").value(imported_);
     writer.end();
-    if (!core::writeFileAtomic(path_, writer.str())) {
+    if (!xp::core::write_config_file(path_, writer.str())) {
         PF_LOG_WARN("account: could not be saved");
     }
 }
