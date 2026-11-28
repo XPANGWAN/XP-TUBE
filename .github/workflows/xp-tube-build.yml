@@ -81,7 +81,10 @@ jobs:
           chmod +x scripts/ps4/build-deps.sh
           ./scripts/ps4/build-deps.sh
           while IFS= read -r dependency; do
-            [[ -z "$dependency" || "$dependency" == \\#* ]] && continue
+            # Ignore blank lines and comments before validating package output.
+            dependency="${dependency%%#*}"
+            dependency="${dependency//[[:space:]]/}"
+            [[ -z "$dependency" ]] && continue
             package="build-deps/ps4-openorbis-${dependency}-any.pkg.tar.gz"
             test -s "$package" || {
               echo "Missing locally built dependency package: $package"
