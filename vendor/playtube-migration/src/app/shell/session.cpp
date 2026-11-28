@@ -71,35 +71,10 @@ void AppSession::startYoutube(const std::string& uiLanguage, youtube::Endpoints 
 }
 
 void AppSession::importPrevious(const std::string& oldConfigPath) {
-    if (account_.lookedForOld()) {
-        return;
-    }
-    account_.importFromOld(oldConfigPath);
-    auto loaded = xp::core::read_config_file(oldConfigPath, 1024 * 1024);
-    if (!loaded || !loaded.value().has_value()) {
-        return;
-    }
-    const auto doc = core::json::Document::parse(*loaded.value());
-    if (!doc) {
-        return;
-    }
-    const auto terms = core::json::strings(core::json::object(doc->root(), "setting"), "yt_search_history");
-    Settings imported = settings_;
-    for (const std::string& term : terms) {  // after the searches made here, in their order
-        if (imported.recentSearches.size() >= 8) {
-            break;
-        }
-        if (std::find(imported.recentSearches.begin(), imported.recentSearches.end(), term) ==
-            imported.recentSearches.end()) {
-            imported.recentSearches.push_back(term);
-        }
-    }
-    if (imported.recentSearches != settings_.recentSearches) {
-        settings_.recentSearches = std::move(imported.recentSearches);
-        saveSettings();
-    }
+    // XP-TUBE isolation: intentionally disabled. Never read legacy settings,
+    // search history, or account tokens from another application.
+    static_cast<void>(oldConfigPath);
 }
-
 void AppSession::completeAccount() {
     if (!account_.signedIn() || !account_.name().empty()) {
         return;
