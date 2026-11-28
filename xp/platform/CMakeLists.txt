@@ -40,6 +40,10 @@ if(BUILD_TESTING)
     add_executable(xp_platform_display_tests tests/display_test.cpp)
     target_link_libraries(xp_platform_display_tests PRIVATE xp_platform)
     add_test(NAME xp_platform_display_unit COMMAND xp_platform_display_tests)
+
+    add_executable(xp_platform_audio_focus_tests tests/audio_focus_test.cpp)
+    target_link_libraries(xp_platform_audio_focus_tests PRIVATE xp_platform)
+    add_test(NAME xp_platform_audio_focus_unit COMMAND xp_platform_audio_focus_tests)
 endif()
 
 if(XP_TUBE_PLATFORM_PS4)
