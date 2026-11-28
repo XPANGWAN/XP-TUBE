@@ -29,7 +29,6 @@ FILES = {
         ('IV0001-PLTB00000_00-PLTB000000100000.pkg', 'IV0001-XPTB00000_00-XPTB000000100000.pkg'),
         ('IV0001-PLTB00001_00-PLTB000010100000.pkg', 'IV0001-XPTB00000_00-XPTB000000100000.pkg'),
         ('BASE_URL="${PS4_DEPS_URL:-https://github.com/LowganDev/PlaytubePS4/releases/download/deps}"', 'BASE_URL=""'),
-        ('if [ -f build-deps/\\$file ]; then pacman --noconfirm -U build-deps/\\$file; else pacman --noconfirm -U $BASE_URL/\\$file; fi', 'test -s build-deps/\\$file || { echo "Missing locally built XP-TUBE dependency: $file"; exit 1; }; pacman --noconfirm -U build-deps/\\$file'),
     ],
     "src/app/shell/chrome.cpp": [
         ('add<ui::Label>("XP-TUBE", style);', 'gap = ui::theme().spacingS / 2;\n        add<AccentLabel>("XP", style);\n        add<ui::Label>("TUBE", style);'),
@@ -350,6 +349,16 @@ def replace_file(rel, replacements):
 
 for rel, replacements in FILES.items():
     replace_file(rel, replacements)
+
+# The upstream shell script escapes its loop variable as \\$file. Match the
+# complete line structurally so Python string escaping cannot weaken this gate.
+build_script = ROOT / "scripts/build-ps4.sh"
+build_lines = build_script.read_text(encoding="utf-8").splitlines()
+fallback_lines = [i for i, value in enumerate(build_lines) if value.strip().startswith("if [ -f build-deps/") and "BASE_URL" in value]
+if len(fallback_lines) != 1:
+    raise SystemExit(f"scripts/build-ps4.sh: expected one dependency download fallback, found {len(fallback_lines)}")
+build_lines[fallback_lines[0]] = '  test -s "build-deps/$file" || { echo "Missing locally built XP-TUBE dependency: $file"; exit 1; }; pacman --noconfirm -U "build-deps/$file"'
+build_script.write_text("\\n".join(build_lines) + "\\n", encoding="utf-8")
 
 # Remove the obsolete, remotely replaceable YouTube logo path. XP-TUBE's wordmark is
 # compiled into the shell; no logo URL, image cache, or logo preference is needed.
