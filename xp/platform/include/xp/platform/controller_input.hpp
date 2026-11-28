@@ -3,6 +3,7 @@
 #include "xp/platform/event.hpp"
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <optional>
 
