@@ -21,3 +21,8 @@ if(BUILD_TESTING)
     target_link_libraries(xp_platform_legacy_action_tests PRIVATE xp_platform)
     add_test(NAME xp_platform_legacy_action_unit COMMAND xp_platform_legacy_action_tests)
 endif()
+
+# The OpenOrbis system-service adapter is compiled only for PS4 builds.
+if(XP_TUBE_PLATFORM_PS4)
+    target_sources(xp_platform PRIVATE src/ps4/system_services.cpp)
+endif()

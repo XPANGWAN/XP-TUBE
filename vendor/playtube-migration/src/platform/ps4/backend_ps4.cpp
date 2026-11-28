@@ -1,15 +1,8 @@
-#include <cstddef>  // orbis/_types/net.h uses size_t without including it
-
-#include <orbis/Net.h>
-#include <orbis/Sysmodule.h>
-#include <orbis/SystemService.h>
-
-#include <cstdint>
-
 #include "core/log.hpp"
 #include "core/version.hpp"
 #include "platform/backend.hpp"
 #include "platform/language.hpp"
+#include "xp/platform/ps4/system_services.hpp"
 #ifdef PLAYTUBE_GPU_PROBE
 #include "platform/ps4/gpu_probe_ps4.hpp"
 #endif
@@ -18,10 +11,8 @@ namespace playtube::platform::backend {
 
 // After SDL_Init, which loads the piglet (OpenGL ES) and system modules the system service needs.
 void postInit() {
-    sceSystemServiceHideSplashScreen();
-    // musl's resolver reads the DNS servers with sceNetGetDnsInfo: without libSceNet loaded, the first host name
-    // lookup calls an unresolved stub and the system kills the app (sockets alone go through libkernel)
-    if (static_cast<int32_t>(sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_NET)) < 0 || sceNetInit() < 0) {
+    // XP owns the PS4 system-service bootstrap; SDL still owns display and input startup.
+    if (!xp::platform::ps4::initialize_system_services()) {
         PF_LOG_ERROR("network: cannot load libSceNet, host names will not resolve");
     }
 #ifdef PLAYTUBE_GPU_PROBE
@@ -32,25 +23,12 @@ void postInit() {
 std::string defaultDataDir() { return std::string("/data/") + core::appFolder(); }
 
 std::string systemLanguage() {
-    int32_t id = 1;
-    if (sceSystemServiceParamGetInt(ORBIS_SYSTEM_SERVICE_PARAM_ID_LANG, &id) < 0) {
-        return "en-US";
-    }
-    return languageFromPs4Id(id);
+    return languageFromPs4Id(xp::platform::ps4::system_language_id());
 }
 
 // The console's time zone and its summer time setting (now: a date across a change is an hour off).
 int utcOffsetMinutes(std::int64_t utcSeconds) {
-    (void)utcSeconds;
-    int32_t zone = 0;
-    int32_t summer = 0;
-    if (sceSystemServiceParamGetInt(ORBIS_SYSTEM_SERVICE_PARAM_ID_TIME_ZONE, &zone) < 0) {
-        zone = 0;
-    }
-    if (sceSystemServiceParamGetInt(ORBIS_SYSTEM_SERVICE_PARAM_ID_SUMMERTIME, &summer) < 0) {
-        summer = 0;
-    }
-    return zone + (summer != 0 ? 60 : 0);
+    return xp::platform::ps4::utc_offset_minutes(utcSeconds);
 }
 
 std::string resourceDir() { return "/app0/resources"; }

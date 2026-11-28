@@ -11,7 +11,7 @@ evidence.
 | XP Core | XP-owned native library integrated through transitional adapters | `xp/core` contains result/error handling, guarded paths, storage, file operations, logging, text and URL utilities with unit tests. Settings and playback-progress persistence now use XP-owned bounded reads, atomic writes, and damaged-file quarantine; JSON parsing/serialization remains inherited. PS4 platform selection is passed through an XP-owned capability macro. |
 | XP Network | XP-owned implementation with decoupled build inputs | `xp/net` contains HTTP contracts, libcurl transport and certificate inspection. Platform library targets and PS4 selection enter through generic XP-TUBE CMake inputs; the migration project's legacy target names are confined to its transitional adapter. Host contract and local HTTPS streaming coverage remain in CI. |
 | XP Platform runtime | Integrated transitional event path | The app routes the existing SDL event stream through XP Runtime/EventQueue; SDL remains initialized and polled by one existing owner. Screen events are converted back during migration. |
-| PS4 platform backend | Still inherited | OpenOrbis module loading, remote/system services, display/presentation, and SDL integration remain in the migration source; no independent XP PS4 backend yet. |
+| PS4 platform backend | Partially XP-owned | XP now owns the OpenOrbis system-service bootstrap, language ID and timezone queries; SDL startup, controller discovery, display/presentation, remote and dialogs remain inherited. |
 | UI and application screens | Not independently replaced | Existing UI/screens remain migration-derived; branding changes are not a rewrite. |
 | YouTube/service layer | Not independently replaced | Existing service behavior remains migration-derived. Undocumented service endpoints remain a maintenance risk. |
 | Playback engine | Not independently replaced | libmpv/FFmpeg are third-party dependencies; application-level playback integration remains migration-derived. |
@@ -44,8 +44,8 @@ application source or the source patching layer.
 
 ## Next sequence
 
-1. Implement and validate an XP-owned OpenOrbis platform backend behind the
-   current XP event contract.
+1. Continue the XP-owned OpenOrbis platform backend: migrate controller discovery,
+   display/presentation, audio focus and dialogs behind the current XP contracts.
 2. Continue migrating application services and account/session interfaces onto
    XP-owned contracts; then migrate lifecycle, UI, and playback in testable slices.
 3. Replace the source patching workflow with repository-owned maintained

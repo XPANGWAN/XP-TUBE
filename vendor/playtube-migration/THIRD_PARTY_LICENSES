@@ -116,4 +116,4 @@ doctest — MIT licence. Copyright (c) 2016-2023 Viktor Kirilov. https://github.
 cpp-httplib — MIT licence. Copyright (c) 2017 yhirose. https://github.com/yhirose/cpp-httplib
 
 XP-TUBE native platform runtime (xp/platform) — GNU General Public License v3.0 or later (GPL-3.0.txt).
-  Original XP-TUBE implementation; provides the backend-neutral event, queue and runtime contract.
+  Original XP-TUBE implementation; provides the backend-neutral event, queue and runtime contract plus the PS4 system-service bootstrap adapter.
