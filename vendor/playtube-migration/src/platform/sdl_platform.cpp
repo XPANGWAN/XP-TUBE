@@ -13,6 +13,7 @@
 #include "platform/platform.hpp"
 #include "platform/remote.hpp"
 #include "platform/text_input.hpp"
+#include "xp/platform/controller_registry.hpp"
 
 namespace playtube::platform {
 
@@ -26,6 +27,7 @@ RemoteButtons gRemote;       // the TV's remote control (the console only)
 std::deque<Event> gPending;  // its events not given yet
 std::uint32_t gRemoteReadMs = 0xFFFFFFFFu;
 std::vector<SDL_GameController*> gControllers;
+xp::platform::ControllerRegistry gXpControllers;
 
 void openController(int deviceIndex) {
     if (!SDL_IsGameController(deviceIndex)) {
@@ -35,6 +37,12 @@ void openController(int deviceIndex) {
     SDL_GameController* controller = SDL_GameControllerOpen(deviceIndex);
     if (controller == nullptr) {
         PF_LOG_WARN("cannot open controller %d: %s", deviceIndex, SDL_GetError());
+        return;
+    }
+    const SDL_JoystickID instance = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller));
+    if (instance < 0 || !gXpControllers.connect(static_cast<std::uint32_t>(instance))) {
+        PF_LOG_WARN("controller %d could not be registered by XP Platform", deviceIndex);
+        SDL_GameControllerClose(controller);
         return;
     }
     PF_LOG_INFO("controller connected: %s", SDL_GameControllerName(controller));
@@ -47,6 +55,7 @@ void closeController(SDL_JoystickID instance) {
     });
     if (it != gControllers.end()) {
         PF_LOG_INFO("controller disconnected");
+        gXpControllers.disconnect(static_cast<std::uint32_t>(instance));
         SDL_GameControllerClose(*it);
         gControllers.erase(it);
     }
@@ -102,6 +111,8 @@ bool init(const Config& config) {
 
 void shutdown() {
     for (SDL_GameController* controller : gControllers) {
+        const SDL_JoystickID instance = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller));
+        if (instance >= 0) gXpControllers.disconnect(static_cast<std::uint32_t>(instance));
         SDL_GameControllerClose(controller);
     }
     gControllers.clear();
