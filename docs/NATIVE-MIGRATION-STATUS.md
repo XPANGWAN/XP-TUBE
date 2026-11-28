@@ -28,11 +28,12 @@ interactions remain intact while screens are migrated.
 
 The XP Network module no longer references migration-project target names or its legacy PS4 compile macro; the temporary parent build supplies curl, crypto, and platform selection through generic XP-TUBE inputs. This is build-boundary decoupling, not a claim that the application source is independent.
 
-Settings and watch-progress files now use XP Core's bounded file reads and
-atomic persistence. Malformed settings and progress documents are quarantined
-instead of silently overwritten. The inherited JSON parser and serializer
-remain in use, so this is a storage-boundary migration rather than a new
-application-owned configuration format.
+Settings, watch-progress, and legacy account/search import reads now use XP
+Core's bounded file API; settings and watch-progress writes use atomic
+persistence. Malformed settings and progress documents are quarantined instead
+of silently overwritten. The inherited JSON parser and serializer remain in
+use, so this is a storage-boundary migration rather than a new application-owned
+configuration format.
 
 The PS4 build script consumes only locally built dependency packages and
 validates the XP-TUBE package filename. This removes the fallback download of

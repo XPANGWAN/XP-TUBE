@@ -5,7 +5,7 @@
 #include <utility>
 
 #include "app/shell/chrome.hpp"
-#include "core/file_io.hpp"
+#include "xp/core/config_file.hpp"
 #include "core/json.hpp"
 #include "core/log.hpp"
 #include "core/version.hpp"
@@ -75,11 +75,11 @@ void AppSession::importPrevious(const std::string& oldConfigPath) {
         return;
     }
     account_.importFromOld(oldConfigPath);
-    std::string text;
-    if (core::readSmallFile(oldConfigPath, 1024 * 1024, text) != core::ReadStatus::Ok) {
+    auto loaded = xp::core::read_config_file(oldConfigPath, 1024 * 1024);
+    if (!loaded || !loaded.value().has_value()) {
         return;
     }
-    const auto doc = core::json::Document::parse(text);
+    const auto doc = core::json::Document::parse(*loaded.value());
     if (!doc) {
         return;
     }

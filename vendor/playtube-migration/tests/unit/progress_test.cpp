@@ -1,6 +1,7 @@
 #include <doctest/doctest.h>
 
 #include <fstream>
+#include <iterator>
 #include <string>
 
 #include "app/progress.hpp"

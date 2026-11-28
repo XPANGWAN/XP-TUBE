@@ -26,7 +26,7 @@ ProgressStore::ProgressStore(std::string path) : path_(std::move(path)) {
         return;
     }
     yyjson_val* list = core::json::array(doc->root(), "videos");
-    if (!yyjson_is_arr(list)) {
+    if (list == nullptr || !yyjson_is_arr(list)) {
         static_cast<void>(xp::core::quarantine_config_file(path_));
         return;
     }
