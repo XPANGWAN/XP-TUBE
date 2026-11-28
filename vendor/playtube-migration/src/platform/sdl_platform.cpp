@@ -2,7 +2,9 @@
 
 #include <algorithm>
 #include <cerrno>
+#include <cstdint>
 #include <deque>
+#include <optional>
 #include <vector>
 
 #include "core/boot_trace.hpp"
