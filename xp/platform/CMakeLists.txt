@@ -5,6 +5,7 @@ add_library(xp_platform STATIC
     src/language.cpp
     src/controller_registry.cpp
     src/controller_input.cpp
+    src/display.cpp
 )
 target_include_directories(xp_platform PUBLIC include)
 target_compile_features(xp_platform PUBLIC cxx_std_17)
@@ -35,6 +36,10 @@ if(BUILD_TESTING)
     add_executable(xp_platform_controller_input_tests tests/controller_input_test.cpp)
     target_link_libraries(xp_platform_controller_input_tests PRIVATE xp_platform)
     add_test(NAME xp_platform_controller_input_unit COMMAND xp_platform_controller_input_tests)
+
+    add_executable(xp_platform_display_tests tests/display_test.cpp)
+    target_link_libraries(xp_platform_display_tests PRIVATE xp_platform)
+    add_test(NAME xp_platform_display_unit COMMAND xp_platform_display_tests)
 endif()
 
 if(XP_TUBE_PLATFORM_PS4)
