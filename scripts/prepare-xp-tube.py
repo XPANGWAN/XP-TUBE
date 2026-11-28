@@ -381,6 +381,8 @@ remove_once("tests/unit/shell_screens_test.cpp",
     CHECK(s.shell.youtube.requestsTo("/logo.svg").empty());
 ''', "obsolete remote-logo behavior test")
 
+remove_once("src/app/app.cpp", '        session.applyLogo();  // the YouTube logo, when chosen: fetched in the background\n', "obsolete remote-logo application call")
+
 # Remove the implementation body by its stable function boundary.
 session_path = ROOT / "src/app/shell/session.cpp"
 session_body = session_path.read_text(encoding="utf-8")
