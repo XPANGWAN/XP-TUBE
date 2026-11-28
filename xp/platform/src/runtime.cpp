@@ -9,7 +9,6 @@ bool Runtime::start() noexcept {
     if (state_ == RuntimeState::Running) return true;
     if (start_attempted_) return false;
     start_attempted_ = true;
-
     if (!backend_.initialize()) {
         state_ = RuntimeState::Failed;
         return false;
@@ -18,11 +17,10 @@ bool Runtime::start() noexcept {
     return true;
 }
 
-bool Runtime::pump_once() noexcept {
+bool Runtime::pump_once(std::uint64_t timestamp_ms) noexcept {
     if (state_ != RuntimeState::Running) return false;
-
     Event event;
-    if (!backend_.poll_event(event)) return false;
+    if (!backend_.poll_event(event, timestamp_ms)) return false;
     return events_.push(event);
 }
 

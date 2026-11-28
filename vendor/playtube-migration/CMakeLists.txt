@@ -61,6 +61,9 @@ include(cmake/dependencies.cmake)
 
 # Build XP native modules after platform dependency targets exist (curl and crypto),
 # so XP owns the implementation while using the platform's supported libraries.
+if(NOT XP_TUBE_USE_NATIVE_STORAGE)
+    message(FATAL_ERROR "XP-TUBE requires repository-owned native modules; configure with XP_TUBE_USE_NATIVE_STORAGE=ON")
+endif()
 if(XP_TUBE_USE_NATIVE_STORAGE)
     if(NOT XP_TUBE_NATIVE_ROOT OR NOT EXISTS "${XP_TUBE_NATIVE_ROOT}/CMakeLists.txt")
         message(FATAL_ERROR "XP_TUBE_USE_NATIVE_STORAGE requires XP_TUBE_NATIVE_ROOT")
@@ -150,7 +153,7 @@ else()
     target_sources(playtube_platform PRIVATE src/platform/gl_present.cpp src/platform/linux/backend_linux.cpp
         src/platform/linux/text_input_linux.cpp)
 endif()
-target_link_libraries(playtube_platform PUBLIC playtube_base playtube_render playtube_sdl2 nanovg stb)
+target_link_libraries(playtube_platform PUBLIC playtube_base playtube_render playtube_sdl2 nanovg stb xp_platform)
 playtube_set_warnings(playtube_platform)
 
 # UI toolkit: depends on the platform layer only (never on the network library)

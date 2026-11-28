@@ -1,11 +1,10 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 
 namespace xp::platform {
 
-// Backend-neutral events owned by XP-TUBE. PS4-specific SDK values must be
-// translated by the platform adapter rather than leaking into application code.
 enum class EventType : std::uint8_t {
     None,
     QuitRequested,
@@ -18,36 +17,18 @@ enum class EventType : std::uint8_t {
     ControllerAxisChanged,
     DisplayChanged,
     AudioFocusLost,
-    AudioFocusRestored
+    AudioFocusRestored,
+    TextInput,
+    TextDelete
 };
 
 enum class ControllerButton : std::uint8_t {
-    Unknown,
-    Confirm,
-    Cancel,
-    Options,
-    Menu,
-    Up,
-    Down,
-    Left,
-    Right,
-    L1,
-    R1,
-    L2,
-    R2,
-    L3,
-    R3,
-    Context,
-    Touchpad
+    Unknown, Confirm, Cancel, Options, Menu, Up, Down, Left, Right,
+    L1, R1, L2, R2, L3, R3, Context, Touchpad
 };
 
 enum class ControllerAxis : std::uint8_t {
-    LeftX,
-    LeftY,
-    RightX,
-    RightY,
-    LeftTrigger,
-    RightTrigger
+    LeftX, LeftY, RightX, RightY, LeftTrigger, RightTrigger
 };
 
 struct Event {
@@ -59,6 +40,7 @@ struct Event {
     std::int16_t axis_value{0};
     std::uint32_t width{0};
     std::uint32_t height{0};
+    std::string text;
 };
 
 } // namespace xp::platform

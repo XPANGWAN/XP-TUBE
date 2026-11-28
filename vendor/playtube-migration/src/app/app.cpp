@@ -26,6 +26,8 @@
 #include "core/version.hpp"
 #include "platform/platform.hpp"
 #include "platform/text_input.hpp"
+#include "xp/platform/compat/legacy_action.hpp"
+#include "xp/platform/runtime.hpp"
 #include "render/canvas.hpp"
 #include "render/composite.hpp"
 #include "render/nvg_sw.hpp"
@@ -112,6 +114,102 @@ private:
 #ifdef PLAYTUBE_TESTING
 constexpr float kFrameMs = 1000.0f / 60.0f;  // fixed clock of test mode
 #endif
+
+class XpSdlBackend final : public xp::platform::Backend {
+public:
+    bool initialize() noexcept override {
+        // The existing platform startup owns SDL/window/context initialization.
+        return true;
+    }
+
+    bool poll_event(xp::platform::Event& out, std::uint64_t timestamp_ms) noexcept override {
+        try {
+            platform::Event legacy;
+            if (!platform::pollEvent(legacy, static_cast<std::uint32_t>(timestamp_ms))) return false;
+            if (legacy.type == platform::Event::Type::Quit) {
+                out = {};
+                out.type = xp::platform::EventType::QuitRequested;
+                out.timestamp_ms = timestamp_ms;
+                return true;
+            }
+            if (legacy.type == platform::Event::Type::Text) {
+                out = {};
+                out.type = xp::platform::EventType::TextInput;
+                out.timestamp_ms = timestamp_ms;
+                out.text = legacy.text;
+                return true;
+            }
+            if (legacy.type == platform::Event::Type::EditDelete) {
+                out = {};
+                out.type = xp::platform::EventType::TextDelete;
+                out.timestamp_ms = timestamp_ms;
+                return true;
+            }
+            const auto translated = xp::platform::compat::translate_legacy_action(
+                platform::actionName(legacy.action),
+                legacy.type == platform::Event::Type::ActionDown,
+                timestamp_ms);
+            if (!translated) return false;
+            out = *translated;
+            return true;
+        } catch (...) {
+            return false;
+        }
+    }
+
+    void shutdown() noexcept override {
+        // The existing platform shutdown remains the sole SDL/window owner.
+    }
+};
+
+bool toLegacyEvent(const xp::platform::Event& source, platform::Event& destination) noexcept {
+    switch (source.type) {
+    case xp::platform::EventType::QuitRequested:
+        destination = {};
+        destination.type = platform::Event::Type::Quit;
+        return true;
+    case xp::platform::EventType::TextInput:
+        destination = {};
+        destination.type = platform::Event::Type::Text;
+        destination.text = source.text;
+        return true;
+    case xp::platform::EventType::TextDelete:
+        destination = {};
+        destination.type = platform::Event::Type::EditDelete;
+        return true;
+    case xp::platform::EventType::ControllerButtonDown:
+    case xp::platform::EventType::ControllerButtonUp: {
+        const char* name = nullptr;
+        switch (source.button) {
+        case xp::platform::ControllerButton::Confirm: name = "Confirm"; break;
+        case xp::platform::ControllerButton::Cancel: name = "Back"; break;
+        case xp::platform::ControllerButton::Options: name = "Options"; break;
+        case xp::platform::ControllerButton::Menu: name = "Menu"; break;
+        case xp::platform::ControllerButton::Up: name = "Up"; break;
+        case xp::platform::ControllerButton::Down: name = "Down"; break;
+        case xp::platform::ControllerButton::Left: name = "Left"; break;
+        case xp::platform::ControllerButton::Right: name = "Right"; break;
+        case xp::platform::ControllerButton::L1: name = "L1"; break;
+        case xp::platform::ControllerButton::R1: name = "R1"; break;
+        case xp::platform::ControllerButton::L2: name = "L2"; break;
+        case xp::platform::ControllerButton::R2: name = "R2"; break;
+        case xp::platform::ControllerButton::Context: name = "Context"; break;
+        case xp::platform::ControllerButton::Touchpad: name = "Touchpad"; break;
+        default: return false;
+        }
+        const auto action = platform::actionFromName(name);
+        if (!action) return false;
+        destination = platform::actionEvent(
+            source.type == xp::platform::EventType::ControllerButtonDown
+                ? platform::Event::Type::ActionDown : platform::Event::Type::ActionUp,
+            *action);
+        return true;
+    }
+    default:
+        return false;
+    }
+}
+
 
 #ifdef PLAYTUBE_TESTING
 // Plays a UI test script: frame-counted waits, injected actions and text, screenshots after drawing.
@@ -232,6 +330,14 @@ int run(const Options& options) {
         platform::shutdown();
         return 1;
     }
+    XpSdlBackend xpBackend;
+    xp::platform::Runtime xpRuntime(xpBackend, 128);
+    if (!xpRuntime.start()) {
+        PF_LOG_ERROR("XP platform runtime could not start");
+        log::closeFile();
+        platform::shutdown();
+        return 1;
+    }
     PF_LOG_INFO("startup: network");
     // CurlHttpTransport performs thread-safe global initialization on construction.
     const std::string language = platform::systemLanguage();
@@ -242,6 +348,7 @@ int run(const Options& options) {
     TestDriver driver;
     testMode = !options.testScript.empty();
     if (testMode && !driver.load(options.testScript, options.testOutput)) {
+        xpRuntime.stop();
         log::closeFile();
         platform::shutdown();
         return 1;
@@ -258,6 +365,7 @@ int run(const Options& options) {
     NVGcontext* vg = software ? render::createSoftwareCanvas(surface) : render::createCanvas();
     if (vg == nullptr) {
         PF_LOG_ERROR("cannot create the canvas");
+        xpRuntime.stop();
         log::closeFile();
         platform::shutdown();
         return 1;
@@ -376,12 +484,18 @@ int run(const Options& options) {
                 driver.beginFrame(frame, events);
             }
 #endif
-            platform::Event event;
-            while (platform::pollEvent(event, clock)) {
-                if (testMode && event.type != platform::Event::Type::Quit) {
+            while (xpRuntime.pump_once(clock)) {
+                // One SDL event source; XP owns the queue and event contract.
+            }
+            for (;;) {
+                const auto xpEvent = xpRuntime.events().poll();
+                if (!xpEvent) break;
+                platform::Event translated;
+                if (!toLegacyEvent(*xpEvent, translated)) continue;
+                if (testMode && translated.type != platform::Event::Type::Quit) {
                     continue;  // only scripted input in test mode
                 }
-                events.push_back(event);
+                events.push_back(translated);
             }
             for (const platform::Event& e : events) {
                 if (e.type == platform::Event::Type::Quit) {
@@ -515,6 +629,7 @@ int run(const Options& options) {
     } else {
         render::destroyCanvas(vg);
     }
+    xpRuntime.stop();
     log::closeFile();
     platform::shutdown();
     return exitCode;

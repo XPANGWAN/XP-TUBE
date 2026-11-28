@@ -1,52 +1,41 @@
 # XP-TUBE native migration status
 
-This file records implementation ownership separately from package branding and
-from the temporary migration build. It must be updated only when source and CI
-evidence support a status change.
+This file records implementation ownership separately from package branding
+and from the temporary migration build. Status changes require source and CI
+evidence.
 
 ## Verified repository state
 
 | Area | Current state | Evidence / remaining boundary |
 |---|---|---|
 | XP Core | XP-owned native library exists | `xp/core` contains result/error handling, guarded paths, storage, file operations, logging, text and URL utilities with unit tests. |
-| XP Network | XP-owned native library exists | `xp/net` contains HTTP contracts, libcurl transport and certificate inspection. The host test suite includes contract and local HTTPS streaming coverage. |
-| PS4 package build | Not yet confirmed on latest commit | Run 324 is queued; the previous package run is still compiling dependencies. No PKG artifact is confirmed here. |
-| Application runtime | Partially migrated | Native core/network components are used through compatibility adapters, but the complete application still builds from the vendored migration tree. |
-| XP Platform foundation | Native backend/runtime boundary added | `xp/platform` defines backend-neutral lifecycle/controller/display/audio events, a bounded event queue, an abstract `Backend` contract and a single-thread `Runtime` lifecycle/pump. Host tests cover queue and runtime behavior. No PS4 SDK adapter, controller polling, display or audio backend is implemented yet. |\n| PS4 platform adapter | Not independently replaced | Existing PS4 platform implementation remains in the migration source; it must be bridged to the XP event contract and validated on hardware. |
+| XP Network | XP-owned native library exists | `xp/net` contains HTTP contracts, libcurl transport and certificate inspection, with host contract and local HTTPS streaming coverage. |
+| XP Platform runtime | Integrated transitional event path | The app routes the existing SDL event stream through XP Runtime/EventQueue; SDL remains initialized and polled by one existing owner. Screen events are converted back during migration. |
+| PS4 platform backend | Still inherited | OpenOrbis module loading, remote/system services, display/presentation, and SDL integration remain in the migration source; no independent XP PS4 backend yet. |
 | UI and application screens | Not independently replaced | Existing UI/screens remain migration-derived; branding changes are not a rewrite. |
 | YouTube/service layer | Not independently replaced | Existing service behavior remains migration-derived. Undocumented service endpoints remain a maintenance risk. |
-| Playback engine | Not independently replaced | libmpv/FFmpeg are third-party dependencies; the application-level playback integration remains migration-derived. |
-| Build source | Not independent yet | `scripts/prepare-xp-tube.py` still patches `vendor/playtube-migration`; removing upstream network downloads alone does not remove this source dependency. |
-| Licensing | Preserved | GPL-3.0 and third-party notices must remain in source and corresponding release source archives. |
+| Playback engine | Not independently replaced | libmpv/FFmpeg are third-party dependencies; application-level playback integration remains migration-derived. |
+| Build source | Not independent yet | `scripts/prepare-xp-tube.py` still patches the repository-vendored migration tree. |
+| Licensing | Preserved | GPL-3.0 and third-party notices remain required in source and corresponding release archives. |
 
-## Recent verification
+## Current migration boundary
 
-- Host unit-test workflow run `46120147153` completed successfully on
-  2026-11-28, including the native core test build and test execution.
-- PS4 package workflow run `46120147271` was still building locally pinned
-  dependencies at the last status check.
-- Newer package workflow run `46120291626` was queued and had not started jobs
-  at the last status check.
-- A successful host test run is not evidence of a PS4 PKG or real-console
-  runtime success.
+The XP runtime now receives controller, quit, text-input, and text-delete
+events from the single existing SDL polling stream. It does not initialize SDL
+again and does not perform a second controller poll. The app temporarily maps
+XP events back into the inherited UI event type so that working screen
+interactions remain intact while screens are migrated.
 
-## Next migration sequence
+The PS4 build script consumes only locally built dependency packages and
+validates the XP-TUBE package filename. This removes the fallback download of
+the old Playtube dependency release; it does not remove the inherited
+application source or the source patching layer.
 
-1. Keep the current native core and network contracts stable; add regression
-   coverage before changing their public APIs.
-2. Audit the current PS4 platform adapter and define XP-owned interfaces for
-   controller input, application lifecycle, display, audio and system dialogs.
-3. Implement the XP platform adapter behind those interfaces while preserving
-   the working PS4 behavior.
-4. Migrate the application/service layer in small testable slices.
-5. Remove the patch-on-vendor build only after the replacement source tree
-   builds the same release package and passes feature regression tests.
-6. Remove the migration reference only after the independent build, license
-   audit and real PS4 validation are complete.
+## Next sequence
 
-## Independence gate
-
-Do not mark XP-TUBE fully independent until the release build uses only
-XP-TUBE-maintained application source, no Playtube application modules or
-services are required at runtime, the provenance/license audit passes, and the
-resulting PKG is confirmed on PS4 hardware.
+1. Implement and validate an XP-owned OpenOrbis platform backend behind the
+   current XP event contract.
+2. Migrate lifecycle, storage, UI, services, and playback in testable slices.
+3. Replace the source patching workflow with repository-owned maintained
+   source and remove the upstream build dependency.
+4. Run full feature regression, licensing, security, and PS4 hardware checks.

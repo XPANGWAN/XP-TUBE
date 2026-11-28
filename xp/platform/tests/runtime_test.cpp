@@ -1,35 +1,32 @@
 #include "xp/platform/runtime.hpp"
 
 #include <cassert>
+#include <cstdint>
 #include <deque>
 
 namespace {
 class FakeBackend final : public xp::platform::Backend {
 public:
-    bool initialize() noexcept override {
-        ++initialize_calls;
-        return initialize_ok;
-    }
-
-    bool poll_event(xp::platform::Event& out_event) noexcept override {
+    bool initialize() noexcept override { ++initialize_calls; return initialize_ok; }
+    bool poll_event(xp::platform::Event& out_event, std::uint64_t timestamp_ms) noexcept override {
+        last_timestamp_ms = timestamp_ms;
         if (pending.empty()) return false;
         out_event = pending.front();
         pending.pop_front();
         return true;
     }
-
     void shutdown() noexcept override { ++shutdown_calls; }
 
     bool initialize_ok{true};
     int initialize_calls{0};
     int shutdown_calls{0};
+    std::uint64_t last_timestamp_ms{0};
     std::deque<xp::platform::Event> pending;
 };
 }
 
 int main() {
     using namespace xp::platform;
-
     FakeBackend backend;
     Runtime runtime(backend, 2);
     assert(runtime.state() == RuntimeState::Stopped);
@@ -42,19 +39,27 @@ int main() {
     first.type = EventType::ControllerButtonDown;
     first.button = ControllerButton::Confirm;
     backend.pending.push_back(first);
-
     Event second;
     second.type = EventType::AppResumed;
     backend.pending.push_back(second);
 
-    assert(runtime.pump_once());
-    assert(runtime.pump_once());
+    assert(runtime.pump_once(1234));
+    assert(runtime.pump_once(1235));
+    assert(backend.last_timestamp_ms == 1235);
     assert(!runtime.pump_once());
 
     const auto received_first = runtime.events().poll();
     const auto received_second = runtime.events().poll();
     assert(received_first && received_first->button == ControllerButton::Confirm);
     assert(received_second && received_second->type == EventType::AppResumed);
+
+    Event text;
+    text.type = EventType::TextInput;
+    text.text = "XP-TUBE";
+    assert(runtime.events().push(text));
+    const auto received_text = runtime.events().poll();
+    assert(received_text && received_text->type == EventType::TextInput);
+    assert(received_text->text == "XP-TUBE");
 
     runtime.stop();
     assert(runtime.state() == RuntimeState::Stopped);
@@ -82,8 +87,8 @@ int main() {
     overflow.type = EventType::AppResumed;
     overflow_backend.pending.push_back(queued);
     overflow_backend.pending.push_back(overflow);
-    assert(overflow_runtime.pump_once());
-    assert(!overflow_runtime.pump_once());
+    assert(overflow_runtime.pump_once(10));
+    assert(!overflow_runtime.pump_once(11));
     assert(overflow_runtime.events().size() == 1);
     assert(overflow_runtime.events().dropped() == 1);
     const auto retained = overflow_runtime.events().poll();
