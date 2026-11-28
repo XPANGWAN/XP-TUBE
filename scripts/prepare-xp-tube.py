@@ -373,11 +373,11 @@ bool logoPictureShown();
 # Retain the public factory declaration: only the replaceable image API is obsolete.
 chrome_header = ROOT / "src/app/shell/chrome.hpp"
 chrome_header_body = chrome_header.read_text(encoding="utf-8")
-declaration_anchor = "int progressPixel(double position, double duration, float width);\\n"
+declaration_anchor = "int progressPixel(double position, double duration, float width);\n"
 if chrome_header_body.count(declaration_anchor) != 1:
     raise SystemExit("src/app/shell/chrome.hpp: makeLogo declaration insertion point not found")
 chrome_header.write_text(
-    chrome_header_body.replace(declaration_anchor, declaration_anchor + "std::unique_ptr<ui::View> makeLogo();\\n", 1),
+    chrome_header_body.replace(declaration_anchor, declaration_anchor + "std::unique_ptr<ui::View> makeLogo();\n", 1),
     encoding="utf-8",
 )
 
