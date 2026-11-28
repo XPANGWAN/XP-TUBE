@@ -21,7 +21,12 @@ int main() {
     const auto menu = translate_legacy_action("Menu", true);
     assert(menu && menu->button == ControllerButton::Menu);
 
-    assert(!translate_legacy_action("Context", true));
-    assert(!translate_legacy_action("Touchpad", true));
+    const auto context = translate_legacy_action("Context", true);
+    assert(context && context->button == ControllerButton::Context);
+
+    const auto touchpad = translate_legacy_action("Touchpad", false);
+    assert(touchpad && touchpad->type == EventType::ControllerButtonUp);
+    assert(touchpad->button == ControllerButton::Touchpad);
+
     assert(!translate_legacy_action("unrecognized", true));
 }
