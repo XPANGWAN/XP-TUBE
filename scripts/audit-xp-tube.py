@@ -151,6 +151,7 @@ forbid("src/app/app.cpp", r"session\.applyLogo\s*\(", "retired remote-logo appli
 forbid("src/app/shell/session.hpp", r"youtubeLogoUrl|applyLogo|logoGeneration_", "legacy remote-logo session API and state")
 forbid("src/app/shell/session.cpp", r"youtubeLogoUrl|AppSession::applyLogo|logoGeneration_", "legacy remote-logo implementation")
 forbid("src/app/shell/chrome.hpp", r"setLogoPicture|logoPictureShown|SvgPicture", "legacy replaceable logo API")
+require("src/app/shell/chrome.hpp", r"std::unique_ptr<ui::View> makeLogo\(\)", "embedded XP-TUBE wordmark factory remains declared")
 forbid("src/app/shell/chrome.cpp", r"logoPicture|setLogoPicture|logoPictureShown|youtubelogo", "legacy logo image cache or renderer")
 forbid("src/app/settings.hpp", r"std::string\s+logo\s*=", "removed persisted logo preference")
 forbid("src/app/settings.cpp", r'writer\.key\("logo"\)|settings\.logo', "removed logo preference serialization")
