@@ -384,6 +384,15 @@ chrome_header.write_text(
 remove_once("src/app/settings.hpp", '    std::string logo = "xp-tube";        // XP-TUBE wordmark; legacy YouTube image selection is disabled\n', "obsolete logo setting")
 remove_once("src/app/settings.cpp", '    writer.key("logo").value(settings.logo);\n', "obsolete logo serialization")
 remove_once("tests/unit/settings_test.cpp", '    CHECK(settings.logo == "xp-tube");\n', "obsolete logo default assertion")
+remove_once("tests/unit/settings_test.cpp", '''TEST_CASE("legacy logo preferences cannot replace the XP-TUBE wordmark") {
+    TempDir dir;
+    const std::string path = dir.path + "/settings.json";
+    REQUIRE(core::writeFileAtomic(path, R"({"logo":"youtube"})"));
+    const app::Settings loaded = app::loadSettings(path);
+    CHECK(loaded.logo == "xp-tube");
+}
+
+''', "obsolete persisted logo preference test")
 remove_once("tests/unit/shell_screens_test.cpp", '    CHECK(s.shell.session.settings().logo == "xp-tube");\n', "obsolete logo setting assertion")
 remove_once("tests/unit/shell_screens_test.cpp",
 '''    s.shell.session.youtubeLogoUrl = s.shell.youtube.baseUrl() + "/logo.svg";
