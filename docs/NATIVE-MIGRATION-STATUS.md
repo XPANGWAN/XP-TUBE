@@ -12,7 +12,7 @@ evidence support a status change.
 | XP Network | XP-owned native library exists | `xp/net` contains HTTP contracts, libcurl transport and certificate inspection. The host test suite includes contract and local HTTPS streaming coverage. |
 | PS4 package build | Not yet confirmed on latest commit | Run 324 is queued; the previous package run is still compiling dependencies. No PKG artifact is confirmed here. |
 | Application runtime | Partially migrated | Native core/network components are used through compatibility adapters, but the complete application still builds from the vendored migration tree. |
-| PS4 platform | Not independently replaced | Existing PS4 platform implementation remains in the migration source. |
+| XP Platform foundation | Initial native event contract added | `xp/platform` now defines backend-neutral lifecycle, controller, display and audio-focus events plus a bounded single-thread event queue and host tests. No PS4 SDK adapter, controller polling, display or audio backend is implemented yet. |\n| PS4 platform adapter | Not independently replaced | Existing PS4 platform implementation remains in the migration source; it must be bridged to the XP event contract and validated on hardware. |
 | UI and application screens | Not independently replaced | Existing UI/screens remain migration-derived; branding changes are not a rewrite. |
 | YouTube/service layer | Not independently replaced | Existing service behavior remains migration-derived. Undocumented service endpoints remain a maintenance risk. |
 | Playback engine | Not independently replaced | libmpv/FFmpeg are third-party dependencies; the application-level playback integration remains migration-derived. |
