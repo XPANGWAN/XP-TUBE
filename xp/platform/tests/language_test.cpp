@@ -8,7 +8,7 @@ namespace {
 void expect(int id, const char* expected) {
     const auto actual = xp::platform::language_from_ps4_id(id);
     if (actual != expected) {
-        std::cerr << "language id " << id << ": expected " << expected << ", got " << actual << '\\n';
+        std::cerr << "language id " << id << ": expected " << expected << ", got " << actual << '\n';
         std::exit(1);
     }
 }
