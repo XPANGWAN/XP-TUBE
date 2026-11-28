@@ -24,12 +24,7 @@ FILES = {
     "CMakeLists.txt": [
         ("playtube_add_ps4_pkg(playtube)", "xp_tube_add_ps4_pkg(playtube)"),
     ],
-    "scripts/build-ps4.sh": [
-        ('"$ROOT"/build/ps4/pkg/IV0001-PLTB*.pkg', '"$ROOT"/build/ps4/pkg/IV0001-XPTB*.pkg'),
-        ('IV0001-PLTB00000_00-PLTB000000100000.pkg', 'IV0001-XPTB00000_00-XPTB000000100000.pkg'),
-        ('IV0001-PLTB00001_00-PLTB000010100000.pkg', 'IV0001-XPTB00000_00-XPTB000000100000.pkg'),
-        ('BASE_URL="${PS4_DEPS_URL:-https://github.com/LowganDev/PlaytubePS4/releases/download/deps}"', 'BASE_URL=""'),
-    ],
+    # scripts/build-ps4.sh is already XP-TUBE-owned and uses only locally built packages.
     "src/app/shell/chrome.cpp": [
         ('add<ui::Label>("XP-TUBE", style);', 'gap = ui::theme().spacingS / 2;\n        add<AccentLabel>("XP", style);\n        add<ui::Label>("TUBE", style);'),
     ],
