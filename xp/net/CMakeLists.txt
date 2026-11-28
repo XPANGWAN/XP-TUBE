@@ -10,12 +10,15 @@ target_link_libraries(xp_net PUBLIC xp_core)
 # XP Network consumes platform capabilities through explicit CMake target
 # inputs. It does not know or depend on the names of the migration project's
 # targets. A standalone host build discovers the same system libraries itself.
-if(XP_TUBE_CURL_TARGET AND TARGET ${XP_TUBE_CURL_TARGET} AND
-   XP_TUBE_CRYPTO_TARGET AND TARGET ${XP_TUBE_CRYPTO_TARGET})
-    target_link_libraries(xp_net PRIVATE
-        ${XP_TUBE_CURL_TARGET}
-        ${XP_TUBE_CRYPTO_TARGET}
-    )
+if(DEFINED XP_TUBE_CURL_TARGET AND DEFINED XP_TUBE_CRYPTO_TARGET)
+    if(TARGET ${XP_TUBE_CURL_TARGET} AND TARGET ${XP_TUBE_CRYPTO_TARGET})
+        target_link_libraries(xp_net PRIVATE
+            ${XP_TUBE_CURL_TARGET}
+            ${XP_TUBE_CRYPTO_TARGET}
+        )
+    else()
+        message(FATAL_ERROR "XP-TUBE network dependency targets were supplied but are not available")
+    endif()
 else()
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(CURL REQUIRED IMPORTED_TARGET libcurl)
