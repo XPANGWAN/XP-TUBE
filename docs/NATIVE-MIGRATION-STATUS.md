@@ -8,7 +8,7 @@ evidence.
 
 | Area | Current state | Evidence / remaining boundary |
 |---|---|---|
-| XP Core | XP-owned native library exists | `xp/core` contains result/error handling, guarded paths, storage, file operations, logging, text and URL utilities with unit tests. |
+| XP Core | XP-owned native library integrated through transitional adapters | `xp/core` contains result/error handling, guarded paths, storage, file operations, logging, text and URL utilities with unit tests. Storage paths, file operations, and logging are already consumed by the application; PS4 platform selection is now passed through an XP-owned capability macro. |
 | XP Network | XP-owned implementation with decoupled build inputs | `xp/net` contains HTTP contracts, libcurl transport and certificate inspection. Platform library targets and PS4 selection enter through generic XP-TUBE CMake inputs; the migration project's legacy target names are confined to its transitional adapter. Host contract and local HTTPS streaming coverage remain in CI. |
 | XP Platform runtime | Integrated transitional event path | The app routes the existing SDL event stream through XP Runtime/EventQueue; SDL remains initialized and polled by one existing owner. Screen events are converted back during migration. |
 | PS4 platform backend | Still inherited | OpenOrbis module loading, remote/system services, display/presentation, and SDL integration remain in the migration source; no independent XP PS4 backend yet. |

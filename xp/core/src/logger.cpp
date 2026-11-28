@@ -22,7 +22,7 @@ std::string timestamp() {
     timespec now{};
     clock_gettime(CLOCK_REALTIME, &now);
     std::tm local{};
-#ifdef PLAYTUBE_PS4
+#ifdef XP_TUBE_PLATFORM_PS4
     gmtime_r(&now.tv_sec, &local);
 #else
     localtime_r(&now.tv_sec, &local);

@@ -14,6 +14,12 @@ target_include_directories(xp_core PUBLIC include)
 target_compile_features(xp_core PUBLIC cxx_std_17)
 set_target_properties(xp_core PROPERTIES CXX_EXTENSIONS OFF)
 
+# Platform capability is supplied by the XP-TUBE parent build; this native
+# module does not depend on migration-project compile definitions.
+if(XP_TUBE_PLATFORM_PS4)
+    target_compile_definitions(xp_core PRIVATE XP_TUBE_PLATFORM_PS4=1)
+endif()
+
 if(BUILD_TESTING)
     add_executable(xp_core_result_tests tests/result_test.cpp)
     target_link_libraries(xp_core_result_tests PRIVATE xp_core)
