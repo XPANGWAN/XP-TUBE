@@ -6,6 +6,7 @@
 #include <chrono>
 #include <cstdlib>
 #include <fstream>
+#include <iterator>
 #include <string>
 #include <thread>
 
@@ -221,6 +222,25 @@ TEST_CASE("account: kept in a private file, without the access token; sign-out r
     REQUIRE(revoked.size() == 1);
     CHECK(revoked[0].body.find("demo-refresh-token") != std::string::npos);
     CHECK(test::readFile(path).find("demo-refresh-token") == std::string::npos);
+}
+
+
+TEST_CASE("account: damaged private account file is quarantined") {
+    TempDir dir;
+    const std::string path = dir.path + "/account.json";
+    {
+        std::ofstream output(path, std::ios::binary);
+        REQUIRE(output.good());
+        output << "{broken-account";
+    }
+    Account account(path);
+    account.load();
+    CHECK_FALSE(account.signedIn());
+    CHECK(account.name().empty());
+    std::ifstream damaged(path + ".bad", std::ios::binary);
+    REQUIRE(damaged.good());
+    const std::string contents((std::istreambuf_iterator<char>(damaged)), {});
+    CHECK(contents == "{broken-account");
 }
 
 TEST_CASE("account: the previous app's sign-in is imported once") {
