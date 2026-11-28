@@ -15,10 +15,14 @@ FILES = {
         ('return "PLTB00000";', 'return "XPTB00000";'),
     ],
     "cmake/ps4_pkg.cmake": [
+        ("function(playtube_add_ps4_pkg target)", "function(xp_tube_add_ps4_pkg target)"),
         ('set(title_id "PLTB00001")', 'set(title_id "XPTB00000")'),
         ('set(title "Playtube Dev")', 'set(title "XP-TUBE")'),
         ('set(title_id "PLTB00000")', 'set(title_id "XPTB00000")'),
         ('set(title "Playtube")', 'set(title "XP-TUBE")'),
+    ],
+    "CMakeLists.txt": [
+        ("playtube_add_ps4_pkg(playtube)", "xp_tube_add_ps4_pkg(playtube)"),
     ],
     "scripts/build-ps4.sh": [
         ('"$ROOT"/build/ps4/pkg/IV0001-PLTB*.pkg', '"$ROOT"/build/ps4/pkg/IV0001-XPTB*.pkg'),
@@ -552,7 +556,8 @@ for path in (ROOT / "resources/i18n").glob("*.json"):
 
 checks = [
     ("src/core/version.cpp", ["PLTB00000", "PLTB00001", "PlaytubeDev", 'return "Playtube";']),
-    ("cmake/ps4_pkg.cmake", ["PLTB00000", "PLTB00001"]),
+    ("cmake/ps4_pkg.cmake", ["PLTB00000", "PLTB00001", "function(playtube_add_ps4_pkg"]),
+    ("CMakeLists.txt", ["playtube_add_ps4_pkg(playtube)"]),
     ("src/app/app.cpp", ["/data/Playtube/config.json", "session.importPrevious("]),
     ("src/platform/sdl_platform.cpp", ['core::dataPath("playtube.log")']),
     ("src/core/boot_trace.cpp", ["playtube boot:"]),
