@@ -133,7 +133,7 @@ void applyCommon(CURL* handle, const HttpConfig& config, const HttpRequest& requ
     curl_easy_setopt(handle, CURLOPT_PROTOCOLS_STR, "http,https");
     curl_easy_setopt(handle, CURLOPT_SHARE, gCurlShare);
     curl_easy_setopt(handle, CURLOPT_ACCEPT_ENCODING, "");
-#ifdef PLAYTUBE_PS4
+#ifdef XP_TUBE_PLATFORM_PS4
     // PS4 networking: avoid stalled IPv6 attempts and Linux TCP keepalive option values.
     curl_easy_setopt(handle, CURLOPT_IPRESOLVE, static_cast<long>(CURL_IPRESOLVE_V4));
     curl_easy_setopt(handle, CURLOPT_TCP_KEEPALIVE, 0L);

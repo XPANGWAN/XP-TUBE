@@ -6,18 +6,26 @@ add_library(xp_net STATIC
 target_include_directories(xp_net PUBLIC include)
 target_compile_features(xp_net PUBLIC cxx_std_17)
 target_link_libraries(xp_net PUBLIC xp_core)
-if(TARGET playtube_curl AND TARGET playtube_crypto)
-    target_link_libraries(xp_net PRIVATE playtube_curl playtube_crypto)
+
+# XP Network consumes platform capabilities through explicit CMake target
+# inputs. It does not know or depend on the names of the migration project's
+# targets. A standalone host build discovers the same system libraries itself.
+if(XP_TUBE_CURL_TARGET AND TARGET ${XP_TUBE_CURL_TARGET} AND
+   XP_TUBE_CRYPTO_TARGET AND TARGET ${XP_TUBE_CRYPTO_TARGET})
+    target_link_libraries(xp_net PRIVATE
+        ${XP_TUBE_CURL_TARGET}
+        ${XP_TUBE_CRYPTO_TARGET}
+    )
 else()
-    # Standalone XP-native build (outside the PS4 application project).
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(CURL REQUIRED IMPORTED_TARGET libcurl)
     pkg_check_modules(LIBCRYPTO REQUIRED IMPORTED_TARGET libcrypto)
     target_link_libraries(xp_net PRIVATE PkgConfig::CURL PkgConfig::LIBCRYPTO)
 endif()
+
 set_target_properties(xp_net PROPERTIES CXX_EXTENSIONS OFF)
-if(PLATFORM_PS4)
-    target_compile_definitions(xp_net PRIVATE PLAYTUBE_PS4=1)
+if(XP_TUBE_PLATFORM_PS4)
+    target_compile_definitions(xp_net PRIVATE XP_TUBE_PLATFORM_PS4=1)
 endif()
 
 if(BUILD_TESTING)

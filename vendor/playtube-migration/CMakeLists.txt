@@ -68,6 +68,14 @@ if(XP_TUBE_USE_NATIVE_STORAGE)
     if(NOT XP_TUBE_NATIVE_ROOT OR NOT EXISTS "${XP_TUBE_NATIVE_ROOT}/CMakeLists.txt")
         message(FATAL_ERROR "XP_TUBE_USE_NATIVE_STORAGE requires XP_TUBE_NATIVE_ROOT")
     endif()
+
+    # Transitional adapter: provide platform libraries to XP Network through
+    # generic capability inputs. The XP module itself has no Playtube target
+    # names or legacy platform compile definitions.
+    set(XP_TUBE_CURL_TARGET playtube_curl)
+    set(XP_TUBE_CRYPTO_TARGET playtube_crypto)
+    set(XP_TUBE_PLATFORM_PS4 "${PLATFORM_PS4}")
+
     add_subdirectory("${XP_TUBE_NATIVE_ROOT}" "${CMAKE_BINARY_DIR}/xp-native")
 endif()
 

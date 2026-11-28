@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string>
 
-#ifdef PLAYTUBE_PS4
+#ifdef XP_TUBE_PLATFORM_PS4
 #include <mbedtls/pk.h>
 #include <mbedtls/sha256.h>
 #include <mbedtls/x509_crt.h>
@@ -37,7 +37,7 @@ std::optional<std::string> spki_sha256_hex_from_pem(std::string_view pem) {
     if (pem.empty() || pem.size() > 64 * 1024) return std::nullopt;
 
     std::array<unsigned char, 32> digest{};
-#ifdef PLAYTUBE_PS4
+#ifdef XP_TUBE_PLATFORM_PS4
     const std::string text(pem);
     mbedtls_x509_crt certificate;
     mbedtls_x509_crt_init(&certificate);
