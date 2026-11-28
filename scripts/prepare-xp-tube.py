@@ -111,11 +111,11 @@ class RowsScreen : public ShellScreen {'''),
     ],
     "src/platform/gl_present.cpp": [
         ('}  // namespace playtube::platform',
-         'void presentXpFrame(const xp::platform::PresentationFrame& frame, const VideoLayer* video) {\n    if (!frame.valid()) {\n        PF_LOG_WARN("present: rejected invalid XP presentation frame");\n        swap();\n        return;\n    }\n    presentFrame(frame.rgba, static_cast<int>(frame.width), static_cast<int>(frame.height), frame.changed, video);\n}\n\n}  // namespace playtube::platform'),
+         'void presentXpFrame(const xp::platform::PresentationFrame& frame, const VideoLayer* video) {\n    if (!frame.valid() || frame.row_stride != static_cast<std::size_t>(frame.width) * 4) {\n        PF_LOG_WARN("present: rejected invalid or non-packed XP presentation frame");\n        swap();\n        return;\n    }\n    presentFrame(frame.rgba, static_cast<int>(frame.width), static_cast<int>(frame.height), frame.changed, video);\n}\n\n}  // namespace playtube::platform'),
     ],
     "src/platform/ps4/present_ps4.cpp": [
         ('}  // namespace playtube::platform',
-         'void presentXpFrame(const xp::platform::PresentationFrame& frame, const VideoLayer* video) {\n    if (!frame.valid()) {\n        PF_LOG_WARN("present: rejected invalid XP presentation frame");\n        swap();\n        return;\n    }\n    presentFrame(frame.rgba, static_cast<int>(frame.width), static_cast<int>(frame.height), frame.changed, video);\n}\n\n}  // namespace playtube::platform'),
+         'void presentXpFrame(const xp::platform::PresentationFrame& frame, const VideoLayer* video) {\n    if (!frame.valid() || frame.row_stride != static_cast<std::size_t>(frame.width) * 4) {\n        PF_LOG_WARN("present: rejected invalid or non-packed XP presentation frame");\n        swap();\n        return;\n    }\n    presentFrame(frame.rgba, static_cast<int>(frame.width), static_cast<int>(frame.height), frame.changed, video);\n}\n\n}  // namespace playtube::platform'),
     ],
     "src/core/boot_trace.cpp": [
         ('playtube boot:', 'XP-TUBE boot:', 2),
