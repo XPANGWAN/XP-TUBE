@@ -107,6 +107,24 @@ class RowsScreen : public ShellScreen {'''),
         ('Size drawableSize() {\n    Size size;\n    SDL_GL_GetDrawableSize(gWindow, &size.width, &size.height);\n    return size;\n}',
          'xp::platform::DisplayInfo displayInfo() {\n    if (gWindow == nullptr) {\n        return {};\n    }\n    int width = 0;\n    int height = 0;\n    SDL_GL_GetDrawableSize(gWindow, &width, &height);\n    if (width <= 0 || height <= 0) {\n        return {};\n    }\n    const Uint32 flags = SDL_GetWindowFlags(gWindow);\n    const auto mode = (flags & SDL_WINDOW_FULLSCREEN) != 0\n                          ? xp::platform::DisplayMode::Fullscreen\n                          : xp::platform::DisplayMode::Windowed;\n    // SDL drawable size does not provide a reliable refresh rate on every PS4 backend.\n    return {static_cast<std::uint32_t>(width), static_cast<std::uint32_t>(height), 0, mode};\n}\n\nSize drawableSize() {\n    const auto display = displayInfo();\n    return {static_cast<int>(display.width), static_cast<int>(display.height)};\n}'),
     ],
+    "src/platform/platform.hpp": [
+        ('Size drawableSize();\\n// XP-owned snapshot of the SDL drawable; SDL remains the window/context owner.\\nxp::platform::DisplayInfo displayInfo();',
+         'Size drawableSize();\\n// XP-owned snapshot of the SDL drawable; SDL remains the window/context owner.\\nxp::platform::DisplayInfo displayInfo();\\n// Validates a non-owning XP frame before dispatching to the platform-specific presenter.\\nvoid presentXpFrame(const xp::platform::PresentationFrame& frame, const VideoLayer* video = nullptr);'),
+    ],
+    "src/app/app.cpp": [
+        ('platform::presentFrame(surface.rgba.data(), surface.width, surface.height, redraw, &layer);',
+         'const xp::platform::PresentationFrame frame{surface.rgba.data(), static_cast<std::uint32_t>(surface.width),\\n                                                                  static_cast<std::uint32_t>(surface.height),\\n                                                                  static_cast<std::size_t>(surface.width) * 4,\\n                                                                  surface.rgba.size(), redraw};\\n                    platform::presentXpFrame(frame, &layer);'),
+        ('platform::presentFrame(surface.rgba.data(), surface.width, surface.height, redraw);',
+         'const xp::platform::PresentationFrame frame{surface.rgba.data(), static_cast<std::uint32_t>(surface.width),\\n                                                                  static_cast<std::uint32_t>(surface.height),\\n                                                                  static_cast<std::size_t>(surface.width) * 4,\\n                                                                  surface.rgba.size(), redraw};\\n                    platform::presentXpFrame(frame);'),
+    ],
+    "src/platform/gl_present.cpp": [
+        ('}  // namespace playtube::platform',
+         'void presentXpFrame(const xp::platform::PresentationFrame& frame, const VideoLayer* video) {\\n    if (!frame.valid()) {\\n        PF_LOG_WARN("present: rejected invalid XP presentation frame");\\n        swap();\\n        return;\\n    }\\n    presentFrame(frame.rgba, static_cast<int>(frame.width), static_cast<int>(frame.height), frame.changed, video);\\n}\\n\\n}  // namespace playtube::platform'),
+    ],
+    "src/platform/ps4/present_ps4.cpp": [
+        ('}  // namespace playtube::platform',
+         'void presentXpFrame(const xp::platform::PresentationFrame& frame, const VideoLayer* video) {\\n    if (!frame.valid()) {\\n        PF_LOG_WARN("present: rejected invalid XP presentation frame");\\n        swap();\\n        return;\\n    }\\n    presentFrame(frame.rgba, static_cast<int>(frame.width), static_cast<int>(frame.height), frame.changed, video);\\n}\\n\\n}  // namespace playtube::platform'),
+    ],
     "src/core/boot_trace.cpp": [
         ('playtube boot:', 'XP-TUBE boot:', 2),
     ],
