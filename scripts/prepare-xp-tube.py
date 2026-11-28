@@ -96,8 +96,16 @@ class RowsScreen : public ShellScreen {'''),
     "src/app/gallery.cpp": [
         ('"Playtube toolkit"', '"XP-TUBE"'),
     ],
+    "src/platform/platform.hpp": [
+        ('#include "platform/video_layer.hpp"',
+         '#include "platform/video_layer.hpp"\\n#include "xp/platform/display.hpp"'),
+        ('Size drawableSize();',
+         'Size drawableSize();\\n// XP-owned snapshot of the SDL drawable; SDL remains the window/context owner.\\nxp::platform::DisplayInfo displayInfo();'),
+    ],
     "src/platform/sdl_platform.cpp": [
         ('core::dataPath("playtube.log")', 'core::dataPath("xp-tube.log")'),
+        ('Size drawableSize() {\\n    Size size;\\n    SDL_GL_GetDrawableSize(gWindow, &size.width, &size.height);\\n    return size;\\n}',
+         'xp::platform::DisplayInfo displayInfo() {\\n    if (gWindow == nullptr) {\\n        return {};\\n    }\\n    int width = 0;\\n    int height = 0;\\n    SDL_GL_GetDrawableSize(gWindow, &width, &height);\\n    if (width <= 0 || height <= 0) {\\n        return {};\\n    }\\n    const Uint32 flags = SDL_GetWindowFlags(gWindow);\\n    const auto mode = (flags & SDL_WINDOW_FULLSCREEN) != 0\\n                          ? xp::platform::DisplayMode::Fullscreen\\n                          : xp::platform::DisplayMode::Windowed;\\n    // SDL drawable size does not provide a reliable refresh rate on every PS4 backend.\\n    return {static_cast<std::uint32_t>(width), static_cast<std::uint32_t>(height), 0, mode};\\n}\\n\\nSize drawableSize() {\\n    const auto display = displayInfo();\\n    return {static_cast<int>(display.width), static_cast<int>(display.height)};\\n}'),
     ],
     "src/core/boot_trace.cpp": [
         ('playtube boot:', 'XP-TUBE boot:', 2),
