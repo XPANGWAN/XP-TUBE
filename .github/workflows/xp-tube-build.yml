@@ -73,6 +73,23 @@ jobs:
             echo "Build dependency: pinned upstream source is still temporary and must be removed for full independence"
           } | tee "$GITHUB_WORKSPACE/xp-tube-build-manifest.txt"
 
+      - name: Build PS4 dependencies from pinned upstream recipes
+        working-directory: vendor/playtube-migration
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x scripts/ps4/build-deps.sh
+          ./scripts/ps4/build-deps.sh
+          while IFS= read -r dependency; do
+            [[ -z "$dependency" || "$dependency" == \\#* ]] && continue
+            package="build-deps/ps4-openorbis-${dependency}-any.pkg.tar.gz"
+            test -s "$package" || {
+              echo "Missing locally built dependency package: $package"
+              exit 1
+            }
+          done < scripts/ps4/deps.txt
+          echo "All PS4 dependency packages were built locally from the pinned recipes."
+
       - name: Build XP-TUBE PS4 package
         working-directory: vendor/playtube-migration
         env:
