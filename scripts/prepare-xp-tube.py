@@ -527,8 +527,8 @@ old_importer = '''void AppSession::importPrevious(const std::string& oldConfigPa
     }
 }'''
 new_importer = '''void AppSession::importPrevious(const std::string& oldConfigPath) {
-    // XP-TUBE isolation: intentionally disabled. Never read legacy settings,
-    // search history, or account tokens from another application.
+    // XP-TUBE isolation boundary: deliberately a no-op. Keep the inherited call
+    // site harmless until the startup lifecycle is fully migrated.
     static_cast<void>(oldConfigPath);
 }'''
 if session_body.count(old_importer) == 1:
