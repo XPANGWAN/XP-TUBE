@@ -31,6 +31,7 @@ private:
     Backend& backend_;
     EventQueue events_;
     RuntimeState state_{RuntimeState::Stopped};
+    bool start_attempted_{false};
 };
 
 } // namespace xp::platform
