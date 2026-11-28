@@ -36,7 +36,9 @@ enum class ControllerButton : std::uint8_t {
     L2,
     R2,
     L3,
-    R3
+    R3,
+    Context,
+    Touchpad
 };
 
 enum class ControllerAxis : std::uint8_t {
