@@ -7,7 +7,8 @@ Runtime::Runtime(Backend& backend, std::size_t event_capacity) noexcept
 
 bool Runtime::start() noexcept {
     if (state_ == RuntimeState::Running) return true;
-    if (state_ == RuntimeState::Failed) return false;
+    if (start_attempted_) return false;
+    start_attempted_ = true;
 
     if (!backend_.initialize()) {
         state_ = RuntimeState::Failed;
