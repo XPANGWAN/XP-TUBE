@@ -31,11 +31,6 @@ public:
     // Signs out at once (any thread) and returns the refresh token for Auth::revoke ("" when signed out).
     std::string forget();
 
-    // Takes `yt_refresh_token` from the previous app's settings, once: never again after the first try, signed in
-    // or not. True when imported.
-    bool importFromOld(const std::string& oldConfigPath);
-    bool lookedForOld() const;  // importFromOld already ran once
-
     // Runs `call(accessToken)`; when the token is refused, renews it and runs the call once more.
     template <typename F>
     auto withToken(const Auth& auth, std::int64_t now, F call, const core::CancelToken& cancel = {})
@@ -64,7 +59,6 @@ private:
     std::mutex renewMutex_;  // one renewal at a time
     std::string refreshToken_;
     std::string name_;
-    bool imported_ = false;
     std::string accessToken_;
     std::int64_t expiresAt_ = 0;
 };

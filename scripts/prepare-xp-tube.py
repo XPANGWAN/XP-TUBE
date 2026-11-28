@@ -114,8 +114,7 @@ class RowsScreen : public ShellScreen {'''),
         ('    std::int64_t expiresAt_ = 0;', '    std::int64_t expiresAt_ = 0;\n    std::uint64_t generation_ = 0;  // rejects stale refresh replies after sign-in/sign-out changes'),
     ],
     "src/youtube/account.cpp": [
-        ('    imported_ = json::boolean(doc->root(), "imported", false);',
-         '    imported_ = json::boolean(doc->root(), "imported", false);\n    ++generation_;'),
+
         ('    std::lock_guard<std::mutex> lock(mutex_);\n    if (!token.refreshToken.empty()) {',
          '    std::lock_guard<std::mutex> lock(mutex_);\n    ++generation_;\n    if (!token.refreshToken.empty()) {'),
         ('    std::string refreshToken;\n    {\n        std::lock_guard<std::mutex> lock(mutex_);',
@@ -128,8 +127,7 @@ class RowsScreen : public ShellScreen {'''),
          '    if (generation_ != generation || refreshToken_ != refreshToken) {  // account changed while renewal was in flight'),
         ('    std::string refreshToken = std::exchange(refreshToken_, {});',
          '    ++generation_;  // invalidate any refresh request already in flight\n    std::string refreshToken = std::exchange(refreshToken_, {});'),
-        ('        refreshToken_ = token;\n        PF_LOG_INFO("account: sign-in imported from the previous Playtube");',
-         '        ++generation_;  // invalidate any refresh request before changing credentials\n        refreshToken_ = token;\n        PF_LOG_INFO("account: sign-in imported from the previous Playtube");'),
+
     ],
     "tests/unit/youtube_account_test.cpp": [
         ('TEST_CASE("account: forgetting signs out at once and hands back the token to revoke") {',
