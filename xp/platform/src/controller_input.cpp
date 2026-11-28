@@ -2,6 +2,32 @@
 
 namespace xp::platform {
 
+ControllerInputTranslator::DeviceState*
+ControllerInputTranslator::stateFor(std::uint32_t device_id) noexcept {
+    for (auto& state : devices_) {
+        if (state.occupied && state.id == device_id) return &state;
+    }
+    for (auto& state : devices_) {
+        if (!state.occupied) {
+            state.id = device_id;
+            state.occupied = true;
+            state.left_trigger_down = false;
+            state.right_trigger_down = false;
+            return &state;
+        }
+    }
+    return nullptr;
+}
+
+void ControllerInputTranslator::disconnect(std::uint32_t device_id) noexcept {
+    for (auto& state : devices_) {
+        if (state.occupied && state.id == device_id) {
+            state = DeviceState{};
+            return;
+        }
+    }
+}
+
 std::optional<Event> ControllerInputTranslator::button(std::uint32_t device_id,
                                                         ControllerButton button_value,
                                                         bool pressed,
@@ -21,7 +47,10 @@ std::optional<Event> ControllerInputTranslator::axis(std::uint32_t device_id,
                                                       std::int16_t value,
                                                       std::uint64_t timestamp_ms) noexcept {
     if (axis_value == ControllerAxis::LeftTrigger || axis_value == ControllerAxis::RightTrigger) {
-        bool& down = axis_value == ControllerAxis::LeftTrigger ? left_trigger_down_ : right_trigger_down_;
+        DeviceState* state = stateFor(device_id);
+        if (state == nullptr) return std::nullopt;
+        bool& down = axis_value == ControllerAxis::LeftTrigger
+                         ? state->left_trigger_down : state->right_trigger_down;
         if (!down && value > 16000) {
             down = true;
             return button(device_id, axis_value == ControllerAxis::LeftTrigger
