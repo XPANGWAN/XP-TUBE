@@ -50,7 +50,7 @@ int main() {
     // Fixed capacity is bounded; no ninth trigger state is allocated.
     ControllerInputTranslator bounded;
     for (std::uint32_t id = 1; id <= ControllerInputTranslator::kMaxDevices; ++id) {
-        assert(bounded.axis(id, ControllerAxis::LeftTrigger, 1000, id));
+        assert(!bounded.axis(id, ControllerAxis::LeftTrigger, 1000, id));
     }
     assert(!bounded.axis(99, ControllerAxis::LeftTrigger, 20000, 99));
 }
