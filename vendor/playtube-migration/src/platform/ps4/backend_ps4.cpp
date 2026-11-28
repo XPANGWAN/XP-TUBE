@@ -1,7 +1,7 @@
 #include "core/log.hpp"
 #include "core/version.hpp"
 #include "platform/backend.hpp"
-#include "platform/language.hpp"
+#include "xp/platform/language.hpp"
 #include "xp/platform/ps4/system_services.hpp"
 #ifdef PLAYTUBE_GPU_PROBE
 #include "platform/ps4/gpu_probe_ps4.hpp"
@@ -23,7 +23,7 @@ void postInit() {
 std::string defaultDataDir() { return std::string("/data/") + core::appFolder(); }
 
 std::string systemLanguage() {
-    return languageFromPs4Id(xp::platform::ps4::system_language_id());
+    return xp::platform::language_from_ps4_id(xp::platform::ps4::system_language_id());
 }
 
 // The console's time zone and its summer time setting (now: a date across a change is an hour off).

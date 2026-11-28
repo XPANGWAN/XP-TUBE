@@ -2,6 +2,7 @@ add_library(xp_platform STATIC
     src/event_queue.cpp
     src/runtime.cpp
     src/legacy_action.cpp
+    src/language.cpp
 )
 target_include_directories(xp_platform PUBLIC include)
 target_compile_features(xp_platform PUBLIC cxx_std_17)
@@ -20,6 +21,10 @@ if(BUILD_TESTING)
     add_executable(xp_platform_legacy_action_tests tests/legacy_action_test.cpp)
     target_link_libraries(xp_platform_legacy_action_tests PRIVATE xp_platform)
     add_test(NAME xp_platform_legacy_action_unit COMMAND xp_platform_legacy_action_tests)
+
+    add_executable(xp_platform_language_tests tests/language_test.cpp)
+    target_link_libraries(xp_platform_language_tests PRIVATE xp_platform)
+    add_test(NAME xp_platform_language_unit COMMAND xp_platform_language_tests)
 endif()
 
 # The OpenOrbis system-service adapter is compiled only for PS4 builds.
