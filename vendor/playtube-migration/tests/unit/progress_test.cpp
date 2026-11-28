@@ -1,5 +1,6 @@
 #include <doctest/doctest.h>
 
+#include <fstream>
 #include <string>
 
 #include "app/progress.hpp"
@@ -16,9 +17,9 @@ TEST_CASE("progress: where videos were left, kept across a restart; where they s
         CHECK_FALSE(store.find("aaaaaaaaaaa"));
         CHECK(store.percent("aaaaaaaaaaa") == -1);
         store.set("aaaaaaaaaaa", 300, 1200, 100);
-        store.set("bbbbbbbbbbb", 1190, 1200, 101);  // watched to its end
-        store.set("ccccccccccc", 10, 1200, 102);    // barely started
-        store.set("live0000000", 50, 0, 103);       // a live: not kept
+        store.set("bbbbbbbbbbb", 1190, 1200, 101);
+        store.set("ccccccccccc", 10, 1200, 102);
+        store.set("live0000000", 50, 0, 103);
         REQUIRE(store.save());
     }
     ProgressStore again(path);
@@ -40,4 +41,20 @@ TEST_CASE("progress: past 1000 videos the oldest goes") {
     CHECK_FALSE(store.find("v0"));
     CHECK(store.find("v1"));
     CHECK(store.find("v1000"));
+}
+
+TEST_CASE("progress: malformed data is quarantined without losing the file") {
+    playtube::test::ShellDir dir;
+    const std::string path = dir.path + "/progress.json";
+    {
+        std::ofstream output(path, std::ios::binary);
+        REQUIRE(output.good());
+        output << "{not-json";
+    }
+    ProgressStore store(path);
+    CHECK_FALSE(store.find("video"));
+    std::ifstream damaged(path + ".bad", std::ios::binary);
+    REQUIRE(damaged.good());
+    const std::string contents((std::istreambuf_iterator<char>(damaged)), {});
+    CHECK(contents == "{not-json");
 }

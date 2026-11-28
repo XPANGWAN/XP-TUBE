@@ -4,8 +4,8 @@
 #include <utility>
 #include <vector>
 
-#include "core/file_io.hpp"
 #include "core/json.hpp"
+#include "xp/core/config_file.hpp"
 
 namespace playtube::app {
 
@@ -15,15 +15,21 @@ constexpr std::size_t kMaxIdBytes = 64;
 }  // namespace
 
 ProgressStore::ProgressStore(std::string path) : path_(std::move(path)) {
-    std::string text;
-    if (path_.empty() || core::readSmallFile(path_, kMaxFileBytes, text) != core::ReadStatus::Ok) {
-        return;
-    }
+    if (path_.empty()) return;
+    auto loaded = xp::core::read_config_file(path_, kMaxFileBytes);
+    if (!loaded || !loaded.value().has_value()) return;
+
+    const std::string& text = *loaded.value();
     const auto doc = core::json::Document::parse(text);
-    if (!doc) {
+    if (!doc || !yyjson_is_obj(doc->root())) {
+        static_cast<void>(xp::core::quarantine_config_file(path_));
         return;
     }
     yyjson_val* list = core::json::array(doc->root(), "videos");
+    if (!yyjson_is_arr(list)) {
+        static_cast<void>(xp::core::quarantine_config_file(path_));
+        return;
+    }
     std::size_t index = 0;
     std::size_t max = 0;
     yyjson_val* entry = nullptr;
@@ -50,7 +56,7 @@ void ProgressStore::set(const std::string& videoId, std::int64_t position, std::
         return;
     }
     videos_[videoId] = {std::clamp<std::int64_t>(position, 0, duration), duration, now};
-    if (videos_.size() > kMax) {  // the oldest goes
+    if (videos_.size() > kMax) {
         auto oldest = videos_.begin();
         for (auto it = videos_.begin(); it != videos_.end(); ++it) {
             oldest = it->second.updated < oldest->second.updated ? it : oldest;
@@ -62,22 +68,18 @@ void ProgressStore::set(const std::string& videoId, std::int64_t position, std::
 
 int ProgressStore::percent(const std::string& videoId) const {
     const auto found = videos_.find(videoId);
-    if (found == videos_.end()) {
-        return -1;
-    }
+    if (found == videos_.end()) return -1;
     const WatchProgress& p = found->second;
-    if (p.position >= p.duration - kMargin) {
-        return 100;
-    }
+    if (p.position >= p.duration - kMargin) return 100;
     return static_cast<int>(p.position * 100 / p.duration);
 }
 
 bool ProgressStore::save() {
-    if (!dirty_ || path_.empty()) {
-        return true;
-    }
+    if (!dirty_ || path_.empty()) return true;
     std::vector<std::pair<std::string, WatchProgress>> sorted(videos_.begin(), videos_.end());
-    std::sort(sorted.begin(), sorted.end(), [](const auto& a, const auto& b) { return a.second.updated > b.second.updated; });
+    std::sort(sorted.begin(), sorted.end(), [](const auto& a, const auto& b) {
+        return a.second.updated > b.second.updated;
+    });
     core::json::Writer writer;
     writer.object();
     writer.key("version").value(1);
@@ -92,14 +94,13 @@ bool ProgressStore::save() {
     }
     writer.end();
     writer.end();
-    dirty_ = !core::writeFileAtomic(path_, writer.str());
+    auto saved = xp::core::write_config_file(path_, writer.str());
+    dirty_ = !saved;
     return !dirty_;
 }
 
 std::int64_t ProgressStore::resumeAt(const WatchProgress& progress) {
-    if (progress.position < kMargin || progress.position >= progress.duration - kMargin) {
-        return 0;
-    }
+    if (progress.position < kMargin || progress.position >= progress.duration - kMargin) return 0;
     return progress.position;
 }
 
