@@ -10,6 +10,9 @@ handles must remain inside that adapter. The current repository does not yet
 contain an OpenOrbis/SDL PS4 adapter, controller polling, display creation,
 system dialogs or audio-device integration.
 
-Host tests cover queue ordering/capacity/overflow/shutdown and runtime startup,
-event pumping, failure handling and shutdown. Passing host tests does not prove
+A small compatibility translator maps the inherited action names into XP
+controller events without importing SDL or upstream headers. This is a
+transitional seam only; it is not yet called by the application event loop.
+Host tests cover queue ordering/capacity/overflow/shutdown, runtime startup,
+event pumping, failure handling and shutdown, and compatibility action mapping. Passing host tests does not prove
 PS4 hardware behavior; that requires the concrete adapter and console testing.
