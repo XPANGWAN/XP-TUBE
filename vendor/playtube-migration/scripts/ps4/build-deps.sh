@@ -1,7 +1,7 @@
 #!/bin/bash
-# Build the PS4 dependencies (pacbrew packages) from the recipes of scripts/ps4, in the image scripts/build-ps4.sh
-# uses. The packages land in build-deps/, where build-ps4.sh takes them first, ready to be published as the
-# "deps" release of the repository.
+# Build third-party PS4 dependencies locally from the pinned XP-TUBE recipes.
+# The packages land in build-deps/ and are consumed by the isolated XP-TUBE build.
+# No prebuilt dependency archive from the Playtube repository is downloaded.
 # Usage: scripts/ps4/build-deps.sh [package...]   (default: all, in dependency order)
 set -e
 
