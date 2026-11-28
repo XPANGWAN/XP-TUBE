@@ -23,3 +23,10 @@ Host tests validate the backend-neutral contracts and state logic. They do not p
 ما زالت الشاشة والعرض وتركيز الصوت وحوارات النظام ضمن طبقة الترحيل. هذا ترحيل تدريجي وليس تنفيذاً مستقلاً كاملاً لمنصة PS4.
 
 تتحقق اختبارات المضيف من العقود المستقلة ومنطق الحالة، لكنها لا تثبت عمل العتاد على PS4؛ لذلك يظل الاختبار على جهاز حقيقي مطلوباً.
+
+
+## Controller lifecycle boundary | حدّ دورة اتصال وحدة التحكم
+
+The XP-owned `ControllerRegistry` tracks up to eight controller instance IDs, rejects duplicate connections, ignores unknown disconnects, and reuses slots after disconnect. It deliberately does not open, close, or poll SDL/OpenOrbis devices; hardware ownership remains single-source until the adapter migration is complete.
+
+تتولى `ControllerRegistry` المملوكة لـ XP تتبع ما يصل إلى ثماني هويات لوحدات التحكم، وترفض الاتصالات المكررة، وتتجاهل قطع الاتصال لهوية غير معروفة، وتعيد استخدام الخانات بعد قطع الاتصال. ولا تفتح أجهزة SDL/OpenOrbis أو تغلقها أو تقرأها؛ إذ تبقى ملكية العتاد لدى مصدر واحد إلى أن يكتمل ترحيل المحوّل.
