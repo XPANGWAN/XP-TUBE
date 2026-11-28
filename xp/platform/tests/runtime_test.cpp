@@ -72,4 +72,21 @@ int main() {
     assert(failing_backend.shutdown_calls == 0);
     failing_runtime.stop();
     assert(failing_runtime.state() == RuntimeState::Stopped);
+
+    FakeBackend overflow_backend;
+    Runtime overflow_runtime(overflow_backend, 1);
+    assert(overflow_runtime.start());
+    Event queued;
+    queued.type = EventType::AppSuspended;
+    Event overflow;
+    overflow.type = EventType::AppResumed;
+    overflow_backend.pending.push_back(queued);
+    overflow_backend.pending.push_back(overflow);
+    assert(overflow_runtime.pump_once());
+    assert(!overflow_runtime.pump_once());
+    assert(overflow_runtime.events().size() == 1);
+    assert(overflow_runtime.events().dropped() == 1);
+    const auto retained = overflow_runtime.events().poll();
+    assert(retained && retained->type == EventType::AppSuspended);
+    overflow_runtime.stop();
 }
