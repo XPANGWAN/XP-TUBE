@@ -25,7 +25,7 @@ jobs:
   build-xp-tube:
     name: Build isolated XP-TUBE PS4 package
     runs-on: ubuntu-24.04
-    timeout-minutes: 100
+    timeout-minutes: 180
     steps:
       - name: Check out XP-TUBE build scripts
         uses: actions/checkout@v4
