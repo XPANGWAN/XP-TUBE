@@ -18,6 +18,8 @@ std::optional<Event> translate_legacy_action(std::string_view name,
     else if (name == "R1") button = ControllerButton::R1;
     else if (name == "L2") button = ControllerButton::L2;
     else if (name == "R2") button = ControllerButton::R2;
+    else if (name == "Context") button = ControllerButton::Context;
+    else if (name == "Touchpad") button = ControllerButton::Touchpad;
     else return std::nullopt;
 
     Event event;
