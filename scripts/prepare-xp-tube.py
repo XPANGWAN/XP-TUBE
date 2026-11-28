@@ -29,7 +29,7 @@ FILES = {
         ('IV0001-PLTB00000_00-PLTB000000100000.pkg', 'IV0001-XPTB00000_00-XPTB000000100000.pkg'),
         ('IV0001-PLTB00001_00-PLTB000010100000.pkg', 'IV0001-XPTB00000_00-XPTB000000100000.pkg'),
         ('BASE_URL="${PS4_DEPS_URL:-https://github.com/LowganDev/PlaytubePS4/releases/download/deps}"', 'BASE_URL=""'),
-        ('if [ -f build-deps/$file ]; then pacman --noconfirm -U build-deps/$file; else pacman --noconfirm -U $BASE_URL/$file; fi', 'test -s build-deps/$file || { echo "Missing locally built XP-TUBE dependency: $file"; exit 1; }; pacman --noconfirm -U build-deps/$file'),
+        ('if [ -f build-deps/\\$file ]; then pacman --noconfirm -U build-deps/\\$file; else pacman --noconfirm -U $BASE_URL/\\$file; fi', 'test -s build-deps/\\$file || { echo "Missing locally built XP-TUBE dependency: $file"; exit 1; }; pacman --noconfirm -U build-deps/\\$file'),
     ],
     "src/app/shell/chrome.cpp": [
         ('add<ui::Label>("XP-TUBE", style);', 'gap = ui::theme().spacingS / 2;\n        add<AccentLabel>("XP", style);\n        add<ui::Label>("TUBE", style);'),
